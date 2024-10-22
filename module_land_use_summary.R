@@ -134,6 +134,8 @@ landUseSummaryServer <- function(id) {
         mutate(year = as.numeric(year))  # Ensure year is numeric
     })
     
+
+    
     barChartServer(
       id = "bar_chart",
       chart_data = chart_data,
@@ -144,7 +146,7 @@ landUseSummaryServer <- function(id) {
       footer = census_footer,
       x_col = "Variable",
       y_col = "Value",
-      tooltip_unit= "Area (hectares): {point.y:.2f}"
+      tooltip_unit= reactive("hectares")
     )
     
     lineChartServer(
