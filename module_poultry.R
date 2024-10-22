@@ -14,7 +14,7 @@ poultryUI <- function(id) {
             "Total poultry" = "Total poultry",
             "Fowls for producing eggs" = "Fowls for producing eggs",
             "Fowls for breeding" = "Fowls for breeding",
-            "Broilers for other table fowls and other poultry" = "Broilers for other table fowls and other poultry"
+            "Broilers and other table fowls and other poultry" = "Broilers and other table fowls and other poultry"
           )
         )
       ),
@@ -78,7 +78,7 @@ poultryServer <- function(id) {
       filter(`Livestock by category` %in% c(
         "Fowls for producing eggs",
         "Fowls for breeding",
-        "Broilers for other table fowls and other poultry",
+        "Broilers and other table fowls and other poultry",
         "Total poultry"
       )) %>%
       select(-Scotland) %>%

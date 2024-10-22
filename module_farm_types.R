@@ -69,17 +69,27 @@ farmTypesServer <- function(id) {
       switch(input$data_type,
              "holdings" = "Number of Holdings",
              "area" = "Area (hectares)",
-             "total" = "Total from Standard Outputs",
-             "average" = "Average Standard Outputs per Holding")
+             "total" = "Total from Standard Outputs (£)",
+             "average" = "Average Standard Outputs per Holding (£)")
     })
     
-    tooltip_format <- reactive({
+    
+    tooltip_unit <- reactive({
+      # Your logic to determine the unit based on input or other conditions
       switch(input$data_type,
-             "holdings" = "Holdings: {point.y:.0f}",
-             "area" = "Area (hectares): {point.y:.2f}",
-             "total" = "Total from Standard Outputs: {point.y:.0f}",
-             "average" = "Average Standard Outputs per Holding: {point.y:.2f}")
+             "holdings" = "holdings",
+             "area" = "hectares",
+             "total" = "(£)",
+             "average" = "(£)")
     })
+    # 
+    # unit_position <- reactive({
+    #   if (input$data_type %in% c("holdings", "area")) {
+    #     return("after");
+    #   } else {
+    #     return("before");
+    #   }
+    # })
     
     # Render the data table based only on data_type selection with 20 entries by default
     output$data_table <- renderDT({
@@ -129,7 +139,8 @@ farmTypesServer <- function(id) {
       footer = census_footer,
       x_col = "Main farm type",
       y_col = y_col,
-      tooltip_format = tooltip_format,
+      tooltip_unit = tooltip_unit,
+      #unit_position = unit_position,
       maintain_order = FALSE
     )
   })

@@ -104,7 +104,7 @@ chartUI <- function(id) {
 
 
 # Server Module for Line Chart on Summary Page
-summaryLineChartServer <- function(id, data, title, unit = "") {
+summaryLineChartServer <- function(id, data, title, unit = "", x_col, y_col) {
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
     
@@ -113,23 +113,69 @@ summaryLineChartServer <- function(id, data, title, unit = "") {
     })
     
     output$chartOutput <- renderHighchart({
-      summary_line_data <- data()
-      variable_col <- names(summary_line_data)[1]  # Get the first column name, which is the variable name
+     #summary_line_data <- data()
+      # variable_col <- names(summary_line_data)[1]  # Get the first column name, which is the variable name
+      # 
+      # series_list <- lapply(unique(summary_line_data[[variable_col]]), function(variable) {
+      #   df <- summary_line_data %>% filter(!!sym(variable_col) == variable)
+      #   list(
+      #     name = variable,
+      #     data = df %>% select(Year, Value) %>% list_parse2()
       
-      series_list <- lapply(unique(summary_line_data[[variable_col]]), function(variable) {
-        df <- summary_line_data %>% filter(!!sym(variable_col) == variable)
-        list(
-          name = variable,
-          data = df %>% select(Year, Value) %>% list_parse2()
-        )
+    #     )
+    #   })
+    #   
+    #   highchart() %>%
+    #     hc_chart(type = "line", zoomType = "xy") %>%
+    #     hc_xAxis(categories = unique(summary_line_data$Year)) %>%
+    #     hc_yAxis(title = list(text = unit)) %>%
+    #     hc_legend(align = "left", alignColumns = FALSE, layout = "horizontal") %>%
+    #     hc_plotOptions(line = list(marker = list(enabled = FALSE))) %>%  # Disable markers
+    #     hc_tooltip(
+    #       useHTML = TRUE,
+    #       headerFormat = "<b>{point.key}</b><br/>",
+    #       pointFormatter = JS(sprintf("function() {
+    #         var value = this.y;
+    #         var formattedValue;
+    #         if (value >= 1000) {
+    #           formattedValue = value.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 0});
+    #         } else {
+    #           formattedValue = value.toLocaleString(undefined, {minimumFractionDigits: 1, maximumFractionDigits: 2});
+    #         }
+    #         return this.series.name + ': ' + formattedValue + ' %s';
+    #       }", unit))
+    #     ) %>%
+    #     hc_add_theme(thm) %>%
+    #     hc_add_series_list(series_list)
+    # })
+      summary_line_data <- national_total %>% filter(Industry %in% c("Agriculture", "Total"))
+      x_col <- "Year"
+      y_col <- "Value"
+      group_column <- setdiff(names(summary_line_data), c(x_col, y_col))[1] # Assuming only one group column
+      
+      hc <- highchart() %>%
+        hc_chart(type = "line", zoomType = "xy") %>%
+        hc_xAxis(categories = unique(summary_line_data$Year)) %>% 
+        hc_yAxis(title = list(text = unit)) %>%
+        hc_plotOptions(line = list(marker = list(radius = 2))) %>% 
+        hc_legend(align = "left", alignColumns = FALSE, layout = "horizontal") %>%
+        hc_add_theme(thm)
+      
+      unique_groups <- unique(summary_line_data[[group_column]])
+      lapply(unique_groups, function(g) {
+        series_data <- summary_line_data[summary_line_data[[group_column]] == g, ]
+        
+        # Create a complete sequence of years
+        complete_years <- seq(min(series_data[[x_col]], na.rm = TRUE), max(series_data[[x_col]], na.rm = TRUE))
+        complete_series <- merge(data.frame(x = complete_years), series_data, by.x = "x", by.y = x_col, all.x = TRUE)
+        complete_series <- complete_series %>% transmute(x = as.numeric(x), y = !!sym(y_col))
+        
+        hc <<- hc %>%
+          hc_add_series(name = g, data = list_parse2(complete_series))
+        #, color = colors[[g]])
       })
       
-      highchart() %>%
-        hc_chart(type = "line", zoomType = "xy") %>%
-        hc_xAxis(categories = unique(summary_line_data$Year)) %>%
-        hc_yAxis(title = list(text = unit)) %>%
-        hc_legend(align = "left", alignColumns = FALSE, layout = "horizontal") %>%
-        hc_plotOptions(line = list(marker = list(enabled = FALSE))) %>%  # Disable markers
+      hc %>%
         hc_tooltip(
           useHTML = TRUE,
           headerFormat = "<b>{point.key}</b><br/>",
@@ -139,16 +185,15 @@ summaryLineChartServer <- function(id, data, title, unit = "") {
             if (value >= 1000) {
               formattedValue = value.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 0});
             } else {
-              formattedValue = value.toLocaleString(undefined, {minimumFractionDigits: 1, maximumFractionDigits: 2});
+              formattedValue = value.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 2});
             }
             return this.series.name + ': ' + formattedValue + ' %s';
           }", unit))
-        ) %>%
-        hc_add_theme(thm) %>%
-        hc_add_series_list(series_list)
-    })
+        )
+  })
   })
 }
+
 
 summaryPieChartServer <- function(id, data, title, current_year, category, unit) {
   moduleServer(id, function(input, output, session) {

@@ -70,19 +70,12 @@ legalResponsibilityServer <- function(id) {
       }
     })
     
-    unit <- reactive({
+    
+    tooltip_unit <- reactive({
       if (input$data_type == "holdings") {
         "holdings"
       } else {
         "hectares"
-      }
-    })
-    
-    tooltip_format <- reactive({
-      if (input$data_type == "holdings") {
-        "Holdings: {point.y:.0f} holdings"
-      } else {
-        "Area: {point.y:.2f} hectares"
       }
     })
     
@@ -101,7 +94,7 @@ legalResponsibilityServer <- function(id) {
       footer = census_footer,
       x_col = "Legal responsibility",
       y_col = y_col,
-      tooltip_format = tooltip_format,
+      tooltip_unit = tooltip_unit,
       maintain_order = TRUE
     )
     

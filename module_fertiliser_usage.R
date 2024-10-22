@@ -46,7 +46,9 @@ fertiliserUsageServer <- function(id) {
     # Data for the table (formats numeric values with commas)
     table_data <- reactive({
       chart_data() %>%
-        mutate(across(where(is.numeric), comma))
+        mutate(across(where(is.numeric), comma)) %>% 
+        rename(Holdings = `2023 holdings`,
+               Area = `2023 area`)
     })
     
     output$variable_select <- renderUI({
@@ -79,11 +81,11 @@ fertiliserUsageServer <- function(id) {
       }
     })
     
-    tooltip_format <- reactive({
+    tooltip_unit <- reactive({
       if (input$data_type == "holdings") {
-        "Holdings: {point.y:.0f} holdings"
+        "holdings"
       } else {
-        "Area: {point.y:.2f} hectares"
+        "hectares"
       }
     })
     
@@ -98,7 +100,7 @@ fertiliserUsageServer <- function(id) {
       footer = census_footer,
       x_col = "Fertiliser by type",
       y_col = y_col,
-      tooltip_format = tooltip_format
+      tooltip_unit = tooltip_unit
     )
     
     # Data table rendering using formatted data

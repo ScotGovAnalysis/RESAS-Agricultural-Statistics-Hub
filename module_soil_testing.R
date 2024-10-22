@@ -74,7 +74,7 @@ soilTestingServer <- function(id) {
           "Soil testing on grassland in last five years",
           "Soil testing on cropland in last five years",
           "Soil testing on either grass or crops in last five years"
-        ))
+        )) 
     })
     
     effectiveness_data <- reactive({
@@ -180,7 +180,9 @@ soilTestingServer <- function(id) {
             "Soil testing on grassland in last five years",
             "Soil testing on cropland in last five years",
             "Soil testing on either grass or crops in last five years"
-          ))
+           
+          )) %>%
+              rename(`Soil testing` = `Soil nutrient management` )
       } else {
         combined_nutrient_mgmt %>%
           filter(`Soil nutrient management` %in% c(
@@ -198,10 +200,10 @@ soilTestingServer <- function(id) {
     # Download handler for data
     output$download_data <- downloadHandler(
       filename = function() {
-        paste(input$table_type, "Data.xlsx", sep = "_")
+        paste("Soil_testing_data", Sys.Date(), ".csv", sep = "")
       },
       content = function(file) {
-        write.xlsx(table_data(), file)
+        write.csv(table_data(), file, row.names = FALSE)
       }
     )
 

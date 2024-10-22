@@ -108,7 +108,7 @@ subsectorEmissionsServer <- function(id) {
     # Reactive data for the line chart (Industry Emissions Over Time)
     line_chart_data <- reactive({
       data <- national_total
-      data <- data %>% filter(Industry %in% c("Agriculture", "Total"))
+      #data <- data %>% filter(Industry %in% c("Agriculture", "Total"))
       data
     })
     
@@ -207,7 +207,7 @@ subsectorEmissionsServer <- function(id) {
       year_input = "year"
     )
     
-    # Summary Module for Subsector Emissions
+    #  Module for Subsector Emissions
     current_year <- reactive({ input$summary_current_year_subsector })
     comparison_year <- reactive({ input$summary_comparison_year_subsector })
     
@@ -285,12 +285,16 @@ subsectorEmissionsServer <- function(id) {
       category = "Subsector",
       unit = "MtCO₂e"
     )
+    
     summaryLineChartServer(
       id = "industryLineChart_total",
       data = line_chart_data,
       title = "Agricultural emissions and total Scottish emissions",
-      unit = "MtCO₂e"
+      unit = "MtCO₂e",
+      x_col = "Year",
+      y_col = "Value"
     )
+
     
     summaryPieChartServer(
       id = "industryPieChart_gas",

@@ -7,12 +7,28 @@ structureInformationUI <- function(id) {
       tags$div(
         style = "margin-top: 20px;",
         tags$div(style = "font-size: 18px; font-weight: bold;", "Scottish Agricultural Census: results"),
-        p(HTML('More data on land use, crop areas, livestock, farm structure, and the number of people working on agricultural holdings are available in the <a href="https://www.gov.scot/publications/results-scottish-agricultural-census-june-2023/" target="_blank">Scottish Agricultural Census: results</a>.')),
+        p(HTML('More data on land use, crop areas, livestock, farm structure, and the number of people working on agricultural holdings are available in the <a href="https://www.gov.scot/collections/june-scottish-agricultural-census/" target="_blank">Scottish Agricultural Census: results</a>.')),
         tags$div(style = "font-size: 18px; font-weight: bold;", "Economic data"),
-        p(HTML('Economic data about Scottish agriculture, including the value of production, costs, and support payments, are available through <a href="https://www.gov.scot/publications/total-income-from-farming-in-scotland-2023/" target="_blank">Total income from farming</a>, <a href="https://www.gov.scot/publications/scottish-agriculture-economic-reports-2023/" target="_blank">Scottish agriculture: economic reports</a>, and <a href="https://www.gov.scot/publications/scottish-farm-business-income-estimates-2023/" target="_blank">Scottish farm business income estimates</a>.')),
+        p(HTML('Economic data about Scottish agriculture, including the value of production, costs, and support payments, are available through <a href="https://www.gov.scot/collections/total-income-from-farming/" target="_blank">Total income from farming</a>, <a href="https://www.gov.scot/publications/scottish-agriculture-economic-reports-2023/" target="_blank">Scottish agriculture: economic reports</a>, and <a href="https://www.gov.scot/collections/scottish-farm-business-income-fbi-annual-estimates/" target="_blank">Scottish farm business income estimates</a>.')),
         tags$div(style = "font-size: 18px; font-weight: bold;", "UK-wide Agricultural Data"),
-        p(HTML('Useful links to data collected across the UK: <a href="https://www.gov.uk/government/collections/structure-of-the-agricultural-industry" target="_blank">Defra census</a>, <a href="https://www.daera-ni.gov.uk/topics/statistics/statistics-latest-releases" target="_blank">Northern Ireland statistics</a>, <a href="https://gov.wales/agriculture-and-horticulture" target="_blank">Wales agricultural statistics</a>.'))
+      #   p(HTML('Useful links to data collected across the UK: <a href="https://www.gov.uk/government/collections/structure-of-the-agricultural-industry" target="_blank">Defra census</a>, <a href="https://www.daera-ni.gov.uk/topics/statistics/statistics-latest-releases" target="_blank">Northern Ireland statistics</a>, <a href="https://statswales.gov.wales/Catalogue/Agriculture" target="_blank">Wales agricultural statistics</a>.'))
+      # ),
+      
+      p(HTML('Useful links to data collected across the UK:'),
+        tags$ul(
+          style = "list-style-type: disc; padding-left: 20px;",
+          tags$li(
+            tags$a(href = "https://www.gov.uk/government/collections/structure-of-the-agricultural-industry", target = "_blank", "Defra England and UK agricultural statistics")
+          ),
+          tags$li(
+            tags$a(href = "https://www.daera-ni.gov.uk/topics/statistics/statistics-latest-releases", target = "_blank", "Northern Ireland statistics")
+          ),
+          tags$li(
+            tags$a(href = "https://statswales.gov.wales/Catalogue/Agriculture", target = "_blank", "Wales agricultural statistics")
+          )
+        )
       ),
+      
       tags$div(style = "font-size: 24px; font-weight: bold; margin-top: 40px;", "Glossary:"),  # Bigger and bold title
       tags$div(
         style = "margin-top: 20px;",
@@ -35,6 +51,7 @@ structureInformationUI <- function(id) {
         )
       )
     )
+  )
   )
 }
 

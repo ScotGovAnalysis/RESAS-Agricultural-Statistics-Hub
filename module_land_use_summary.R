@@ -144,7 +144,7 @@ landUseSummaryServer <- function(id) {
       footer = census_footer,
       x_col = "Variable",
       y_col = "Value",
-      tooltip_format = "Area (hectares): {point.y:.2f}"
+      tooltip_unit= "Area (hectares): {point.y:.2f}"
     )
     
     lineChartServer(

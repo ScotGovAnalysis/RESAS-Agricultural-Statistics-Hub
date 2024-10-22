@@ -72,8 +72,10 @@ homeUI <- function(id) {
         width = 9,
         tags$div(
           style = "margin-top: 20px; font-size: 24px; font-weight: bold;",
-          "Welcome to the RESAS Agricultural Statistics Hub."
+          "Welcome to the RESAS Agricultural Statistics Hub - in development"
         ),
+        
+        HTML("<br>"),
         tags$p(
           style = "font-size: 16px;",
           "This hub provides access to a variety of agricultural statistics and data visualisations developed by the RESAS (Rural & Environment Science & Analytical Services) division of the Scottish Government. This content is still in development. We would be grateful if you could fill in our ",

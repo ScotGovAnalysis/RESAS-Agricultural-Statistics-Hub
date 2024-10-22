@@ -91,8 +91,9 @@ beansServer <- function(id) {
     areaChartServer(
       id = "area",
       chart_data = chart_data,
-      title = "Area used to grow beans over time",
-      yAxisTitle = "Area of beans (1,000 hectares)",
+      title = paste("Area used to grow peas and/or beans
+                    over time"),
+      yAxisTitle = "Area of peas/beans (1,000 hectares)",
       xAxisTitle = "Year",
       unit = "hectares",
       footer = census_footer,
@@ -103,8 +104,9 @@ beansServer <- function(id) {
     lineChartServer(
       id = "line",
       chart_data = chart_data,
-      title = "Area used to grow beans over time",
-      yAxisTitle = "Area of beans (1,000 hectares)",
+      title = paste("Area used to grow peas and/or beans
+                    over time"),
+      yAxisTitle = "Area of peas/beans (1,000 hectares)",
       xAxisTitle = "Year",
       unit = "hectares",
       footer = census_footer,

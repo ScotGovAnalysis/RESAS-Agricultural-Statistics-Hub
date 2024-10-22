@@ -22,7 +22,7 @@ pigsUI <- function(id) {
         ns = ns,
         selectizeInput(
           ns("timeseries_variables"),
-          "Click within the box to select variables",
+          "Click within the box to select variables (not all shown)",
           choices = unique(number_of_pigs$`Pigs by category`),
           selected = c(
             "Total breeding herd",
@@ -177,12 +177,12 @@ pigsServer <- function(id) {
 }
 
 # Testing module
-pigs_demo <- function() {
-  ui <- fluidPage(pigsUI("pigs_test"))
-  server <- function(input, output, session) {
-    pigsServer("pigs_test")
-  }
-  shinyApp(ui, server)
-}
-
-pigs_demo()
+# pigs_demo <- function() {
+#   ui <- fluidPage(pigsUI("pigs_test"))
+#   server <- function(input, output, session) {
+#     pigsServer("pigs_test")
+#   }
+#   shinyApp(ui, server)
+# }
+# 
+# pigs_demo()

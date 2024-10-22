@@ -226,7 +226,7 @@ occupiersServer <- function(id) {
         paste(input$data_source, Sys.Date(), ".csv", sep = "")
       },
       content = function(file) {
-        if (input$data_source == "Population Pyramid") {
+        if (input$data_source == "Population Pyramid Data") {
           write.csv(pivoted_chart_data(), file, row.names = FALSE)
         } else if (input$data_source == "Map Data") {
           write.csv(pivoted_regions_data(), file, row.names = FALSE)

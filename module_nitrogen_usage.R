@@ -86,7 +86,7 @@ nitrogenUI <- function(id) {
                           valueBoxNitrogenUI(ns("total_holdings_400"), "Total holdings", 
                                              national_data_400[national_data_400$variable == "Holdings", "value"], "holdings"),
                           p(style = "color: white;", "/"),
-                          valueBoxNitrogenUI(ns("total_application_rate_400"), "Total application rate", 
+                          valueBoxNitrogenUI(ns("total_application_rate_400"), "Average application rate", 
                                              national_data_400[national_data_400$variable == "Application rate", "value"], "kg / hectares"),
                           p(style = "color: white;", "/"),
                           valueBoxNitrogenUI(ns("average_mixed_sward_400"), "Average mixed sward per holding", 
@@ -233,4 +233,4 @@ content_demo <- function() {
 }
 
 # Uncomment the line below to run the test
- content_demo()
+# content_demo()

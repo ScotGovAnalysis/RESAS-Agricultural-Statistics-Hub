@@ -24,7 +24,7 @@ cattleUI <- function(id) {
         ns = ns,
         selectizeInput(
           ns("timeseries_variables"),
-          "Click within the box to select variables",
+          "Click within the box to select variables (not all shown)",
           choices = unique(number_of_cattle$`Cattle by category`),
           selected = c(
             "Total Female Dairy Cattle",

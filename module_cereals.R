@@ -23,11 +23,11 @@ cerealsUI <- function(id) {
           choices = unique(cereals_data$`Crop/Land use`),
           selected = c(
             "Wheat",
-            "Triticale",
+            #"Triticale",
             "Barley Total",
-            "Oats Total",
-            "Rye",
-            "Mixed grain"
+            "Oats Total"
+            #"Rye",
+           # "Mixed grain"
           ),
           multiple = TRUE,
           options = list(
