@@ -713,8 +713,8 @@ animalsSummaryUI <- function(id) {
         width = 3,
         div("Adjust the sliders to compare data from different years.", 
             style = "font-size: 14px; font-weight: bold; margin-bottom: 10px;"),
-        sliderInput(ns("summary_current_year_animals"), "Year of interest", min = 2012, max = 2023, value = 2023, step = 1, sep = ""),
-        sliderInput(ns("summary_comparison_year_animals"), "Comparison year", min = 2012, max = 2023, value = 2022, step = 1, sep = "")
+        sliderInput(ns("summary_current_year_animals"), "Year of interest", min = 2012, max = census_year, value = census_year, step = 1, sep = ""),
+        sliderInput(ns("summary_comparison_year_animals"), "Comparison year", min = 2012, max = census_year, value = census_year - 1, step = 1, sep = "")
       ),
       mainPanel(
         id = ns("mainpanel"),
@@ -907,8 +907,9 @@ beansServer <- function(id) {
     areaChartServer(
       id = "area",
       chart_data = chart_data,
-      title = "Area used to grow beans over time",
-      yAxisTitle = "Area of beans (1,000 hectares)",
+      title = paste("Area used to grow peas and/or beans
+                    over time"),
+      yAxisTitle = "Area of peas/beans (1,000 hectares)",
       xAxisTitle = "Year",
       unit = "hectares",
       footer = census_footer,
@@ -919,8 +920,9 @@ beansServer <- function(id) {
     lineChartServer(
       id = "line",
       chart_data = chart_data,
-      title = "Area used to grow beans over time",
-      yAxisTitle = "Area of beans (1,000 hectares)",
+      title = paste("Area used to grow peas and/or beans
+                    over time"),
+      yAxisTitle = "Area of peas/beans (1,000 hectares)",
       xAxisTitle = "Year",
       unit = "hectares",
       footer = census_footer,
@@ -1012,7 +1014,7 @@ cattleUI <- function(id) {
         ns = ns,
         selectizeInput(
           ns("timeseries_variables"),
-          "Click within the box to select variables",
+          "Click within the box to select variables (not all shown)",
           choices = unique(number_of_cattle$`Cattle by category`),
           selected = c(
             "Total Female Dairy Cattle",
@@ -1205,11 +1207,11 @@ cerealsUI <- function(id) {
           choices = unique(cereals_data$`Crop/Land use`),
           selected = c(
             "Wheat",
-            "Triticale",
+            #"Triticale",
             "Barley Total",
-            "Oats Total",
-            "Rye",
-            "Mixed grain"
+            "Oats Total"
+            #"Rye",
+           # "Mixed grain"
           ),
           multiple = TRUE,
           options = list(
@@ -1232,8 +1234,8 @@ cerealsUI <- function(id) {
         ns = ns,
         div("Adjust the sliders to compare data from different years.", 
             style = "font-size: 14px; font-weight: bold; margin-bottom: 10px;"),
-        sliderInput(ns("summary_current_year_cereals"), "Year of interest", min = 2012, max = 2023, value = 2023, step = 1, sep = ""),
-        sliderInput(ns("summary_comparison_year_cereals"), "Comparison year", min = 2012, max = 2023, value = 2022, step = 1, sep = "")
+        sliderInput(ns("summary_current_year_cereals"), "Year of interest", min = 2012, max = census_year, value = census_year, step = 1, sep = ""),
+        sliderInput(ns("summary_comparison_year_cereals"), "Comparison year", min = 2012, max = census_year, value = census_year-1, step = 1, sep = "")
       )
     ),
     mainPanel(
@@ -1417,8 +1419,8 @@ cropsSummaryUI <- function(id) {
         width = 3,
         div("Adjust the sliders to compare data from different years.", 
             style = "font-size: 14px; font-weight: bold; margin-bottom: 10px;"),
-        sliderInput(ns("summary_current_year_crops"), "Year of interest", min = 2012, max = 2023, value = 2023, step = 1, sep = ""),
-        sliderInput(ns("summary_comparison_year_crops"), "Comparison year", min = 2012, max = 2023, value = 2022, step = 1, sep = "")
+        sliderInput(ns("summary_current_year_crops"), "Year of interest", min = 2012, max = census_year, value = census_year, step = 1, sep = ""),
+        sliderInput(ns("summary_comparison_year_crops"), "Comparison year", min = 2012, max = census_year, value = census_year - 1, step = 1, sep = "")
       ),
       mainPanel(
         id = ns("mainpanel"),
@@ -1438,7 +1440,7 @@ cropsSummaryUI <- function(id) {
                    # Add the footer text
                    div(
                      style = "margin-top: 20px; padding: 10px; border-top: 1px solid #ddd;",
-                     HTML("<strong>Note:</strong> Poultry estimates for 2023 are not comparable to previous years due to methodological improvements.")
+                     
                    )
           ),
           tabPanel("Data Table",
@@ -1792,19 +1794,29 @@ farmTypesServer <- function(id) {
     
     yAxisTitle <- reactive({
       switch(input$data_type,
-             "holdings" = "Number of Holdings",
+             "holdings" = "Number of Holdings (x 1000)",
              "area" = "Area (hectares)",
-             "total" = "Total from Standard Outputs",
-             "average" = "Average Standard Outputs per Holding")
+             "total" = "Total from Standard Outputs (£)",
+             "average" = "Average Standard Outputs per Holding (£)")
     })
     
-    tooltip_format <- reactive({
+    
+    tooltip_unit <- reactive({
+      # Your logic to determine the unit based on input or other conditions
       switch(input$data_type,
-             "holdings" = "Holdings: {point.y:.0f}",
-             "area" = "Area (hectares): {point.y:.2f}",
-             "total" = "Total from Standard Outputs: {point.y:.0f}",
-             "average" = "Average Standard Outputs per Holding: {point.y:.2f}")
+             "holdings" = "holdings",
+             "area" = "hectares",
+             "total" = "(£)",
+             "average" = "(£)")
     })
+    # 
+    # unit_position <- reactive({
+    #   if (input$data_type %in% c("holdings", "area")) {
+    #     return("after");
+    #   } else {
+    #     return("before");
+    #   }
+    # })
     
     # Render the data table based only on data_type selection with 20 entries by default
     output$data_table <- renderDT({
@@ -1854,7 +1866,8 @@ farmTypesServer <- function(id) {
       footer = census_footer,
       x_col = "Main farm type",
       y_col = y_col,
-      tooltip_format = tooltip_format,
+      tooltip_unit = tooltip_unit,
+      #unit_position = unit_position,
       maintain_order = FALSE
     )
   })
@@ -1910,7 +1923,9 @@ fertiliserUsageServer <- function(id) {
     # Data for the table (formats numeric values with commas)
     table_data <- reactive({
       chart_data() %>%
-        mutate(across(where(is.numeric), comma))
+        mutate(across(where(is.numeric), comma)) %>% 
+        rename(Holdings = `2023 holdings`,
+               Area = `2023 area`)
     })
     
     output$variable_select <- renderUI({
@@ -1943,11 +1958,11 @@ fertiliserUsageServer <- function(id) {
       }
     })
     
-    tooltip_format <- reactive({
+    tooltip_unit <- reactive({
       if (input$data_type == "holdings") {
-        "Holdings: {point.y:.0f} holdings"
+        "holdings"
       } else {
-        "Area: {point.y:.2f} hectares"
+        "hectares"
       }
     })
     
@@ -1962,7 +1977,7 @@ fertiliserUsageServer <- function(id) {
       footer = census_footer,
       x_col = "Fertiliser by type",
       y_col = y_col,
-      tooltip_format = tooltip_format
+      tooltip_unit = tooltip_unit
     )
     
     # Data table rendering using formatted data
@@ -2548,6 +2563,8 @@ landUseSummaryServer <- function(id) {
         mutate(year = as.numeric(year))  # Ensure year is numeric
     })
     
+
+    
     barChartServer(
       id = "bar_chart",
       chart_data = chart_data,
@@ -2558,7 +2575,7 @@ landUseSummaryServer <- function(id) {
       footer = census_footer,
       x_col = "Variable",
       y_col = "Value",
-      tooltip_format = "Area (hectares): {point.y:.2f}"
+      tooltip_unit= reactive("hectares")
     )
     
     lineChartServer(
@@ -2679,19 +2696,12 @@ legalResponsibilityServer <- function(id) {
       }
     })
     
-    unit <- reactive({
+    
+    tooltip_unit <- reactive({
       if (input$data_type == "holdings") {
         "holdings"
       } else {
         "hectares"
-      }
-    })
-    
-    tooltip_format <- reactive({
-      if (input$data_type == "holdings") {
-        "Holdings: {point.y:.0f} holdings"
-      } else {
-        "Area: {point.y:.2f} hectares"
       }
     })
     
@@ -2710,7 +2720,7 @@ legalResponsibilityServer <- function(id) {
       footer = census_footer,
       x_col = "Legal responsibility",
       y_col = y_col,
-      tooltip_format = tooltip_format,
+      tooltip_unit = tooltip_unit,
       maintain_order = TRUE
     )
     
@@ -3008,7 +3018,7 @@ nitrogenUI <- function(id) {
                           valueBoxNitrogenUI(ns("total_holdings_400"), "Total holdings", 
                                              national_data_400[national_data_400$variable == "Holdings", "value"], "holdings"),
                           p(style = "color: white;", "/"),
-                          valueBoxNitrogenUI(ns("total_application_rate_400"), "Total application rate", 
+                          valueBoxNitrogenUI(ns("total_application_rate_400"), "Average application rate", 
                                              national_data_400[national_data_400$variable == "Application rate", "value"], "kg / hectares"),
                           p(style = "color: white;", "/"),
                           valueBoxNitrogenUI(ns("average_mixed_sward_400"), "Average mixed sward per holding", 
@@ -3155,7 +3165,7 @@ content_demo <- function() {
 }
 
 # Uncomment the line below to run the test
- content_demo()
+# content_demo()
 
 ## File: module_occupiers.R 
  occupiersUI <- function(id) {
@@ -3386,7 +3396,7 @@ occupiersServer <- function(id) {
         paste(input$data_source, Sys.Date(), ".csv", sep = "")
       },
       content = function(file) {
-        if (input$data_source == "Population Pyramid") {
+        if (input$data_source == "Population Pyramid Data") {
           write.csv(pivoted_chart_data(), file, row.names = FALSE)
         } else if (input$data_source == "Map Data") {
           write.csv(pivoted_regions_data(), file, row.names = FALSE)
@@ -3912,7 +3922,7 @@ pigsUI <- function(id) {
         ns = ns,
         selectizeInput(
           ns("timeseries_variables"),
-          "Click within the box to select variables",
+          "Click within the box to select variables (not all shown)",
           choices = unique(number_of_pigs$`Pigs by category`),
           selected = c(
             "Total breeding herd",
@@ -4067,15 +4077,15 @@ pigsServer <- function(id) {
 }
 
 # Testing module
-pigs_demo <- function() {
-  ui <- fluidPage(pigsUI("pigs_test"))
-  server <- function(input, output, session) {
-    pigsServer("pigs_test")
-  }
-  shinyApp(ui, server)
-}
-
-pigs_demo()
+# pigs_demo <- function() {
+#   ui <- fluidPage(pigsUI("pigs_test"))
+#   server <- function(input, output, session) {
+#     pigsServer("pigs_test")
+#   }
+#   shinyApp(ui, server)
+# }
+# 
+# pigs_demo()
 
 ## File: module_potatoes.R 
  # File: module_potatoes.R
@@ -4270,7 +4280,7 @@ poultryUI <- function(id) {
             "Total poultry" = "Total poultry",
             "Fowls for producing eggs" = "Fowls for producing eggs",
             "Fowls for breeding" = "Fowls for breeding",
-            "Broilers for other table fowls and other poultry" = "Broilers for other table fowls and other poultry"
+            "Broilers and other table fowls and other poultry" = "Broilers and other table fowls and other poultry"
           )
         )
       ),
@@ -4334,7 +4344,7 @@ poultryServer <- function(id) {
       filter(`Livestock by category` %in% c(
         "Fowls for producing eggs",
         "Fowls for breeding",
-        "Broilers for other table fowls and other poultry",
+        "Broilers and other table fowls and other poultry",
         "Total poultry"
       )) %>%
       select(-Scotland) %>%
@@ -4595,6 +4605,7 @@ sheepServer <- function(id) {
         sheep_data %>%
           filter(`Livestock by category` == input$variable) %>%
           pivot_wider(names_from = sub_region, values_from = value) %>%
+          mutate(across(where(is.numeric) & !contains("Year"), comma)) %>% 
           datatable(
             options = list(
               scrollX = TRUE,  # Enable horizontal scrolling
@@ -4605,6 +4616,7 @@ sheepServer <- function(id) {
         number_of_sheep %>%
           pivot_longer(cols = -`Sheep by category`, names_to = "year", values_to = "value") %>%
           pivot_wider(names_from = year, values_from = value) %>%
+          mutate(across(where(is.numeric) & !contains("Year"), comma)) %>% 
           datatable(
             options = list(
               scrollX = TRUE,  # Enable horizontal scrolling
@@ -4727,7 +4739,7 @@ soilTestingServer <- function(id) {
           "Soil testing on grassland in last five years",
           "Soil testing on cropland in last five years",
           "Soil testing on either grass or crops in last five years"
-        ))
+        )) 
     })
     
     effectiveness_data <- reactive({
@@ -4833,7 +4845,9 @@ soilTestingServer <- function(id) {
             "Soil testing on grassland in last five years",
             "Soil testing on cropland in last five years",
             "Soil testing on either grass or crops in last five years"
-          ))
+           
+          )) %>%
+              rename(`Soil testing` = `Soil nutrient management` )
       } else {
         combined_nutrient_mgmt %>%
           filter(`Soil nutrient management` %in% c(
@@ -4851,10 +4865,10 @@ soilTestingServer <- function(id) {
     # Download handler for data
     output$download_data <- downloadHandler(
       filename = function() {
-        paste(input$table_type, "Data.xlsx", sep = "_")
+        paste("Soil_testing_data", Sys.Date(), ".csv", sep = "")
       },
       content = function(file) {
-        write.xlsx(table_data(), file)
+        write.csv(table_data(), file, row.names = FALSE)
       }
     )
 
@@ -5069,8 +5083,8 @@ stockfeeding_demo()
           ns = ns,
           div("Adjust the sliders to compare data from different years.", 
               style = "font-size: 14px; font-weight: bold; margin-bottom: 10px;"),
-          sliderInput(ns("summary_current_year_subsector"), "Year of interest", min = 1990, max = 2022, value = 2022, step = 1, sep = ""),
-          sliderInput(ns("summary_comparison_year_subsector"), "Comparison year", min = 1990, max = 2022, value = 2021, step = 1, sep = "")
+          sliderInput(ns("summary_current_year_subsector"), "Year of interest", min = 1990, max = emissions_year, value = emissions_year, step = 1, sep = ""),
+          sliderInput(ns("summary_comparison_year_subsector"), "Comparison year", min = 1990, max = emissions_year, value = emissions_year - 1, step = 1, sep = "")
         )
       ),
       mainPanel(
@@ -5163,7 +5177,7 @@ subsectorEmissionsServer <- function(id) {
     # Reactive data for the line chart (Industry Emissions Over Time)
     line_chart_data <- reactive({
       data <- national_total
-      data <- data %>% filter(Industry %in% c("Agriculture", "Total"))
+      #data <- data %>% filter(Industry %in% c("Agriculture", "Total"))
       data
     })
     
@@ -5262,7 +5276,7 @@ subsectorEmissionsServer <- function(id) {
       year_input = "year"
     )
     
-    # Summary Module for Subsector Emissions
+    #  Module for Subsector Emissions
     current_year <- reactive({ input$summary_current_year_subsector })
     comparison_year <- reactive({ input$summary_comparison_year_subsector })
     
@@ -5340,12 +5354,16 @@ subsectorEmissionsServer <- function(id) {
       category = "Subsector",
       unit = "MtCO₂e"
     )
+    
     summaryLineChartServer(
       id = "industryLineChart_total",
       data = line_chart_data,
       title = "Agricultural emissions and total Scottish emissions",
-      unit = "MtCO₂e"
+      unit = "MtCO₂e",
+      x_col = "Year",
+      y_col = "Value"
     )
+
     
     summaryPieChartServer(
       id = "industryPieChart_gas",
@@ -5772,7 +5790,8 @@ source("module_structure_information.R")
 create_footer <- function() {
   div(
     class = "footer",
-    span("Last Updated: 22/08/2024"),
+    span(style = "font-weight: bold;", "Content in development "),
+    span("\n | Last updated: 23/08/2024"),
     img(src = "sg.png", alt = "SG Logo", style = "height: 30px; margin-left: 10px;")
   )
 }
