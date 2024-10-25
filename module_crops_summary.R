@@ -38,7 +38,7 @@ cropsSummaryUI <- function(id) {
                    # Add the footer text
                    div(
                      style = "margin-top: 20px; padding: 10px; border-top: 1px solid #ddd;",
-                     HTML("<strong>Note:</strong> Poultry estimates for 2023 are not comparable to previous years due to methodological improvements.")
+                     
                    )
           ),
           tabPanel("Data Table",
