@@ -13,10 +13,10 @@ sheepUI <- function(id) {
           ns("variable"), 
           "Select Variable", 
           choices = c(
-            "Total sheep" = "Total sheep",
+            "Total Sheep" = "Total Sheep",
             "Ewes for breeding" = "Ewes for breeding",
             "Other sheep one year old and over for breeding" = "Other sheep one year old and over for breeding",
-            "Rams to be used for service" = "Rams for service",
+            "Rams for service" = "Rams for service",
             "Lambs" = "Lambs"
           )
         )
@@ -28,18 +28,18 @@ sheepUI <- function(id) {
           ns("timeseries_variables"),
           "Select Time Series Variables",
           choices = c(
-            "Ewes used for breeding in previous season",
-            "Sheep for breeding aged 1 year and over",
-            "Rams to be used for service",
+            "Ewes for breeding",
+            "Other sheep one year old and over for breeding",
+            "Rams for service",
             "Total other sheep 1 year and over",
             "Lambs",
-            "Total sheep",
+            "Total Sheep",
             "Other"
             
           ),
           selected = c(
-            "Ewes used for breeding in previous season",
-            "Rams to be used for service",
+            "Ewes for breeding",
+            "Other sheep one year old and over for breeding",
             "Sheep for breeding aged 1 year and over",
             "Total other sheep 1 year and over",
             "Lambs"
@@ -85,9 +85,9 @@ sheepServer <- function(id) {
         "Other sheep one year old and over for breeding",
         "Rams for service",
         "Lambs",
-        "Total sheep"
+        "Total Sheep"
       )) %>%
-      select(-Scotland) %>%
+      select(-`Scotland total`) %>%
       mutate(across(everything(), as.character)) %>%
       pivot_longer(cols = -`Livestock by category`, names_to = "sub_region", values_to = "value") %>%
       mutate(value = safe_as_numeric(value))

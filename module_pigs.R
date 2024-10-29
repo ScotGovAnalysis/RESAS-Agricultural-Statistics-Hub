@@ -12,7 +12,7 @@ pigsUI <- function(id) {
           ns("variable"), 
           "Select Variable", 
           choices = c(
-            "Total pigs" = "Total pigs",
+            "Total Pigs" = "Total Pigs",
             "Female pigs breeding herd" = "Female pigs breeding herd",
             "All other non-breeding pigs" = "All other non-breeding pigs"
           ))
@@ -73,9 +73,9 @@ pigsServer <- function(id) {
       filter(`Livestock by category` %in% c(
         "Female pigs breeding herd",
         "All other non-breeding pigs",
-        "Total pigs"
+        "Total Pigs"
       )) %>%
-      select(-Scotland) %>%
+      select(-`Scotland total`) %>%
       mutate(across(everything(), as.character)) %>%
       pivot_longer(cols = -`Livestock by category`, names_to = "sub_region", values_to = "value") %>%
       mutate(value = as.numeric(value))  # Ensure value is numeric
@@ -176,13 +176,13 @@ pigsServer <- function(id) {
   })
 }
 
-# Testing module
-# pigs_demo <- function() {
-#   ui <- fluidPage(pigsUI("pigs_test"))
-#   server <- function(input, output, session) {
-#     pigsServer("pigs_test")
-#   }
-#   shinyApp(ui, server)
-# }
-# 
-# pigs_demo()
+#Testing module
+pigs_demo <- function() {
+ui <- fluidPage(pigsUI("pigs_test"))
+server <- function(input, output, session) {
+pigsServer("pigs_test")
+}
+shinyApp(ui, server)
+}
+ 
+pigs_demo()

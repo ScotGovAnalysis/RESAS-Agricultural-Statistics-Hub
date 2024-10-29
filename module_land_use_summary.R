@@ -26,10 +26,10 @@ landUseSummaryUI <- function(id) {
         checkboxGroupInput(
           ns("variables"), 
           "Choose variables to add to chart", 
-          choices = c("Total crops, fallow, and set-aside", "Total grass", "Rough grazing", 
-                      "Total sole right agricultural area", "Common grazings"),
-          selected = c("Total crops, fallow, and set-aside", "Total grass", "Rough grazing", 
-                       "Total sole right agricultural area", "Common grazings")
+          choices = c("Total Crops, Fallow, And Set-Aside", "Total Grass", "Rough Grazing", 
+                      "Total Sole Right Agricultural Area", "Common Grazings"),
+          selected = c("Total Crops, Fallow, And Set-Aside", "Total Grass", "Rough Grazing", 
+                       "Total Sole Right Agricultural Area", "Common Grazings")
         )
       ),
       conditionalPanel(
@@ -40,12 +40,12 @@ landUseSummaryUI <- function(id) {
           "Select Time Series Variables",
           choices = unique(land_use_data$`Crop/Land use`),
           selected = c(
-            "Common grazings",
-            "Rough grazing",
-            "Total crops, fallow, and set-aside",
-            "Total grass",
+            "Common Grazings",
+            "Rough Grazing",
+            "Total Crops, Fallow, And Set-Aside",
+            "Total Grass",
             "Cauliflower",
-            "Total sole right agricultural area"
+            "Total Sole Right Agricultural Area"
           )
         )
       ),
@@ -89,7 +89,7 @@ landUseSummaryServer <- function(id) {
     # Map data remains unformatted for proper rendering
     land_use_map <- reactive({
       land_use_subregion %>%
-        select(-Scotland) %>%
+        select(-`Scotland total`) %>%
         mutate(across(everything(), as.character)) %>%
         pivot_longer(cols = -`Land use by category`, names_to = "sub_region", values_to = "value") %>%
         mutate(value = as.numeric(value))

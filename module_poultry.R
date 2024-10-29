@@ -11,7 +11,7 @@ poultryUI <- function(id) {
           ns("variable"), 
           "Select Variable", 
           choices = c(           
-            "Total poultry" = "Total poultry",
+            "Total Poultry" = "Total Poultry",
             "Fowls for producing eggs" = "Fowls for producing eggs",
             "Fowls for breeding" = "Fowls for breeding",
             "Broilers and other table fowls and other poultry" = "Broilers and other table fowls and other poultry"
@@ -79,9 +79,9 @@ poultryServer <- function(id) {
         "Fowls for producing eggs",
         "Fowls for breeding",
         "Broilers and other table fowls and other poultry",
-        "Total poultry"
+        "Total Poultry"
       )) %>%
-      select(-Scotland) %>%
+      select(-`Scotland total`) %>%
       mutate(across(everything(), as.character)) %>%
       pivot_longer(cols = -`Livestock by category`, names_to = "sub_region", values_to = "value") %>%
       mutate(value = safe_as_numeric(value))

@@ -28,12 +28,12 @@ cropsSummaryUI <- function(id) {
           tabPanel("Summary Page",
                    value = "Summary_Page",
                    fluidRow(
-                     column(width = 6, valueBoxUI(ns("totalCombineHarvestedCrops")), style = "padding-right: 0; padding-left: 0; padding-bottom: 10px;"),
-                     column(width = 6, valueBoxUI(ns("totalCropsForStockfeeding")), style = "padding-right: 0; padding-left: 0; padding-bottom: 10px;")
+                     column(width = 6, valueBoxUI(ns("Total Combine Harvested Crops")), style = "padding-right: 0; padding-left: 0; padding-bottom: 10px;"),
+                     column(width = 6, valueBoxUI(ns("Total Crops For Stockfeeding")), style = "padding-right: 0; padding-left: 0; padding-bottom: 10px;")
                    ),
                    fluidRow(
-                     column(width = 6, valueBoxUI(ns("vegetablesForHumanConsumption")), style = "padding-right: 0; padding-left: 0;"),
-                     column(width = 6, valueBoxUI(ns("softFruit")), style = "padding-right: 0; padding-left: 0;")
+                     column(width = 6, valueBoxUI(ns("Vegetables For Human Consumption")), style = "padding-right: 0; padding-left: 0;"),
+                     column(width = 6, valueBoxUI(ns("Soft Fruit")), style = "padding-right: 0; padding-left: 0;")
                    ),
                    # Add the footer text
                    div(
@@ -68,10 +68,10 @@ cropsSummaryServer <- function(id) {
     current_year <- reactive({ input$summary_current_year_crops })
     comparison_year <- reactive({ input$summary_comparison_year_crops })
     
-    valueBoxServer("totalCombineHarvestedCrops", full_data_crops, "Crop/Land use", reactive("Total combine harvested crops"), current_year, comparison_year, "hectares")
-    valueBoxServer("totalCropsForStockfeeding", full_data_crops, "Crop/Land use", reactive("Total crops for stockfeeding"), current_year, comparison_year, "hectares")
-    valueBoxServer("vegetablesForHumanConsumption", full_data_crops, "Crop/Land use", reactive("Vegetables for human consumption"), current_year, comparison_year, "hectares")
-    valueBoxServer("softFruit", full_data_crops, "Crop/Land use", reactive("Soft fruit"), current_year, comparison_year, "hectares")
+    valueBoxServer("Total Combine Harvested Crops", full_data_crops, "Crop/Land use", reactive("Total Combine Harvested Crops"), current_year, comparison_year, "hectares")
+    valueBoxServer("Total Crops For Stockfeeding", full_data_crops, "Crop/Land use", reactive("Total Crops For Stockfeeding"), current_year, comparison_year, "hectares")
+    valueBoxServer("Vegetables For Human Consumption", full_data_crops, "Crop/Land use", reactive("Vegetables For Human Consumption"), current_year, comparison_year, "hectares")
+    valueBoxServer("Soft Fruit", full_data_crops, "Crop/Land use", reactive("Soft Fruit"), current_year, comparison_year, "hectares")
     
     # Pivot the data wider for the data table and format numbers with commas, excluding the 'Year' column
     pivoted_data <- reactive({

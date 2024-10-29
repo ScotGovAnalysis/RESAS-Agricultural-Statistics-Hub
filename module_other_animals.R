@@ -28,7 +28,7 @@ otherAnimalsUI <- function(id) {
           ns("timeseries_variables"),
           "Select Time Series Variables",
           choices = c(
-            "Goats",
+            "Goats and kids",
             "Deer",
             "Horses",
             "Donkeys",
@@ -36,7 +36,7 @@ otherAnimalsUI <- function(id) {
             "Beehives"
           ),
           selected = c(
-            "Goats",
+            "Goats and kids",
             "Deer",
             "Horses",
             "Donkeys",
@@ -87,7 +87,7 @@ otherAnimalsServer <- function(id) {
         "Camelids",
         "Beehives"
       )) %>%
-      select(-Scotland) %>%
+      select(-`Scotland total`) %>%
       mutate(across(everything(), as.character)) %>%
       pivot_longer(cols = -`Livestock by category`, names_to = "sub_region", values_to = "value") %>%
       mutate(value = safe_as_numeric(value))

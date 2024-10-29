@@ -15,6 +15,7 @@ library(RColorBrewer)
 library(shinyjs)
 library(tidyr)
 library(geojsonio)
+library(scales)
 
 # Load the .RData file containing the datasets
 load("ghg_data.RData")
@@ -53,3 +54,4 @@ safe_as_numeric <- function(x) {
     return(result)
   })
 }
+

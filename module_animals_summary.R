@@ -31,12 +31,12 @@ animalsSummaryUI <- function(id) {
           tabPanel("Summary Page",
                    value = "Summary_Page",
                    fluidRow(
-                     column(width = 6, valueBoxUI(ns("totalCattle")), style = "padding-right: 0; padding-left: 0; padding-bottom: 10px;"),
-                     column(width = 6, valueBoxUI(ns("totalSheep")), style = "padding-right: 0; padding-left: 0; padding-bottom: 10px;")
+                     column(width = 6, valueBoxUI(ns("Total cattle")), style = "padding-right: 0; padding-left: 0; padding-bottom: 10px;"),
+                     column(width = 6, valueBoxUI(ns("Total Sheep")), style = "padding-right: 0; padding-left: 0; padding-bottom: 10px;")
                    ),
                    fluidRow(
-                     column(width = 6, valueBoxUI(ns("totalPigs")), style = "padding-right: 0; padding-left: 0;"),
-                     column(width = 6, valueBoxUI(ns("totalPoultry")), style = "padding-right: 0; padding-left: 0;")
+                     column(width = 6, valueBoxUI(ns("Total Pigs")), style = "padding-right: 0; padding-left: 0;"),
+                     column(width = 6, valueBoxUI(ns("Total Poultry")), style = "padding-right: 0; padding-left: 0;")
                    ),
                    # Add the footer text
                    div(
@@ -69,10 +69,10 @@ animalsSummaryServer <- function(id) {
     current_year <- reactive({ input$summary_current_year_animals })
     comparison_year <- reactive({ input$summary_comparison_year_animals })
     
-    valueBoxServer("totalCattle", full_data_animals, "Animal_Type", reactive("Total cattle"), current_year, comparison_year, "cattle")
-    valueBoxServer("totalSheep", full_data_animals, "Animal_Type", reactive("Total sheep"), current_year, comparison_year, "sheep")
-    valueBoxServer("totalPigs", full_data_animals, "Animal_Type", reactive("Total pigs"), current_year, comparison_year, "pigs")
-    valueBoxServer("totalPoultry", full_data_animals, "Animal_Type", reactive("Total poultry"), current_year, comparison_year, "poultry")
+    valueBoxServer("Total cattle", full_data_animals, "Animal_Type", reactive("Total cattle"), current_year, comparison_year, "cattle")
+    valueBoxServer("Total Sheep", full_data_animals, "Animal_Type", reactive("Total Sheep"), current_year, comparison_year, "sheep")
+    valueBoxServer("Total Pigs", full_data_animals, "Animal_Type", reactive("Total Pigs"), current_year, comparison_year, "pigs")
+    valueBoxServer("Total Poultry", full_data_animals, "Animal_Type", reactive("Total Poultry"), current_year, comparison_year, "poultry")
     
     # Pivot the data wider
     pivoted_data <- reactive({

@@ -37,7 +37,9 @@ library(readxl)
 library(openxlsx)
 library(dplyr)
 library(tidyr)
-
+library(stringr)
+library(highcharter)
+library(ggthemes)
 
 #########################################
 ###
@@ -71,31 +73,35 @@ library(tidyr)
 #########################################
 
 # Define file path
-file_path <- "June+Agricultural+Census+2023+Tables.xlsx"
+file_path <- "C:/Users/U457484/OneDrive - SCOTS Connect/Agricultural+Census+-+June+2024+-+Tables.xlsx"
 
 # Define the simplified table names and corresponding sheet names
 table_names <- c(
   "agricultural_area_hectares" = "Table_1",
   "vegetables_bulbs_fruit_area" = "Table_2",
-  "number_of_cattle" = "Table_3 ", # this has a trailing space in the publication, if this gets fixed, change appropriately
-  "number_of_sheep" = "Table_4 ",
+  "number_of_cattle" = "Table_3",
+  "number_of_sheep" = "Table_4",
   "number_of_pigs" = "Table_5",
   "number_of_poultry" = "Table_6",
   "number_of_other_livestock" = "Table_7",
   "occupiers_employees" = "Table_8",
-  "occupiers_age_gender" = "Table_9",
-  "legal_responsibility" = "Table_10",
-  "owned_rented_land" = "Table_11",
-  "farm_type" = "Table_12",
-  "agricultural_area_lfa" = "Table_13",
-  "holdings_crops_grass_subregion" = "Table_14",
-  "crops_grass_area_subregion" = "Table_15",
-  "holdings_livestock_region_subregion" = "Table_16",
-  "livestock_subregion" = "Table_17",
-  "holdings_occupiers_employees_subregion" = "Table_18",
-  "occupiers_employees_subregion" = "Table_19",
-  "arable_rotation" = "Table_20",
-  "manure_fertiliser" = "Table_21"
+  "occupiers_sex" = "Table_9",
+  "occupiers_age_gender" = "Table_10",
+  "legal_responsibility" = "Table_11",
+  "owned_rented_land" = "Table_12",
+  "farm_type" = "Table_13",
+  "agricultural_area_lfa" = "Table_14",
+  "holdings_crops_grass_subregion" = "Table_15",
+  "crops_grass_area_subregion" = "Table_16",
+  "holdings_livestock_region_subregion" = "Table_17",
+  "livestock_subregion" = "Table_18",
+  "holdings_occupiers_employees_subregion" = "Table_19",
+  "occupiers_employees_subregion" = "Table_20",
+  "slurry_destination" = "Module_2024_Table_1",
+  "number_of_ag_mach_farm_type" = "Module_2024_Table_2",
+  "holdings_with_ag_mach_farm_type" = "Module_2024_Table_3",
+  "number_of_ag_mach_ownership" = "Module_2024_Table_4",
+  "number_of_ag_mach_fuel_type" = "Module_2024_Table_5"
 )
 # Function to remove rows until the first occurrence of "Source:" in the first column
 remove_until_source <- function(data) {
@@ -179,9 +185,6 @@ for (table in names(table_names)) {
 # Set all values in the 2022 column to NA
 number_of_poultry$`2022` <- NA
 
-crops_grass_area_subregion <- crops_grass_area_subregion %>%
-  rename(`Na h-Eileanan Siar` = `Na h Eileanan Siar`)
-
 # Save all tables to an RData file
 save(list = names(table_names), file = "census_data.RData")
 
@@ -218,8 +221,9 @@ names(vegetables_bulbs_fruit_area) <- names(vegetables_bulbs_fruit_area) %>%
 
 # Preprocess and round the summary crops data
 crops_summary_data <- agricultural_area_hectares %>%
-  filter(`Crop/Land use` %in% c("Total combine harvested crops", "Total crops for stockfeeding",
-                                "Vegetables for human consumption", "Soft fruit")) %>%
+  select(-`% Change 2024 to 2023`) %>%
+  filter(`Crop/Land use` %in% c("Total Combine Harvested Crops", "Total Crops For Stockfeeding",
+                                "Vegetables For Human Consumption", "Soft Fruit")) %>%
   pivot_longer(
     cols = -`Crop/Land use`,
     names_to = "Year",
@@ -235,72 +239,80 @@ crops_summary_data <- agricultural_area_hectares %>%
   )
 
 land_use_data <- agricultural_area_hectares %>% 
-  filter(`Crop/Land use` %in% c("Total crops, fallow, and set-aside", "Total grass", 
-                                "Rough grazing", "Total sole right agricultural area", "Common grazings"))
+  select(-`% Change 2024 to 2023`) %>%
+  filter(`Crop/Land use` %in% c("Total Crops, Fallow, And Set-Aside", "Total Grass", 
+                                "Rough Grazing", "Total Sole Right Agricultural Area", "Common Grazings"))
 
 
 land_use_subregion <- crops_grass_area_subregion %>%
-  filter(`Land use by category` %in% c("Total agricultural area", "Total grass and rough grazing", 
-                                       "Sole right grazing", "Total crops and fallow", "Common grazing", "Woodland"))
+  filter(`Land use by category` %in% c("Total Agricultural Area", "Total Grass and Rough Grazing", 
+                                       "Sole Right Grazing", "Total Crops and Fallow", "Common Grazing", "Woodland"))
 
 
 # Subset for cereals data
 cereals_data <- agricultural_area_hectares %>%
-  filter(`Crop/Land use` %in% c("Wheat", "Triticale", "Winter barley", "Spring barley", "Barley Total", 
-                                "Winter oats", "Spring oats", "Oats Total", "Rye", "Mixed grain", 
-                                "Total cereals"))
+  select(-`% Change 2024 to 2023`) %>%
+  filter(`Crop/Land use` %in% c("Wheat", "Triticale", "Winter Barley", "Spring Barley", "Barley Total", 
+                                "Winter Oats", "Spring Oats", "Oats Total", "Rye", "Mixed Grain", 
+                                "Total Cereals"))
 
 # Subset for oilseeds data
 oilseed_data <- agricultural_area_hectares %>%
-  filter(`Crop/Land use` %in% c("Winter oilseed rape", "Spring oilseed rape", "Linseed", "Total oilseeds"))
+  select(-`% Change 2024 to 2023`) %>%
+  filter(`Crop/Land use` %in% c("Winter Oilseed Rape", "Spring Oilseed Rape", "Linseed", "Total Oilseeds"))
 
 # Subset for potatoes data
 potatoes_data <- agricultural_area_hectares %>%
-  filter(`Crop/Land use` %in% c("Seed potatoes", "Ware potatoes", "Total potatoes"))
+  select(-`% Change 2024 to 2023`) %>%
+  filter(`Crop/Land use` %in% c("Seed Potatoes", "Ware Potatoes", "Total Potatoes"))
 
 # Subset for beans data
 beans_data <- agricultural_area_hectares %>%
-  filter(`Crop/Land use` %in% c("Protein peas", "Field beans"))
+  select(-`% Change 2024 to 2023`) %>%
+  filter(`Crop/Land use` %in% c("Protein Peas", "Field Beans"))
 
 # Subset for animal feed data
 stockfeeding_data <- agricultural_area_hectares %>%
-  filter(`Crop/Land use` %in% c("Turnips/swedes", "Kale/cabbage", "Maize", "Rape", "Fodder beet", 
-                                "Lupins", "Other crops for stockfeeding", "Total crops for stockfeeding"))
+  select(-`% Change 2024 to 2023`) %>%
+  filter(`Crop/Land use` %in% c("Turnips/Swedes", "Kale/Cabbage", "Maize", "Rape", "Fodder Beet", 
+                                "Lupins", "Other Crops For Stockfeeding", "Total Crops For Stockfeeding"))
 
 # Subset for human vegetables data
 human_vegetables_data <- vegetables_bulbs_fruit_area %>%
+  select(-`% Change 2024 to 2023`) %>%
   filter(`Vegetables and fruits for human consumption` %in% c(
-    "Peas for canning, freezing or drying",
-    "Beans for canning, freezing or drying",
-    "Turnips/swedes",
+    "Peas For Canning, Freezing Or Drying",
+    "Beans For Canning, Freezing Or Drying",
+    "Turnips/Swedes",
     "Calabrese",
     "Cauliflower",
     "Carrots",
-    "Other vegetables",
-    "Total vegetables"
+    "Other Vegetables",
+    "Total Vegetables"
   ))
 
 # Subset for soft fruit data
 fruit_data <- vegetables_bulbs_fruit_area %>%
+  select(-`% Change 2024 to 2023`) %>%
   filter(`Vegetables and fruits for human consumption` %in% c(
-    "Strawberries grown in the open",
-    "Raspberries grown in the open",
-    "Blueberries grown in the open",
-    "Blackcurrants and other fruit grown in the open",
-    "Total soft fruit grown in the open",
-    "Tomatoes grown under cover",
-    "Strawberries grown under cover",
-    "Raspberries grown under cover",
-    "Blueberries grown under cover",
-    "Other fruit grown under cover",
-    "Vegetables grown under cover",
-    "Strawberries grown in open/under cover",
-    "Raspberries grown in open/under cover",
-    "Blackcurrants grown in open/under cover",
-    "Blueberries grown in open/under cover",
-    "Tomatoes grown in open/under cover",
-    "Other fruit grown in open/under cover",
-    "Total soft fruit"
+    "Strawberries Grown In The Open",
+    "Raspberries Grown In The Open",
+    "Blueberries Grown In The Open",
+    "Blackcurrants And Other Fruit Grown In The Open",
+    "Total Soft Fruit Grown In The Open",
+    "Tomatoes Grown Under Cover",
+    "Strawberries Grown Under Cover",
+    "Raspberries Grown Under Cover",
+    "Blueberries Grown Under Cover",
+    "Other Fruit Grown Under Cover",
+    "Vegetables Grown Under Cover",
+    "Strawberries Grown In Open/Under Cover",
+    "Raspberries Grown In Open/Under Cover",
+    "Blackcurrants Grown In Open/Under Cover",
+    "Blueberries Grown In Open/Under Cover",
+    "Tomatoes Grown In Open/Under Cover",
+    "Other Fruit Grown In Open/Under Cover",
+    "Total Soft Fruit"
   ))
 # Subset for cereals_subregion
 cereals_subregion <- crops_grass_area_subregion %>%
@@ -309,13 +321,13 @@ cereals_subregion <- crops_grass_area_subregion %>%
     "Winter Barley",
     "Spring Barley",
     "Barley Total",
-    "Oats, triticale and mixed grain"
+    "Oats, Triticale and Mixed Grain"
   ))
 
 # Subset for oilseed_subregion
 oilseed_subregion <- crops_grass_area_subregion %>%
   filter(`Land use by category` %in% c(
-    "Rape for oilseed and linseed"
+    "Oilseeds (including linseed)"
   ))
 
 # Subset for potato_subregion
@@ -327,13 +339,13 @@ potatoes_subregion <- crops_grass_area_subregion %>%
 # Subset for beans_subregion
 beans_subregion <- crops_grass_area_subregion %>%
   filter(`Land use by category` %in% c(
-    "Peas and beans for combining"
+    "Peas and Beans for Combining"
   ))
 
 # Subset for stockfeeding_subregion
 stockfeeding_subregion <- crops_grass_area_subregion %>%
   filter(`Land use by category` %in% c(
-    "Stockfeeding crops"
+    "Stockfeeding Crops"
   ))
 
 # Subset for human_veg_subregion
@@ -345,7 +357,7 @@ human_vegetables_subregion <- crops_grass_area_subregion %>%
 # Subset for fruit_subregion
 fruit_subregion <- crops_grass_area_subregion %>%
   filter(`Land use by category` %in% c(
-    "Orchard and soft fruit"
+    "Orchard and Soft Fruit"
   ))
 
 # Saving all the subsets to an RData file
@@ -372,26 +384,29 @@ save(
 
 ### Animals summary data - Requires census tables
 
-load("census.RData")
+load("census_data.RData")
 
 
 # Convert the wide format data into long format using pivot_longer
 number_of_pigs_long <- number_of_pigs %>%
+  select(-`% Change 2024 to 2023`) %>%
   pivot_longer(cols = -`Pigs by category`, names_to = "Year", values_to = "Total") %>%
-  filter(`Pigs by category` == "Total pigs") %>%
-  select(Year, `Total pigs` = Total)
+  filter(`Pigs by category` == "Total Pigs") %>%
+  select(Year, `Total Pigs` = Total)
 
 number_of_poultry_long <- number_of_poultry %>%
   pivot_longer(cols = -`Poultry by category`, names_to = "Year", values_to = "Total") %>%
-  filter(`Poultry by category` == "Total poultry") %>%
-  select(Year, `Total poultry` = Total)
+  filter(`Poultry by category` == "Total Poultry") %>%
+  select(Year, `Total Poultry` = Total)
 
 number_of_sheep_long <- number_of_sheep %>%
+  select(-`% Change 2024 to 2023`) %>%
   pivot_longer(cols = -`Sheep by category`, names_to = "Year", values_to = "Total") %>%
-  filter(`Sheep by category` == "Total sheep") %>%
-  select(Year, `Total sheep` = Total)
+  filter(`Sheep by category` == "Total Sheep") %>%
+  select(Year, `Total Sheep` = Total)
 
 number_of_cattle_long <- number_of_cattle %>%
+  select(-`% Change 2024 to 2023`) %>%
   pivot_longer(cols = -`Cattle by category`, names_to = "Year", values_to = "Total") %>%
   filter(`Cattle by category` == "Total Cattle") %>%
   select(Year, `Total cattle` = Total)
@@ -569,3 +584,4 @@ data_frames$grass_crop_nutrient_mgmt <- NULL
 save(list = names(data_frames), file = "module_2023.RData", envir = list2env(data_frames))
 
 ################################
+

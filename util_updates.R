@@ -11,14 +11,14 @@
 
 # Year of census data - some years need manually updated, breakdown server in emissions
 
-census_year <- 2023
+census_year <- 2024
 
 emissions_year <- 2022
 
 #emissions_year 
 
 #some footers need manually updated - e.g. poultry - run print_code and search for 2022 / 2023 to find issues
-census_footer <- '<div style="font-size: 16px; font-weight: bold;"><a href="https://www.gov.scot/publications/results-scottish-agricultural-census-june-2023/documents/">Source: Scottish Agricultural Census: June 2023</a></div>'
+census_footer <- '<div style="font-size: 16px; font-weight: bold;"><a href="https://www.gov.scot/publications/results-from-the-scottish-agricultural-census-june-2024/">Source: Scottish Agricultural Census: June 2024</a></div>'
 
 emissions_footer <- '<div style="font-size: 16px; font-weight: bold;"> <a href="https://www.gov.scot/publications/scottish-agriculture-greenhouse-gas-emissions-and-nitrogen-use-2022-23/" target="_blank">Source: Scottish agriculture greenhouse gas emissions and nitrogen use 2022-23</a>, analysis based on results of the <a href="https://www.gov.scot/publications/scottish-greenhouse-gas-statistics-2022/" target="_blank">Scottish Greenhouse Gas Statistics 2022</a>.</div>'
 
@@ -29,9 +29,9 @@ generateCensusTableFooter <- function() {
   div(
     style = "background-color: #f0f0f0; padding: 15px; border-radius: 5px; margin-top: 20px;",
     "This data is sourced from the ",
-    tags$a(href = "https://www.gov.scot/publications/results-scottish-agricultural-census-june-2023/documents/",
-           "Scottish Agricultural Census: June 2023"),
-    " which was published on 31 October 2023.",
+    tags$a(href = "https://www.gov.scot/publications/results-from-the-scottish-agricultural-census-june-2024/",
+           "Scottish Agricultural Census: June 2024"),
+    " which was published on 24 October 2024.",
     tags$br(),
     "Where data is unavailable, findings have been suppressed to prevent disclosure of individual holdings.",
     tags$br(),
@@ -57,9 +57,9 @@ generate2023ModuleTableFooter <- function() {
   div(
     style = "background-color: #f0f0f0; padding: 15px; border-radius: 5px; margin-top: 20px;",
     "This data is sourced from the ",
-    tags$a(href = "https://www.gov.scot/publications/results-from-the-scottish-agricultural-census-module-june-2023/",
-           "Scottish Agricultural Census: Module June 2023"),
-    " which was published on 23 May 2024.",
+    tags$a(href = "https://www.gov.scot/publications/results-from-the-scottish-agricultural-census-module-june-2024/",
+           "Scottish Agricultural Census: Module June 2024"),
+    " which was published on 24 October 2024.",
     tags$br(),
     "This module provides insights into soil cover, tillage, irrigation, nutrient management, and fertiliser application and storage.",
     tags$br(),

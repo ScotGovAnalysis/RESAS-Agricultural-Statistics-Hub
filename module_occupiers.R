@@ -58,12 +58,12 @@ occupiersServer <- function(id) {
     # Data Processing for Map
     regions_data <- reactive({
       occupiers_employees_subregion %>%
-        select(-Scotland) %>%
+        select(-`Scotland total`) %>%
         mutate(across(everything(), as.character)) %>%  # Ensure all columns are characters
         pivot_longer(cols = -`Occupiers and employees by category`, names_to = "sub_region", values_to = "value") %>%
         mutate(value = ifelse(is.na(as.numeric(value)), NA, as.numeric(value))) %>%
         filter(`Occupiers and employees by category` %in% c(
-          "Total working Occupiers", 
+          "Total working occupiers", 
           "Occupiers not working on the holding"
         ))
     })
@@ -84,8 +84,8 @@ occupiersServer <- function(id) {
       req(input$tabs)
       if (input$tabs == "map") {
         radioButtons(ns("variable"), "Select Variable", choices = c(
-          "Total working Occupiers", 
-          "Occupiers not working on the holding"
+          "Total Working Occupiers", 
+          "Occupiers Not Working On The Holding"
         ))
       } else if (input$tabs == "data_table") {
         radioButtons(ns("data_source"), "Choose data to show:", choices = c("Map Data", "Population Pyramid Data",  "Timeseries Data"))
@@ -94,7 +94,7 @@ occupiersServer <- function(id) {
           ns("variables"), 
           "Choose variables to add to chart", 
           choices = unique(occupiers_timeseries_data()$`Occupiers and employees by category`), 
-          selected = c('Occupiers - full time', 'Total working occupiers', 'Occupiers not working on the holding')
+          selected = c('Occupiers - Full Time', 'Total Working Occupiers', 'Occupiers Not Working On The Holding')
         )
       } else {
         checkboxGroupInput(ns("variables_bar"), "Choose age groups to display", choices = unique(chart_data()$Age), selected = unique(chart_data()$Age))

@@ -65,7 +65,7 @@ humanVegetablesServer <- function(id) {
     ns <- session$ns
     
     human_vegetables_map <- human_vegetables_subregion %>%
-      select(-Scotland) %>%
+      select(-`Scotland total`) %>%
       mutate(across(everything(), as.character)) %>%
       pivot_longer(cols = -`Land use by category`, names_to = "sub_region", values_to = "value") %>%
       mutate(value = safe_as_numeric(value))

@@ -22,8 +22,8 @@ beansUI <- function(id) {
           "Select Time Series Variables",
           choices = unique(beans_data$`Crop/Land use`),
           selected = c(
-            "Protein peas",
-            "Field beans"
+            "Protein Peas",
+            "Field Beans"
           )
         )
       ),
@@ -61,7 +61,7 @@ beansServer <- function(id) {
     ns <- session$ns
     
     beans_map <- beans_subregion %>%
-      select(-Scotland) %>%
+      select(-`Scotland total`) %>%
       mutate(across(everything(), as.character)) %>%
       pivot_longer(cols = -`Land use by category`, names_to = "sub_region", values_to = "value") %>%
       mutate(value = safe_as_numeric(value))
