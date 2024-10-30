@@ -60,7 +60,7 @@ farmTypesServer <- function(id) {
     y_col <- reactive({
       switch(input$data_type,
              "holdings" = "Holdings",
-             "area" = "Hectares",
+             "area" = "Area",
              "total" = "Total from Standard Outputs",
              "average" = "Average standard outputs per holding")
     })

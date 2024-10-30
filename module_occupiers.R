@@ -84,8 +84,8 @@ occupiersServer <- function(id) {
       req(input$tabs)
       if (input$tabs == "map") {
         radioButtons(ns("variable"), "Select Variable", choices = c(
-          "Total Working Occupiers", 
-          "Occupiers Not Working On The Holding"
+          "Total working occupiers", 
+          "Occupiers not working on the holding"
         ))
       } else if (input$tabs == "data_table") {
         radioButtons(ns("data_source"), "Choose data to show:", choices = c("Map Data", "Population Pyramid Data",  "Timeseries Data"))
