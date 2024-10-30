@@ -102,7 +102,7 @@ manureUI <- function(id) {
                  DTOutput(ns("data_table")), 
                  downloadButton(ns("downloadData"), "Download Data"), 
                  value = "data_table") ,
-        footer = generate2023ModuleTableFooter()  
+        footer = generateModuleTableFooter()  
   )
   )
   )
@@ -131,7 +131,7 @@ manureServer <- function(id) {
       unit = " ",
       footer = '<div style="font-size: 16px; font-weight: bold;"><a href="https://www.gov.scot/publications/results-from-the-scottish-agricultural-census-module-june-2023/" target="_blank">Source: Scottish Agricultural Census: Module June 2023</a></div>',
       variable = reactive(input$variable),
-      title = paste("Manure quantity by region in Scotland in", census_year),
+      title = paste("Manure quantity by region in Scotland in 2023"),
     )
     
     output$data_table <- renderDT({

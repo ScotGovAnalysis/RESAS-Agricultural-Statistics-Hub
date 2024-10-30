@@ -25,10 +25,10 @@ pigsUI <- function(id) {
           "Click within the box to select variables (not all shown)",
           choices = unique(number_of_pigs$`Pigs by category`),
           selected = c(
-            "Total breeding herd",
-            "80 kg liveweight and over",
-            "50 kg and under 80 kg liveweight",
-            "Under 50 kg liveweight"
+            "Total Breeding Herd",
+            "80 Kg Liveweight And Over",
+            "50 Kg And Under 80 Kg Liveweight",
+            "Under 50 Kg Liveweight"
           ),
           multiple = TRUE,
           options = list(
