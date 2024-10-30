@@ -53,13 +53,14 @@ generateEmissionsTableFooter <- function() {
   )
 }
 
+
 generate2023ModuleTableFooter <- function() {
   div(
     style = "background-color: #f0f0f0; padding: 15px; border-radius: 5px; margin-top: 20px;",
     "This data is sourced from the ",
-    tags$a(href = "https://www.gov.scot/publications/results-from-the-scottish-agricultural-census-module-june-2024/",
-           "Scottish Agricultural Census: Module June 2024"),
-    " which was published on 24 October 2024.",
+    tags$a(href = "https://www.gov.scot/publications/results-from-the-scottish-agricultural-census-module-june-2023/",
+           "Scottish Agricultural Census: Module June 2023"),
+    " which was published on 23 May 2024.",
     tags$br(),
     "This module provides insights into soil cover, tillage, irrigation, nutrient management, and fertiliser application and storage.",
     tags$br(),
@@ -74,23 +75,3 @@ generate2023ModuleTableFooter <- function() {
   )
 }
 
-generateModuleTableFooter <- function() {
-  div(
-    style = "background-color: #f0f0f0; padding: 15px; border-radius: 5px; margin-top: 20px;",
-    "This data is sourced from the ",
-    tags$a(href = "https://www.gov.scot/publications/results-scottish-agricultural-census-june-2023/",
-           "Scottish Agricultural Census: Module June 2024"),
-    " which was published on 31 October 2023.",
-    tags$br(),
-    "This module provides insights into soil cover, tillage, irrigation, nutrient management, and fertiliser application and storage.",
-    tags$br(),
-    "The report highlights the significant role these practices play in reducing emissions and improving soil and nutrient management across Scottish agricultural holdings.",
-    tags$br(),
-    "Information about the presentation of nitrogen usage results is available in the ",
-    tags$a(href = "https://www.gov.scot/publications/results-from-the-scottish-agricultural-census-module-june-2023/pages/data-and-methodology/", "data and methodology."),
-    tags$br(),
-    "Where data is unavailable, findings have been suppressed to prevent disclosure of individual holdings.",
-    tags$br(),
-    "Full data tables and detailed analysis are available within the full report."
-  )
-}

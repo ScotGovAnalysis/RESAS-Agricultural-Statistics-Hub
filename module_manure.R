@@ -102,7 +102,7 @@ manureUI <- function(id) {
                  DTOutput(ns("data_table")), 
                  downloadButton(ns("downloadData"), "Download Data"), 
                  value = "data_table") ,
-        footer = generateModuleTableFooter()  
+        footer = generate2023ModuleTableFooter()  
   )
   )
   )

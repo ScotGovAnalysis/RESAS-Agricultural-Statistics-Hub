@@ -56,7 +56,7 @@ soilTestingUI <- function(id) {
                )
       )
     ),
-    generateModuleTableFooter()  # Place the footer outside the tabsetPanel, but still inside the mainPanel
+    generate2023ModuleTableFooter()  # Place the footer outside the tabsetPanel, but still inside the mainPanel
   )
 }
 
