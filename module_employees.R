@@ -109,7 +109,7 @@ employeesMapServer <- function(id) {
       yAxisTitle = "Employees (1,000)",
       xAxisTitle = "Year",
       unit = "employees",
-      footer = '<div style="font-size: 16px; font-weight: bold;"><a href="https://www.gov.scot/publications/results-scottish-agricultural-census-june-2023/documents/">Source: Scottish Agricultural Census: June 2023</a></div>',
+      footer = '<div style="font-size: 16px; font-weight: bold;"><a href="https://www.gov.scot/publications/results-from-the-scottish-agricultural-census-june-2024/">Source: Scottish Agricultural Census: June 2024</a></div>',
       x_col = "Year",
       y_col = "Value"
     )
@@ -123,7 +123,7 @@ employeesMapServer <- function(id) {
           filter(`Occupiers and employees by category` == input$variable)
       }),
       unit = "employees",
-      footer = '<div style="font-size: 16px; font-weight: bold;"><a href="https://www.gov.scot/publications/results-scottish-agricultural-census-june-2023/documents/">Source: Scottish Agricultural Census: June 2023</a></div>',
+      footer = '<div style="font-size: 16px; font-weight: bold;"><a href="https://www.gov.scot/publications/results-from-the-scottish-agricultural-census-june-2024/">Source: Scottish Agricultural Census: June 2024</a></div>',
       variable = reactive(input$variable),
       title = paste("Agricultural employees by region in Scotland in", census_year),
       legend_title = "Number of employees"
@@ -149,9 +149,9 @@ employeesMapServer <- function(id) {
     output$downloadData <- downloadHandler(
       filename = function() {
         if (input$data_source == "Chart Data") {
-          paste("Scottish Agricultural Employees Timeseries Data - 2012 to 2023.csv", sep = "")
+          paste("Scottish Agricultural Employees Timeseries Data - 2012 to 2024.csv", sep = "")
         } else if (input$data_source == "Map Data") {
-          paste("Scottish Agricultural Employees Regional Data - 2023.csv", sep = "")
+          paste("Scottish Agricultural Employees Regional Data - 2024.csv", sep = "")
         }
       },
       content = function(file) {

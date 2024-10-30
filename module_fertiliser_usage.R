@@ -19,7 +19,7 @@ fertiliserUsageUI <- function(id) {
                    tags$div(
                      style = "margin-top: 20px;",
                      downloadButton(ns("downloadData"), "Download Data"),
-                     generateCensusTableFooter()
+                     generate2023ModuleTableFooter()
                      
                    ),
                    value = ns("data"))
@@ -97,7 +97,7 @@ fertiliserUsageServer <- function(id) {
       yAxisTitle = yAxisTitle,
       xAxisTitle = "Fertiliser Type",
       unit = "",
-      footer = census_footer,
+      footer = '<div style="font-size: 16px; font-weight: bold;"><a href="https://www.gov.scot/publications/results-from-the-scottish-agricultural-census-module-june-2023/" target="_blank">Source: Scottish Agricultural Census: Module June 2023</a></div>',
       x_col = "Fertiliser by type",
       y_col = y_col,
       tooltip_unit = tooltip_unit

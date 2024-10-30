@@ -53,13 +53,14 @@ generateEmissionsTableFooter <- function() {
   )
 }
 
+
 generate2023ModuleTableFooter <- function() {
   div(
     style = "background-color: #f0f0f0; padding: 15px; border-radius: 5px; margin-top: 20px;",
     "This data is sourced from the ",
-    tags$a(href = "https://www.gov.scot/publications/results-from-the-scottish-agricultural-census-module-june-2024/",
-           "Scottish Agricultural Census: Module June 2024"),
-    " which was published on 24 October 2024.",
+    tags$a(href = "https://www.gov.scot/publications/results-from-the-scottish-agricultural-census-module-june-2023/",
+           "Scottish Agricultural Census: Module June 2023"),
+    " which was published on 23 May 2024.",
     tags$br(),
     "This module provides insights into soil cover, tillage, irrigation, nutrient management, and fertiliser application and storage.",
     tags$br(),

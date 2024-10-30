@@ -122,8 +122,8 @@ landUseSummaryServer <- function(id) {
     chart_data <- reactive({
       agricultural_area_hectares %>%
         filter(`Crop/Land use` %in% input$variables) %>%
-        select(`Crop/Land use`, `2023 Area`) %>%
-        rename(Variable = `Crop/Land use`, Value = `2023 Area`)
+        select(`Crop/Land use`, `2024 Area`) %>%
+        rename(Variable = `Crop/Land use`, Value = `2024 Area`)
     })
     
     timeseries_data <- reactive({
