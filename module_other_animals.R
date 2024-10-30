@@ -28,7 +28,7 @@ otherAnimalsUI <- function(id) {
           ns("timeseries_variables"),
           "Select Time Series Variables",
           choices = c(
-            "Goats and kids",
+            "Goats",
             "Deer",
             "Horses",
             "Donkeys",
@@ -36,7 +36,7 @@ otherAnimalsUI <- function(id) {
             "Beehives"
           ),
           selected = c(
-            "Goats and kids",
+            "Goats",
             "Deer",
             "Horses",
             "Donkeys",
@@ -107,7 +107,8 @@ otherAnimalsServer <- function(id) {
     chart_data <- reactive({
       req(input$timeseries_variables)
       filtered_data <- number_of_other_livestock %>%
-        mutate(across(-`Livestock by category`, as.numeric)) %>%
+        mutate(across(-`Livestock by category`, as.numeric)) %>% 
+        select(-last_col()) %>% 
         filter(`Livestock by category` %in% input$timeseries_variables) %>%
         pivot_longer(cols = -`Livestock by category`, names_to = "year", values_to = "value") %>%
         mutate(year = as.numeric(year))  # Ensure year is numeric

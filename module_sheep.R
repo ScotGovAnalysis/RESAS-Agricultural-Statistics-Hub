@@ -20,28 +20,27 @@ sheepUI <- function(id) {
             "Lambs" = "Lambs"
           )
         )
-      ),
+      )
+      ,
       conditionalPanel(
         condition = "input.tabsetPanel === 'Time Series' || input.tabsetPanel === 'Area Chart'",
         ns = ns,
         checkboxGroupInput(
           ns("timeseries_variables"),
           "Select Time Series Variables",
-          choices = c(
-            "Ewes for breeding",
-            "Other sheep one year old and over for breeding",
-            "Rams for service",
-            "Total other sheep 1 year and over",
-            "Lambs",
-            "Total Sheep",
-            "Other"
-            
-          ),
+          choices = unique(number_of_sheep$`Sheep by category`),
+            # "Ewes for breeding",
+            # "Other sheep one year old and over for breeding",
+            # "Rams for service",
+            # "Total other sheep 1 year and over",
+            # "Lambs",
+            # "Total Sheep",
+            # "Other"
           selected = c(
-            "Ewes for breeding",
-            "Other sheep one year old and over for breeding",
-            "Sheep for breeding aged 1 year and over",
-            "Total other sheep 1 year and over",
+            "Ewes Used For Breeding In Previous Season",
+            "Sheep For Breeding Aged 1 Year And Over",
+            "Rams To Be Used For Service",
+            "Total Other Sheep 1 Year And Over",
             "Lambs"
           )
         )
@@ -80,13 +79,12 @@ sheepServer <- function(id) {
     ns <- session$ns
     
     sheep_data <- livestock_subregion %>%
-      filter(`Livestock by category` %in% c(
-        "Ewes for breeding",
+      filter(`Livestock by category` %in%   
+        c("Ewes for breeding",
         "Other sheep one year old and over for breeding",
         "Rams for service",
         "Lambs",
-        "Total Sheep"
-      )) %>%
+        "Total Sheep"))%>%
       select(-`Scotland total`) %>%
       mutate(across(everything(), as.character)) %>%
       pivot_longer(cols = -`Livestock by category`, names_to = "sub_region", values_to = "value") %>%
@@ -106,7 +104,7 @@ sheepServer <- function(id) {
     
     chart_data <- reactive({
       req(input$timeseries_variables)
-      filtered_data <- number_of_sheep %>%
+      filtered_data <- number_of_sheep %>% select (-last_col()) %>%  # remove %change column
         filter(`Sheep by category` %in% input$timeseries_variables) %>%
         pivot_longer(cols = -`Sheep by category`, names_to = "year", values_to = "value") %>%
         mutate(year = as.numeric(year))  # Ensure year is numeric
