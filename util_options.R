@@ -23,6 +23,7 @@ load("census_data.RData")
 load("crops_data.RData")
 load("total_animals.RData")
 load("module_2023.RData")
+load("manure_fertiliser.RData")
 
 
 # Highchart options

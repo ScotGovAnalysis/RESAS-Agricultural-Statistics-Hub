@@ -188,6 +188,10 @@ number_of_poultry$`2022` <- NA
 # Save all tables to an RData file
 save(list = names(table_names), file = "census_data.RData")
 
+# load fertiliser data from june 2023
+file_path <- "June+Agricultural+Census+2023+Tables.xlsx"
+manure_fertiliser <- read_excel(file_path, sheet = "Table_21")
+save(manure_fertiliser, file = "manure_fertiliser.RData")
 
 # load to test
 #load("census_data.RData")

@@ -101,7 +101,7 @@ cattleServer <- function(id) {
     # Processing data for Area Chart and Time Series
     chart_data <- reactive({
       req(input$timeseries_variables)
-      filtered_data <- number_of_cattle %>%
+      filtered_data <- number_of_cattle %>% select (-last_col()) %>%
         filter(`Cattle by category` %in% input$timeseries_variables) %>%
         pivot_longer(cols = -`Cattle by category`, names_to = "year", values_to = "value") %>%
         mutate(year = as.numeric(year))  # Ensure year is numeric
