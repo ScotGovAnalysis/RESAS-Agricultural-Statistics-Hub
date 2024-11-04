@@ -50,4 +50,5 @@ server <- function(input, output, session) {
   manureServer("manure")
   nitrogenServer("nitrogen")
   cropsSummaryServer("crops_summary_module")
+  totalnumberofvehiclesServer("total_vehicles_module")
 }

@@ -45,6 +45,7 @@ source("module_manure.R")
 source("module_nitrogen_usage.R")
 source("module_crops_summary.R")
 source("module_structure_information.R")
+source("module_total_number_of_vehicles.R")
 
 
 create_footer <- function() {
@@ -116,7 +117,10 @@ ui <- fluidPage(
             ),
             navbarMenu("Economy",
                        tabPanel("Summary", value = "economy", economySummaryUI("economy"))
-            )
+            ),
+            navbarMenu("Machinery",
+                       tabPanel("Total number", value = "total_vehicles_module", totalnumberofvehiclesUI(("total_vehicles_module"))
+                                ))
           ),
           create_footer()
       )

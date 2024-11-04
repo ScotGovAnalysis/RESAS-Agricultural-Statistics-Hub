@@ -585,3 +585,35 @@ save(list = names(data_frames), file = "module_2023.RData", envir = list2env(dat
 
 ################################
 
+
+#### Module 2024 Data ####
+
+#### This data comes from the June Agricultural Census 2024
+####
+#### https://www.gov.scot/publications/results-from-the-scottish-agricultural-census-june-2024/
+####
+#### This script looks at the modular vehicle data
+
+# subset for total vehicle numbers
+total_number_vehicles_data <- number_of_ag_mach_fuel_type %>% 
+  select(`Agricultural machinery`, `All fuel types`) %>%
+  filter(`Agricultural machinery` %in% c("All-terrain vehicle (ATV)/Quads", "Combine harvesters", 
+                                "Other lifting equipment (such as wheeled loaders, diggers and fork-lifts)", 
+                                "Side-by-side utility vehicles", "Self-propelled sprayers", "Telescopic material handlers (such as telehandlers)",
+                                "All tractors", "All agricultural machinery"))
+
+# subset for total number of holdings with vehicles
+
+# subset by farm type
+
+# subset by ownership
+
+# subset by fuel
+
+# Saving all the subsets to an RData file
+save(
+  total_number_vehicles_data,
+  file = "vehicle_data.RData"
+)
+
+
