@@ -4,7 +4,6 @@ totalnumberofvehiclesUI <- function(id) {
     sidebarLayout(
       sidebarPanel(
         width = 3,
-        radioButtons(ns("data_type"), "Data Type", choices = c("Total number of vehicles" = "All fuel types"), selected = "All fuel types"),
         conditionalPanel(
           condition = paste0("input['", ns("tabs"), "'] == '", ns("bar"), "'"),  # Show variable select only on Bar Chart tab
           uiOutput(ns("variable_select"))  # Variable select UI
@@ -48,28 +47,30 @@ totalnumberofvehiclesServer <- function(id) {
     chart_data <- reactive({
       req(input$variables)
       data <- filtered_data_chart()
-      if (input$tabs == ns("bar") && !is.null(input$variables)) {
+        if (input$tabs == ns("bar") && !is.null(input$variables)) {
         data <- data %>%
-          filter(`Agricultural machinery` %in% input$variables)
+        filter(`Agricultural machinery` %in% input$variables)
       }
-      data
+       data
     })
     
     # Select the appropriate column based on data_type
-    y_col <- reactive({
-      switch(input$data_type,
-             "Total number of vehicles" = "All fuel types"
-      )
-             })
+    # y_col <- reactive({
+    #   switch(input$tabs,
+    #          "All fuel types" = "Total number of vehicles"
+    #   )
+    #          })
+    
+    y_col <- "All fuel types"
     
     yAxisTitle <- reactive({
-      switch(input$data_type,
-             "Total number of vehicles" = "All fuel types")
+      switch(input$tabs,
+             "All fuel types" = "Total number of vehicles")
     })
     
     tooltip_unit <- reactive({
-      switch(input$data_type,
-             "Total number of vehicles" = "All fuel types: {point.y:.0f}")
+      switch(input$tabs,
+             "All fuel types" = "Total number of vehicles: {point.y:.0f}")
     })
     
     # Render the data table based only on data_type selection with 20 entries by default
@@ -85,7 +86,7 @@ totalnumberofvehiclesServer <- function(id) {
     # Create a download handler for the data
     output$downloadData <- downloadHandler(
       filename = function() {
-        paste("Agricultural_Machinery_", input$data_type, ".xlsx", sep = "")
+        paste("Agricultural_Machinery_", input$tabs, ".xlsx", sep = "")
       },
       content = function(file) {
         write.xlsx(filtered_data_table() %>% 
@@ -116,9 +117,9 @@ totalnumberofvehiclesServer <- function(id) {
       title = paste("Total number of agricultural machinery in Scotland in", census_year),
       yAxisTitle = yAxisTitle,
       xAxisTitle = "Agricultural machinery",
-      unit = input$data_type,
+      unit = input$tabs,
       footer = '<div style="font-size: 16px; font-weight: bold;"><a href="https://www.gov.scot/publications/results-from-the-scottish-agricultural-census-june-2024/">Source: Scottish Agricultural Census: June 2024</a></div>',
-      x_col = "Agricultual machinery",
+      x_col = "Agricultural machinery",
       y_col = y_col,
       tooltip_unit = tooltip_unit,
       maintain_order = FALSE
