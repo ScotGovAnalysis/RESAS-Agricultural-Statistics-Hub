@@ -63,10 +63,12 @@ totalnumberofvehiclesServer <- function(id) {
     
     y_col <- "All fuel types"
     
-    yAxisTitle <- reactive({
-      switch(input$tabs,
-             "All fuel types" = "Total number of vehicles")
-    })
+    # yAxisTitle <- reactive({
+    #   switch(input$tabs,
+    #          "All fuel types" = "Total number of vehicles")
+    # })
+    
+    yAxisTitle <- "Number of vehicles (x1000)"
     
     tooltip_unit <- reactive({
       switch(input$tabs,
@@ -74,26 +76,41 @@ totalnumberofvehiclesServer <- function(id) {
     })
     
     # Render the data table based only on data_type selection with 20 entries by default
-    output$data_table <- renderDT({
-      datatable(
-        filtered_data_table() %>%
-          select(`Agricultural machinery`, y_col()),
-        colnames = c("Agricultural machinery", yAxisTitle()),
-        options = list(pageLength = 20, scrollX = TRUE)  # Show 20 entries by default, enable horizontal scrolling
-      )
-    })
-    
+    # output$data_table <- renderDT({
+    #   datatable(
+    #     filtered_data_table() %>%
+    #       select(`Agricultural machinery`, y_col()),
+    #     colnames = c("Agricultural machinery", yAxisTitle()),
+    #     options = list(pageLength = 20, scrollX = TRUE)  # Show 20 entries by default, enable horizontal scrolling
+    #   )
+    # })
+    # 
+    output$data_table <- renderDT({ 
+      datatable( 
+        filtered_data_table() %>% 
+          select(`Agricultural machinery`, !!sym(y_col)), 
+        colnames = c("Agricultural machinery", "Number of agricultural machinery"), # Use the string directly 
+        options = list(pageLength = 20, scrollX = TRUE) # Show 20 entries by default, enable horizontal scrolling
+        ) 
+      })
     # Create a download handler for the data
-    output$downloadData <- downloadHandler(
-      filename = function() {
-        paste("Agricultural_Machinery_", input$tabs, ".xlsx", sep = "")
-      },
-      content = function(file) {
+    # output$downloadData <- downloadHandler(
+    #   filename = function() {
+    #     paste("Agricultural_Machinery_", input$tabs, ".xlsx", sep = "")
+    #   },
+    #   content = function(file) {
+    #     write.xlsx(filtered_data_table() %>% 
+    #                  select(`Agricultural machinery`, y_col()), file, rowNames = FALSE)
+    #   }
+    # )
+    # 
+    output$downloadData <- downloadHandler( 
+      filename = function() { 
+        paste("Agricultural_machinery_", input$tabs, ".xlsx", sep = "") 
+        }, 
+      content = function(file) { 
         write.xlsx(filtered_data_table() %>% 
-                     select(`Agricultural machinery`, y_col()), file, rowNames = FALSE)
-      }
-    )
-    
+                     select(`Agricultural machinery`, !!sym(y_col)), file, rowNames = FALSE) } )
     # Render the variable selection UI dynamically
     output$variable_select <- renderUI({
       choices <- unique(total_number_vehicles_data$`Agricultural machinery`)
