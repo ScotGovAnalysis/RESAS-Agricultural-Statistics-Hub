@@ -118,15 +118,15 @@ ui <- fluidPage(
                        tabPanel("Vegetables", value = "human_vegetables_module", humanVegetablesUI("human_vegetables_module")),
                        tabPanel("Fruit", value = "fruit_module", fruitUI("fruit_module"))
             ),
-            navbarMenu("Economy",
-                       tabPanel("Summary", value = "economy", economySummaryUI("economy"))
-            ),
             navbarMenu("Machinery",
                        tabPanel("Total number", value = "total_vehicles_module", totalnumberofvehiclesUI("total_vehicles_module")),
                        tabPanel("Farm type", value = "ag_mach_farm_type_module", agmachfarmtypeUI("ag_mach_farm_type_module")),
                        tabPanel("Ownership", value = "ag_mach_ownership_module", agmachownershipUI("ag_mach_ownership_module")),
                        tabPanel("Fuel", value = "ag_mach_fuel_module", agmachfuelUI("ag_mach_fuel_module"))
-                                ))
+            ),
+            navbarMenu("Economy",
+                       tabPanel("Summary", value = "economy", economySummaryUI("economy"))
+            ))
           ),
           create_footer()
       )

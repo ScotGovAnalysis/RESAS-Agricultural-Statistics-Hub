@@ -142,7 +142,7 @@ agmachfarmtypeServer <- function(id) {
     barChartServer(
       id = "bar_chart",
       chart_data = chart_data,
-      title = paste("Farm types in Scotland in", census_year),
+      title = paste("Number of agricultural machinery by main farm types in Scotland in", census_year),
       yAxisTitle = yAxisTitle,
       xAxisTitle = "Main farm type",
       unit = input$data_type,

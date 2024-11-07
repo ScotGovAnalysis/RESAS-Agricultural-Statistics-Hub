@@ -602,8 +602,6 @@ total_number_vehicles_data <- number_of_ag_mach_fuel_type %>%
                                 "Side-by-side utility vehicles", "Self-propelled sprayers", "Telescopic material handlers (such as telehandlers)",
                                 "All tractors", "All agricultural machinery"))
 
-# subset for total number of holdings with vehicles
-
 # subset by farm type
 ag_mach_farm_type_data <- number_of_ag_mach_farm_type %>%
   select(`Main farm type`, `All tractors`, `Combine harvesters`,
