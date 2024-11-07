@@ -605,7 +605,15 @@ total_number_vehicles_data <- number_of_ag_mach_fuel_type %>%
 # subset for total number of holdings with vehicles
 
 # subset by farm type
-
+ag_mach_farm_type_data <- number_of_ag_mach_farm_type %>%
+  select(`Main farm type`, `All tractors`, `Combine harvesters`,
+         `Self-propelled sprayers`, `Telescopic material handlers`,
+         `All-terrain vehicle/Quads`, `Side-by-side utility vehicles`,
+         `Other lifting equipment`) %>%
+  filter(`Main farm type` %in% c("General cropping", "General cropping; forage", "LFA cattle and sheep",
+                                 "Mixed holdings", "Non-LFA cattle and sheep", "Specialist cereals",
+                                 "Specialist dairy", "Specialist horticulture & permanent crops",
+                                 "Specialist pigs", "Specialist poultry", "Unclassified", "Unknown"))
 # subset by ownership
 
 # subset by fuel
@@ -613,6 +621,7 @@ total_number_vehicles_data <- number_of_ag_mach_fuel_type %>%
 # Saving all the subsets to an RData file
 save(
   total_number_vehicles_data,
+  ag_mach_farm_type_data,
   file = "vehicle_data.RData"
 )
 
