@@ -1,12 +1,13 @@
-# file: module_ag_mach_ownership
+# file: module_ag_mach_fuel
 
-agmachownershipUI <- function(id) {
+agmachfuelUI <- function(id) {
   ns <- NS(id)
   tagList(
     sidebarLayout(
       sidebarPanel(
         width = 3,
-        radioButtons(ns("data_type"), "Data Type", choices = c("All tractors" = "All tractors", "Combine harvesters" = "Combine harvesters", "Self-propelled sprayers" = "Self-propelled sprayers", "Telescopic material handlers (such as telehandlers)" = "Telescopic material handlers (such as telehandlers)",
+        radioButtons(ns("data_type"), "Data Type", choices = c("All tractors" = "All tractors", "Combine harvesters" = "Combine harvesters", "Self-propelled sprayers" = "Self-propelled sprayers",
+                                                               "Telescopic material handlers (such as telehandlers)" = "Telescopic material handlers (such as telehandlers)", "Other lifting equipment (such as wheeled loaders, diggers and fork-lifts)" = "Other lifting equipment (such as wheeled loaders, diggers and fork-lifts)",
                                                                "All-terrain vehicle (ATV)/Quads" = "All-terrain vehicle (ATV)/Quads", "Side-by-side utility vehicles" = "Side-by-side utility vehicles"), selected = "All tractors"),
         conditionalPanel(
           condition = paste0("input['", ns("tabs"), "'] == '", ns("bar"), "'"),  # Show variable select only on Bar Chart tab
@@ -31,13 +32,13 @@ agmachownershipUI <- function(id) {
   )
 }
 
-agmachownershipServer <- function(id) {
+agmachfuelServer <- function(id) {
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
     
     # Create reactive data excluding 'All' and depending only on data_type (for chart)
     filtered_data_chart <- reactive({
-      ag_mach_ownership_data
+      ag_mach_fuel_data
     })
     
     # Create reactive data for the table with commas added to numeric values
@@ -51,7 +52,7 @@ agmachownershipServer <- function(id) {
       data <- filtered_data_chart()
       if (input$tabs == ns("bar") && !is.null(input$variables)) {
         data <- data %>%
-          filter(`Status` %in% input$variables)
+          filter(`Fuel type` %in% input$variables)
       }
       data
     })
@@ -65,7 +66,7 @@ agmachownershipServer <- function(id) {
              "Telescopic material handlers (such as telehandlers)" = "Telescopic material handlers (such as telehandlers)",
              "All-terrain vehicle (ATV)/Quads" = "All-terrain vehicle (ATV)/Quads", 
              "Side-by-side utility vehicles" = "Side-by-side utility vehicles", 
-             "Other lifting equipment" = "Other lifting equipment"
+             "Other lifting equipment (such as wheeled loaders, diggers and fork-lifts)" = "Other lifting equipment (such as wheeled loaders, diggers and fork-lifts)"
       )
     })
     
@@ -77,7 +78,7 @@ agmachownershipServer <- function(id) {
              "Telescopic material handlers (such as telehandlers)" = "Number of telescopic material handlers",
              "All-terrain vehicle (ATV)/Quads" = "Number of All-terrain vehicle (ATV)/Quads",
              "Side-by-side utility vehicles" = "Number of side-by-side utility vehicles",
-             "Other lifting equipment" = "Number of other lifting equipment")
+             "Other lifting equipment (such as wheeled loaders, diggers and fork-lifts)" = "Number of other lifting equipment")
     })
     
     
@@ -90,7 +91,7 @@ agmachownershipServer <- function(id) {
              "Telescopic material handlers (such as telehandlers)" = "Number",
              "All-terrain vehicle (ATV)/Quads" = "Number", 
              "Side-by-side utility vehicles" = "Number", 
-             "Other lifting equipment" = "Number")
+             "Other lifting equipment (such as wheeled loaders, diggers and fork-lifts)" = "Number")
     })
     # 
     # unit_position <- reactive({
@@ -105,7 +106,7 @@ agmachownershipServer <- function(id) {
     output$data_table <- renderDT({
       datatable(
         filtered_data_table() %>%
-          select(`Status`, y_col()),
+          select(`Fuel type`, y_col()),
         colnames = c("Status", yAxisTitle()),
         options = list(pageLength = 20, scrollX = TRUE)  # Show 20 entries by default, enable horizontal scrolling
       )
@@ -114,17 +115,17 @@ agmachownershipServer <- function(id) {
     # Create a download handler for the data
     output$downloadData <- downloadHandler(
       filename = function() {
-        paste("Ownership_status_", input$data_type, ".xlsx", sep = "")
+        paste("Fuel_type_", input$data_type, ".xlsx", sep = "")
       },
       content = function(file) {
         write.xlsx(filtered_data_table() %>% 
-                     select(`Status`, y_col()), file, rowNames = FALSE)
+                     select(`Fuel type`, y_col()), file, rowNames = FALSE)
       }
     )
     
     # Render the variable selection UI dynamically
     output$variable_select <- renderUI({
-      choices <- unique(ag_mach_ownership_data$`Status`)
+      choices <- unique(ag_mach_fuel_data$`Fuel type`)
       selected <- setdiff(choices, "All")
       selectizeInput(
         ns("variables"), 
@@ -142,12 +143,12 @@ agmachownershipServer <- function(id) {
     barChartServer(
       id = "bar_chart",
       chart_data = chart_data,
-      title = paste("Ownership status of agriculture machinery in Scotland in", census_year),
+      title = paste("Fuel type of agriculture machinery in Scotland in", census_year),
       yAxisTitle = yAxisTitle,
       xAxisTitle = "Status",
       unit = input$data_type,
       footer = census_footer,
-      x_col = "Status",
+      x_col = "Fuel type",
       y_col = y_col,
       tooltip_unit = tooltip_unit,
       #unit_position = unit_position,

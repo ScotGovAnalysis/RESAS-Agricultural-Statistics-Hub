@@ -627,12 +627,22 @@ ag_mach_ownership_data <- ag_mach_ownership_data %>%
   
 
 # subset by fuel
+ag_mach_fuel_data <- number_of_ag_mach_fuel_type %>%
+  select(-`All fuel types`) %>%
+  filter(`Agricultural machinery` %in% c("All-terrain vehicle (ATV)/Quads", "Combine harvesters", "Other lifting equipment (such as wheeled loaders, diggers and fork-lifts)",
+                                         "Side-by-side utility vehicles", "Self-propelled sprayers", "Telescopic material handlers (such as telehandlers)",
+                                         "All tractors"))
+ag_mach_fuel_data <- ag_mach_fuel_data %>% 
+  pivot_longer(cols = -`Agricultural machinery`, names_to = "Fuel type", values_to = "Value") # Pivot wider to turn category rows into columns 
+ag_mach_fuel_data <- ag_mach_fuel_data %>% 
+  pivot_wider(names_from = `Agricultural machinery`, values_from = Value)
 
 # Saving all the subsets to an RData file
 save(
   total_number_vehicles_data,
   ag_mach_farm_type_data,
   ag_mach_ownership_data,
+  ag_mach_fuel_data,
   file = "vehicle_data.RData"
 )
 

@@ -53,4 +53,5 @@ server <- function(input, output, session) {
   totalnumberofvehiclesServer("total_vehicles_module")
   agmachfarmtypeServer("ag_mach_farm_type_module")
   agmachownershipServer("ag_mach_ownership_module")
+  agmachfuelServer("ag_mach_fuel_module")
 }

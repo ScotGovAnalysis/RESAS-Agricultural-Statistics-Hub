@@ -48,6 +48,7 @@ source("module_structure_information.R")
 source("module_total_number_of_vehicles.R")
 source("module_ag_mach_farm_type.R")
 source("module_ag_mach_ownership.R")
+source("module_ag_mach_fuel.R")
 
 
 create_footer <- function() {
@@ -123,7 +124,8 @@ ui <- fluidPage(
             navbarMenu("Machinery",
                        tabPanel("Total number", value = "total_vehicles_module", totalnumberofvehiclesUI("total_vehicles_module")),
                        tabPanel("Farm type", value = "ag_mach_farm_type_module", agmachfarmtypeUI("ag_mach_farm_type_module")),
-                       tabPanel("Ownership", value = "ag_mach_ownership_module", agmachownershipUI("ag_mach_ownership_module"))
+                       tabPanel("Ownership", value = "ag_mach_ownership_module", agmachownershipUI("ag_mach_ownership_module")),
+                       tabPanel("Fuel", value = "ag_mach_fuel_module", agmachfuelUI("ag_mach_fuel_module"))
                                 ))
           ),
           create_footer()
