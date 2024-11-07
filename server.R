@@ -52,4 +52,5 @@ server <- function(input, output, session) {
   cropsSummaryServer("crops_summary_module")
   totalnumberofvehiclesServer("total_vehicles_module")
   agmachfarmtypeServer("ag_mach_farm_type_module")
+  agmachownershipServer("ag_mach_ownership_module")
 }

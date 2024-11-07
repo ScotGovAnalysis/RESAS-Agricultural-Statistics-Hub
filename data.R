@@ -615,6 +615,16 @@ ag_mach_farm_type_data <- number_of_ag_mach_farm_type %>%
                                  "Specialist dairy", "Specialist horticulture & permanent crops",
                                  "Specialist pigs", "Specialist poultry", "Unclassified", "Unknown"))
 # subset by ownership
+ag_mach_ownership_data <- number_of_ag_mach_ownership %>%
+  select(-`All ownership status`) %>%
+  filter(`Agricultural machinery` %in% c("All-terrain vehicle (ATV)/Quads", "Combine harvesters",
+                                         "Side-by-side utility vehicles", "Self-propelled sprayers", "Telescopic material handlers (such as telehandlers)",
+                                         "All tractors"))
+ag_mach_ownership_data <- ag_mach_ownership_data %>% 
+  pivot_longer(cols = -`Agricultural machinery`, names_to = "Status", values_to = "Value") # Pivot wider to turn category rows into columns 
+ag_mach_ownership_data <- ag_mach_ownership_data %>% 
+  pivot_wider(names_from = `Agricultural machinery`, values_from = Value)
+  
 
 # subset by fuel
 
@@ -622,6 +632,7 @@ ag_mach_farm_type_data <- number_of_ag_mach_farm_type %>%
 save(
   total_number_vehicles_data,
   ag_mach_farm_type_data,
+  ag_mach_ownership_data,
   file = "vehicle_data.RData"
 )
 
