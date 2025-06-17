@@ -6,7 +6,8 @@ occupiers_employees_subregion <- occupiers_employees_subregion %>%
 regions_data <- occupiers_employees_subregion %>% 
   select(-`Scotland total`) %>% 
   pivot_longer(cols = -`Occupiers and employees by category`, names_to = "sub_region", values_to = "value") %>%
-  mutate(value = ifelse(value == "c", NA, safe_as_numeric(value)))
+  mutate(value = case_when(value == "c"~ NA,
+                           .default = as.numeric(value)))
 
 # Filter for the specific categories
 categories <- c("Regular full-time staff total", 
@@ -55,7 +56,7 @@ employeesMapServer <- function(id) {
     # Data Processing for Timeseries
     occupiers_employees <- occupiers_employees %>%
       select(-`% Change 2024 to 2023`) %>%
-      mutate(across(starts_with("20"), safe_as_numeric))
+      mutate(across(starts_with("20"), as.numeric))
     
     # Reactive data for the time series chart
     chart_data <- reactive({

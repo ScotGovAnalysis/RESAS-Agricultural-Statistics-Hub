@@ -13,14 +13,14 @@
 
 census_year <- 2024
 
-emissions_year <- 2022
+emissions_year <- 2023
 
 #emissions_year 
 
 #some footers need manually updated - e.g. poultry - run print_code and search for 2022 / 2023 to find issues
 census_footer <- '<div style="font-size: 16px; font-weight: bold;"><a href="https://www.gov.scot/publications/results-from-the-scottish-agricultural-census-june-2024/">Source: Scottish Agricultural Census: June 2024</a></div>'
 
-emissions_footer <- '<div style="font-size: 16px; font-weight: bold;"> <a href="https://www.gov.scot/publications/scottish-agriculture-greenhouse-gas-emissions-and-nitrogen-use-2022-23/" target="_blank">Source: Scottish agriculture greenhouse gas emissions and nitrogen use 2022-23</a>, analysis based on results of the <a href="https://www.gov.scot/publications/scottish-greenhouse-gas-statistics-2022/" target="_blank">Scottish Greenhouse Gas Statistics 2022</a>.</div>'
+emissions_footer <- '<div style="font-size: 16px; font-weight: bold;"> <a href="https://www.gov.scot/collections/scottish-agriculture-greenhouse-gas-emissions-and-nitrogen-use/" target="_blank">Source: Scottish agriculture greenhouse gas emissions and nitrogen use 2023-24</a>, analysis based on results of the <a href="https://www.gov.scot/publications/scottish-greenhouse-gas-statistics-2023/" target="_blank">Scottish Greenhouse Gas Statistics 2023</a>.</div>'
 
 
 
@@ -43,11 +43,11 @@ generateEmissionsTableFooter <- function() {
   div(
     style = "background-color: #f0f0f0; padding: 15px; border-radius: 5px; margin-top: 20px;",
     "This data is sourced from the ",
-    tags$a(href = "https://www.gov.scot/publications/scottish-agriculture-greenhouse-gas-emissions-and-nitrogen-use-2022-23/",
-           "Scottish agriculture greenhouse gas emissions and nitrogen use 2022-23"),
-    " which was published on 27 June 2024, with its analysis based on the ",
-    tags$a(href = "https://www.gov.scot/publications/scottish-greenhouse-gas-statistics-2022/", 
-           "Scottish Greenhouse Gas Statistics 2022."),
+    tags$a(href = "https://www.gov.scot/collections/scottish-agriculture-greenhouse-gas-emissions-and-nitrogen-use/",
+           "Scottish agriculture greenhouse gas emissions and nitrogen use 2023-24"),
+    " which was published on 10 June 2025, with its analysis based on the ",
+    tags$a(href = "https://www.gov.scot/publications/scottish-greenhouse-gas-statistics-2023/", 
+           "Scottish Greenhouse Gas Statistics 2023."),
     tags$br(),
     "Full data tables and detailed analysis are available within the full reports."
   )

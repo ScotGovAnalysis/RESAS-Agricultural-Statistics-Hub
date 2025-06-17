@@ -90,7 +90,7 @@ otherAnimalsServer <- function(id) {
       select(-`Scotland total`) %>%
       mutate(across(everything(), as.character)) %>%
       pivot_longer(cols = -`Livestock by category`, names_to = "sub_region", values_to = "value") %>%
-      mutate(value = safe_as_numeric(value))
+      mutate(value = as.numeric(value))
     
     mapServer(
       id = "map",

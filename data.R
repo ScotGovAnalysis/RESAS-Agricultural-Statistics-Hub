@@ -47,7 +47,7 @@ library(ggthemes)
 ### Census Data: 
 ###
 ### Xlsx file originates from the published data tables in supporting documents
-### 2023 version: https://www.gov.scot/publications/results-scottish-agricultural-census-june-2023/documents/
+### 2023 version: https://www.gov.scot/publications/results-scottish-agricultural-census-june-2024/documents/
 ###
 ### To update, download the excel document and insert file into compendium working directory / file
 ### Insert file path in the file_path below.
@@ -444,7 +444,7 @@ save(total_animals, file = "total_animals.RData")
 # To update data, replace file path and run the below script.
 
 # Load  data from the Excel file
-file_path <- "ghg_data.xlsx"
+#file_path <- "C:/Users/U456727/OneDrive - SCOTS Connect/Economic Statistics/FBS/GHG 2023-24/Sectoral analysis/GHG inventory data 2023.xlsx"
 
 agri_gas <- read_excel(file_path, sheet = "agri_gas")
 national_total <- read_excel(file_path, sheet = "national_total")
@@ -465,15 +465,15 @@ national_total$Year <- as.numeric(national_total$Year)
 subsector_total$Year <- as.numeric(subsector_total$Year)
 
 # Merge the specified sources into 'Other emission source'
-subsector_source <- subsector_source %>%
-  mutate(
-    Source = ifelse(Source %in% c("Urea application", "Non-energy products from fuels and solvent use", "Other emission source"), 
-                    "Other emission source", 
-                    Source)
-  ) %>%
-  group_by(Source) %>%
-  summarise(across(everything(), sum)) %>%
-  ungroup()
+subsector_source <- subsector_source %>% filter(!Source %in% c("Urea application", "Non-energy products from fuels and solvent use"))
+  # mutate(
+  #   Source = ifelse(Source %in% c("Urea application", "Non-energy products from fuels and solvent use"), 
+  #                   "Other emission source", 
+  #                   Source)
+  # ) %>%
+  # group_by(Source) %>%
+  # summarise(across(everything(), sum)) %>%
+  # ungroup()
 
 save(subsector_total, agri_gas, national_total, subsector_source, file = "ghg_data.RData")
 

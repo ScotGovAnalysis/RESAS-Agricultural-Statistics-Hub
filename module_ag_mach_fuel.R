@@ -145,7 +145,7 @@ agmachfuelServer <- function(id) {
       chart_data = chart_data,
       title = paste("Fuel type of agriculture machinery in Scotland in", census_year),
       yAxisTitle = yAxisTitle,
-      xAxisTitle = "Status",
+      xAxisTitle = "Fuel type",
       unit = input$data_type,
       footer = census_footer,
       x_col = "Fuel type",

@@ -28,7 +28,7 @@ timelapseBarChartUI <- function(id) {
           column(8, htmlOutput(ns("title"))),
           column(4, div(class = "chart-controls",
                         div(class = "year-label", "Year:"),
-                        sliderInput(ns("year"), NULL, min = 1998, max = 2022, value = 1998, step = 1, sep = "", ticks = TRUE, animate = animationOptions(interval = 1000, loop = FALSE), width = '200px'),
+                        sliderInput(ns("year"), NULL, min = 1998, max = 2023, value = 1998, step = 1, sep = "", ticks = TRUE, animate = animationOptions(interval = 1000, loop = FALSE), width = '200px'),
                         actionButton(ns("playPause"), "", icon = icon("play"), class = "btn btn-primary")
           ))
         ),
