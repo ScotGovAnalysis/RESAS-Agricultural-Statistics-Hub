@@ -45,13 +45,17 @@ source("module_manure.R")
 source("module_nitrogen_usage.R")
 source("module_crops_summary.R")
 source("module_structure_information.R")
+source("module_total_number_of_vehicles.R")
+source("module_ag_mach_farm_type.R")
+source("module_ag_mach_ownership.R")
+source("module_ag_mach_fuel.R")
 
 
 create_footer <- function() {
   div(
     class = "footer",
     span(style = "font-weight: bold;", "Content in development "),
-    span("\n | Last updated: 29/10/2024"),
+    span("\n | Last updated: 10/06/2025"),
     img(src = "sg.png", alt = "SG Logo", style = "height: 30px; margin-left: 10px;")
   )
 }
@@ -114,11 +118,17 @@ ui <- fluidPage(
                        tabPanel("Vegetables", value = "human_vegetables_module", humanVegetablesUI("human_vegetables_module")),
                        tabPanel("Fruit", value = "fruit_module", fruitUI("fruit_module"))
             ),
+            navbarMenu("Machinery",
+                       tabPanel("Total number", value = "total_vehicles_module", totalnumberofvehiclesUI("total_vehicles_module")),
+                       tabPanel("Farm type", value = "ag_mach_farm_type_module", agmachfarmtypeUI("ag_mach_farm_type_module")),
+                       tabPanel("Ownership", value = "ag_mach_ownership_module", agmachownershipUI("ag_mach_ownership_module")),
+                       tabPanel("Fuel", value = "ag_mach_fuel_module", agmachfuelUI("ag_mach_fuel_module"))
+            ),
             navbarMenu("Economy",
                        tabPanel("Summary", value = "economy", economySummaryUI("economy"))
-            )
+            ))
           ),
           create_footer()
       )
   )
-)
+

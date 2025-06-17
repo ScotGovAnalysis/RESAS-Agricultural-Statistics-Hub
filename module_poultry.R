@@ -84,7 +84,7 @@ poultryServer <- function(id) {
       select(-`Scotland total`) %>%
       mutate(across(everything(), as.character)) %>%
       pivot_longer(cols = -`Livestock by category`, names_to = "sub_region", values_to = "value") %>%
-      mutate(value = safe_as_numeric(value))
+      mutate(value = as.numeric(value))
     
     mapServer(
       id = "map",
@@ -103,7 +103,7 @@ poultryServer <- function(id) {
       filtered_data <- number_of_poultry %>%
         filter(`Poultry by category` %in% input$timeseries_variables) %>%
         pivot_longer(cols = -`Poultry by category`, names_to = "year", values_to = "value") %>%
-        mutate(value = safe_as_numeric(value))
+        mutate(value = as.numeric(value))
     })
     
     areaChartServer(

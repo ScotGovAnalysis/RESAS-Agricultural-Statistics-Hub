@@ -14,7 +14,7 @@ informationUI <- function(id) {
       tags$div(
         style = "margin-top: 20px;",
         tags$div(style = "font-size: 18px; font-weight: bold;", "Scottish Greenhouse Gas Statistics"),
-        p(HTML('Official estimates of greenhouse gas emissions are available in the <a href="https://www.gov.scot/publications/scottish-greenhouse-gas-statistics-2022/documents/" target="_blank">Scottish Greenhouse Gas Statistics 2022</a> publication.')),
+        p(HTML('Official estimates of greenhouse gas emissions are available in the <a href="https://www.gov.scot/publications/scottish-greenhouse-gas-statistics-2023/documents/" target="_blank">Scottish Greenhouse Gas Statistics 2023</a> publication.')),
         tags$div(
           style = "margin-top: 20px;",
           tags$div(style = "font-size: 18px; font-weight: bold;", "British Survey of Fertiliser Practice Report"),

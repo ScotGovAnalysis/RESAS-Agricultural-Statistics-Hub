@@ -47,7 +47,7 @@ library(ggthemes)
 ### Census Data: 
 ###
 ### Xlsx file originates from the published data tables in supporting documents
-### 2023 version: https://www.gov.scot/publications/results-scottish-agricultural-census-june-2023/documents/
+### 2023 version: https://www.gov.scot/publications/results-scottish-agricultural-census-june-2024/documents/
 ###
 ### To update, download the excel document and insert file into compendium working directory / file
 ### Insert file path in the file_path below.
@@ -448,7 +448,7 @@ save(total_animals, file = "total_animals.RData")
 # To update data, replace file path and run the below script.
 
 # Load  data from the Excel file
-file_path <- "ghg_data.xlsx"
+#file_path <- "C:/Users/U456727/OneDrive - SCOTS Connect/Economic Statistics/FBS/GHG 2023-24/Sectoral analysis/GHG inventory data 2023.xlsx"
 
 agri_gas <- read_excel(file_path, sheet = "agri_gas")
 national_total <- read_excel(file_path, sheet = "national_total")
@@ -469,15 +469,15 @@ national_total$Year <- as.numeric(national_total$Year)
 subsector_total$Year <- as.numeric(subsector_total$Year)
 
 # Merge the specified sources into 'Other emission source'
-subsector_source <- subsector_source %>%
-  mutate(
-    Source = ifelse(Source %in% c("Urea application", "Non-energy products from fuels and solvent use", "Other emission source"), 
-                    "Other emission source", 
-                    Source)
-  ) %>%
-  group_by(Source) %>%
-  summarise(across(everything(), sum)) %>%
-  ungroup()
+subsector_source <- subsector_source %>% filter(!Source %in% c("Urea application", "Non-energy products from fuels and solvent use"))
+  # mutate(
+  #   Source = ifelse(Source %in% c("Urea application", "Non-energy products from fuels and solvent use"), 
+  #                   "Other emission source", 
+  #                   Source)
+  # ) %>%
+  # group_by(Source) %>%
+  # summarise(across(everything(), sum)) %>%
+  # ungroup()
 
 save(subsector_total, agri_gas, national_total, subsector_source, file = "ghg_data.RData")
 
@@ -588,4 +588,64 @@ data_frames$grass_crop_nutrient_mgmt <- NULL
 save(list = names(data_frames), file = "module_2023.RData", envir = list2env(data_frames))
 
 ################################
+
+
+#### Module 2024 Data ####
+
+#### This data comes from the June Agricultural Census 2024
+####
+#### https://www.gov.scot/publications/results-from-the-scottish-agricultural-census-june-2024/
+####
+#### This script looks at the modular vehicle data
+
+# subset for total vehicle numbers
+total_number_vehicles_data <- number_of_ag_mach_fuel_type %>% 
+  select(`Agricultural machinery`, `All fuel types`) %>%
+  filter(`Agricultural machinery` %in% c("All-terrain vehicle (ATV)/Quads", "Combine harvesters", 
+                                "Other lifting equipment (such as wheeled loaders, diggers and fork-lifts)", 
+                                "Side-by-side utility vehicles", "Self-propelled sprayers", "Telescopic material handlers (such as telehandlers)",
+                                "All tractors", "All agricultural machinery"))
+
+# subset by farm type
+ag_mach_farm_type_data <- number_of_ag_mach_farm_type %>%
+  select(`Main farm type`, `All tractors`, `Combine harvesters`,
+         `Self-propelled sprayers`, `Telescopic material handlers`,
+         `All-terrain vehicle/Quads`, `Side-by-side utility vehicles`,
+         `Other lifting equipment`) %>%
+  filter(`Main farm type` %in% c("General cropping", "General cropping; forage", "LFA cattle and sheep",
+                                 "Mixed holdings", "Non-LFA cattle and sheep", "Specialist cereals",
+                                 "Specialist dairy", "Specialist horticulture & permanent crops",
+                                 "Specialist pigs", "Specialist poultry", "Unclassified", "Unknown"))
+# subset by ownership
+ag_mach_ownership_data <- number_of_ag_mach_ownership %>%
+  select(-`All ownership status`) %>%
+  filter(`Agricultural machinery` %in% c("All-terrain vehicle (ATV)/Quads", "Combine harvesters",
+                                         "Side-by-side utility vehicles", "Self-propelled sprayers", "Telescopic material handlers (such as telehandlers)",
+                                         "All tractors"))
+ag_mach_ownership_data <- ag_mach_ownership_data %>% 
+  pivot_longer(cols = -`Agricultural machinery`, names_to = "Status", values_to = "Value") # Pivot wider to turn category rows into columns 
+ag_mach_ownership_data <- ag_mach_ownership_data %>% 
+  pivot_wider(names_from = `Agricultural machinery`, values_from = Value)
+  
+
+# subset by fuel
+ag_mach_fuel_data <- number_of_ag_mach_fuel_type %>%
+  select(-`All fuel types`) %>%
+  filter(`Agricultural machinery` %in% c("All-terrain vehicle (ATV)/Quads", "Combine harvesters", "Other lifting equipment (such as wheeled loaders, diggers and fork-lifts)",
+                                         "Side-by-side utility vehicles", "Self-propelled sprayers", "Telescopic material handlers (such as telehandlers)",
+                                         "All tractors"))
+ag_mach_fuel_data <- ag_mach_fuel_data %>% 
+  pivot_longer(cols = -`Agricultural machinery`, names_to = "Fuel type", values_to = "Value") # Pivot wider to turn category rows into columns 
+ag_mach_fuel_data <- ag_mach_fuel_data %>% 
+  pivot_wider(names_from = `Agricultural machinery`, values_from = Value)
+
+# Saving all the subsets to an RData file
+save(
+  total_number_vehicles_data,
+  ag_mach_farm_type_data,
+  ag_mach_ownership_data,
+  ag_mach_fuel_data,
+  file = "vehicle_data.RData"
+)
+
 
