@@ -47,8 +47,8 @@ fertiliserUsageServer <- function(id) {
     table_data <- reactive({
       chart_data() %>%
         mutate(across(where(is.numeric), comma)) %>% 
-        rename(Holdings = `2023 holdings`,
-               Area = `2023 area`)
+        rename(Holdings = `2023 holdings (Number)`,
+               Area = `2023 area (Hectares)`)
     })
     
     output$variable_select <- renderUI({
@@ -67,9 +67,9 @@ fertiliserUsageServer <- function(id) {
     
     y_col <- reactive({
       if (input$data_type == "holdings") {
-        "2023 holdings"
+        "2023 holdings (Number)"
       } else {
-        "2023 area"
+        "2023 area (Hectares)"
       }
     })
     
