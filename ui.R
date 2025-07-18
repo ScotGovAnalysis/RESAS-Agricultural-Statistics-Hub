@@ -3,7 +3,7 @@ source("utility/util_functions.R")
 source("utility/util_options.R")
 source("utility/hc_theme.R")
 
-
+### Load scripts with functions used to create charts in module scripts
 source("charts_tables_functions/function_summary.R")
 source("charts_tables_functions/function_line_chart.R")
 source("charts_tables_functions/function_area_chart.R")
@@ -16,7 +16,7 @@ source("charts_tables_functions/function_regions_map.R")
 source("charts_tables_functions/function_map.R")
 source("charts_tables_functions/function_multi_bar_chart.R")
 
-
+### Load module scripts
 source("Agri-Env/module_subsector_emissions.R")
 source("Agri-Env/module_information.R")
 source("Agri-Env/module_fertiliser_usage.R")
