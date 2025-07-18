@@ -1,0 +1,13 @@
+name: sg-agric-stats-hub
+title: sg-agric-stats-hub
+username: scotland
+account: scotland
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 10771217
+bundleId: 10429213
+url: https://scotland.shinyapps.io/sg-agric-stats-hub/
+version: 1
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: combined_code.txt|data.R
