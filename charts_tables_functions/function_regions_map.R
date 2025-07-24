@@ -6,7 +6,7 @@ library(geojsonio)
 library(dplyr)
 
 # Load the GeoJSON file
-region_geojson_data <- geojson_read("regions_simplified.geojson", what = "sp")
+region_geojson_data <- geojson_read("utility/regions_simplified.geojson", what = "sp")
 
 # Convert GeoJSON to a Highcharts-compatible format
 region_geojson_list <- geojson_list(region_geojson_data)

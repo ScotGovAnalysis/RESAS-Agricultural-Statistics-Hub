@@ -112,9 +112,9 @@ barChartServer <- function(id, chart_data, title, yAxisTitle, xAxisTitle, footer
       #     }",
       #                tooltip_unit(), unit_position())
              
-        ))) %>%
+        ))) #%>%
         
-        hc_add_theme(thm)
+       # hc_add_theme(thm)
     })
   })
 }

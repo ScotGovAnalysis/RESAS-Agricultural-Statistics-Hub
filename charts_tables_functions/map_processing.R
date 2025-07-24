@@ -16,7 +16,7 @@ library(geojsonio)
 library(rmapshaper)
 
 # Load the shapefile
-local_authorities <- st_read("Local_Authority_Boundaries_-_Scotland/pub_las.shp")
+local_authorities <- st_read("utility/Local_Authority_Boundaries_-_Scotland/pub_las.shp")
 
 mapping_data <- data.frame(
   region = c("North West", "North West", "North West", "North West", 

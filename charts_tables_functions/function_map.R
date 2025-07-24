@@ -1,6 +1,6 @@
 
 # Load the GeoJSON file
-geojson_data <- geojson_read("subregions_simplified.geojson", what = "sp")
+geojson_data <- geojson_read("utility/subregions_simplified.geojson", what = "sp")
 
 # Convert GeoJSON to a Highcharts-compatible format
 geojson_list <- geojson_list(geojson_data)

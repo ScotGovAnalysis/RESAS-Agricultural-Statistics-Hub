@@ -1,7 +1,7 @@
 
 
 # Load the data
-load("module_2023.RData")
+load("Data/module_2023.RData")
 
 # Convert relevant columns to character before pivoting
 manure_qty <- manure_qty %>%

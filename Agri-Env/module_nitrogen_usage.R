@@ -1,5 +1,5 @@
 # Load the data
-load("module_2023.RData")  # Assuming nitrogen_400 and nitrogen_250 are loaded from this file
+load("Data/module_2023.RData")  # Assuming nitrogen_400 and nitrogen_250 are loaded from this file
 
 # Transform the data, filtering out "All respondents"
 nitrogen_400_long <-  nitrogen_400 %>%
