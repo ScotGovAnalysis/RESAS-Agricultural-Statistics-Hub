@@ -18,17 +18,17 @@ library(geojsonio)
 library(scales)
 
 # Load the .RData file containing the datasets
-load("Data/ghg_data.RData")
-load("Data/census_data.RData")
-load("Data/crops_data.RData")
-load("Data/total_animals.RData")
-load("Data/module_2023.RData")
-load("Data/vehicle_data.RData")
-load("Data/manure_fertiliser.RData")
-load("Data/FBS_data.Rda")
+load(here("Data", "ghg_data.RData"))
+load(here("Data", "census_data.RData"))
+load(here("Data", "crops_data.RData"))
+load(here("Data", "total_animals.RData"))
+load(here("Data", "module_2023.RData"))
+load(here("Data", "vehicle_data.RData"))
+load(here("Data", "manure_fertiliser.RData"))
+load(here("Data", "FBS_data.Rda"))
 
 # Load FBS options
-source("Economy/FBS/fbs_utility.R")
+source(here("Economy/FBS", "fbs_utility.R"))
 
 
 # Highchart options
@@ -38,7 +38,7 @@ hcoptslang$numericSymbols <- " "
 options(highcharter.lang = hcoptslang)
 
 # Load the theme
-thm <- source("utility/hc_theme.R")$value
+thm <- source(here("utility", "hc_theme.R"))$value
 
 
 # Preset list of colors
