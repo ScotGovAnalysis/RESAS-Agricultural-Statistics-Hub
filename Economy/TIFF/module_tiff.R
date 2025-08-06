@@ -120,8 +120,8 @@ tiffServer <- function(id){
         
         default_selection <- switch(
           input$in_out_type,
-          "tiff_Outputs" = grep("Gross_output", choices, value = TRUE),
-          "tiff_Inputs" = grep("Total_Costs", choices, value = TRUE),
+          "tiff_Outputs" = grep("Gross Output", choices, value = TRUE),
+          "tiff_Inputs" = grep("Total Costs", choices, value = TRUE),
           NULL
         )
         
@@ -192,7 +192,7 @@ tiffServer <- function(id){
         #no filtering on Category here
        data
       }),
-      title = titleText,
+      chart_title = titleText,
       yAxisTitle = "£ Million",
       xAxisTitle = "Year",
       footer = census_footer,
