@@ -1,7 +1,7 @@
 # library(shiny)
 
 ### Delete once module is finished to prevent loading twice ###
- # load(here("Data","TIFF_data.Rda"))
+#  load(here("Data","TIFF_data.Rda"))
 ###############################################################
 
 # Define UI ----
@@ -80,11 +80,13 @@ tiffServer <- function(id){
       
       year_start <- as.numeric(input$selected_year[1])
       year_end <- as.numeric(input$selected_year[2])
-      
+
       chart_data() %>%
+        mutate(Measure = str_replace_all(Measure, setNames(names(all_tiff), unname(all_tiff))))|>
         filter(Measure %in% input$selected_var) %>%
-        filter(Year >= year_start, Year <= year_end) %>%
-        mutate(across(where(is.numeric), scales::comma))
+        filter(Year >= year_start& Year <= year_end) %>%
+        mutate(Value = scales::comma(Value))
+      
     })
     
     # change checkboxes dynamically depending on radio box selection
@@ -105,8 +107,8 @@ tiffServer <- function(id){
       } else {
         choices <- switch(
           input$in_out_type,
-          "tiff_Outputs" = tiff_Outputs,
-          "tiff_Inputs" = tiff_Inputs,
+          "tiff_Outputs" = names(tiff_Outputs),
+          "tiff_Inputs" = names(tiff_Inputs),
           NULL
         )
         
@@ -129,30 +131,33 @@ tiffServer <- function(id){
     ### chart logic ####   
     # Select the appropriate column based on data_type
     
-    y_col <- reactive({
-      req(input$selected_var)
-      input$selected_var  # returns a character vector of selected column names
-    })
-    
+    # y_col <- reactive({
+    #   req(input$selected_var)
+    #   input$selected_var  # returns a character vector of selected column names
+    # })
+    # 
     yAxisTitle <- "£ Million"
     
     lineChartServer(
       id = "line",
       chart_data = reactive({
         req(input$selected_var)
-        
         year_start <- as.numeric(input$selected_year[1])
         year_end <- as.numeric(input$selected_year[2])
         
-        chart_data() %>% 
-          filter(Measure %in% input$selected_var) %>%  
-          filter(Year >= year_start, Year <= year_end)
-        # no filtering on Category here
+       data <-  chart_data() %>% 
+         select(Measure, Year, Value) |> 
+         # need to convert Measures column to values in all_Tiff list...this will match value of input$selected var
+        mutate(Measure = str_replace_all(Measure, setNames(names(all_tiff), unname(all_tiff))))|>
+        filter(Measure %in% input$selected_var)%>%
+       filter(Year >= year_start & Year <= year_end)
+      
+        #no filtering on Category here
+       data
       }),
       title = "TIFF Timeseries",
       yAxisTitle = "£ Million",
       xAxisTitle = "Year",
-      unit = tooltip_unit,
       footer = census_footer,
       x_col = "Year",
       y_col = "Value"
@@ -164,8 +169,8 @@ tiffServer <- function(id){
     output$data_table <- renderDT({
       datatable(
         table_data() %>%
-          select(`Category`, Year, Value),
-        colnames = c("Category", "Year", "Value"),
+          select(`Measure`, Year, Value),
+        colnames = c("Measure", "Year", "Value"),
         options = list(pageLength = 20, scrollX = TRUE)  # Show 20 entries by default, enable horizontal scrolling
       )
     })
@@ -188,7 +193,7 @@ tiffServer <- function(id){
   
   
 ### Testing module --------
-source("charts_tables_functions/function_line_chart.R")
+source(here("Economy/TIFF", "line_chart_copy.R"))
 source("Economy/TIFF/tiff_utility.R")
 source("utility/util_updates.R")
 source("utility/util_functions.R")

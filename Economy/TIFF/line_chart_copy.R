@@ -44,6 +44,7 @@ lineChartServer <- function(id, chart_data, title, yAxisTitle, xAxisTitle, unit 
       HTML(footer)
     })
     
+   
     output$line_chart <- renderHighchart({
       data <- chart_data()
       colors <- reactive_colors()
@@ -54,7 +55,7 @@ lineChartServer <- function(id, chart_data, title, yAxisTitle, xAxisTitle, unit 
         hc_yAxis(title = list(text = yAxisTitle)) %>%
         hc_xAxis(title = list(text = xAxisTitle), type = "category", tickInterval = 5) %>%
         hc_plotOptions(line = list(colorByPoint = FALSE)) %>%
-        hc_legend(align = "left", alignColumns = FALSE, layout = "horizontal") %>%
+        hc_legend(align = "left", alignColumns = FALSE, layout = "horizontal")
         #hc_add_theme(thm)
       
       unique_groups <- unique(data[[group_column]])

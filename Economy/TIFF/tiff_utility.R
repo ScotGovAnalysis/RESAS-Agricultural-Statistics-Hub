@@ -29,7 +29,13 @@ tiff_Inputs <- c(
   "Interest, Rent and Taxes" = "Interest,_rent_and_taxes"
 )
 
+
 tiff_Total <- c(
-  "Total Income from Farming" = "Total income from farming",
+  "Total income from farming" = "Total income from farming",
   "Total income from farming, without support payments" = "Total income from farming, without support payments"
 )
+
+all_tiff <- c(tiff_Inputs, tiff_Outputs, tiff_Total)
+all_tiff
+
+
