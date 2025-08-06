@@ -16,6 +16,7 @@ library(shinyjs)
 library(tidyr)
 library(geojsonio)
 library(scales)
+library(here)
 
 # Load the .RData file containing the datasets
 load(here("Data", "ghg_data.RData"))
