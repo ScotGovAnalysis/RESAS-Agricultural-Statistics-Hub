@@ -9,6 +9,9 @@ tiff_Outputs <- c(
   "Non-Agricultural Output" = "Total_output_from_non_agricultural_activities"
 )
 
+tiff_prices <- c("Current (nominal)",
+                 "Real terms")
+
 tiff_Inputs <- c(
   "Total Costs" = "Total_Costs",
   "Seeds" = "Total_input_from_seeds",

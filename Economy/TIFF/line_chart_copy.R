@@ -29,19 +29,21 @@ lineChartUI <- function(id, note_type = 1) {
 }
 
 
-lineChartServer <- function(id, chart_data, title, yAxisTitle, xAxisTitle, unit = "", footer, x_col, y_col) {
+lineChartServer <- function(id, chart_data, chart_title, yAxisTitle, xAxisTitle, unit = "", footer, x_col, y_col) {
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
     reactive_colors <- reactive({ assign_colors(chart_data(), preset_colors) })
     
-    output$title <- renderUI({
+    output$chart_title <- renderUI({
       year_min <- min(as.numeric(chart_data()[[x_col]]), na.rm = TRUE)
       year_max <- max(as.numeric(chart_data()[[x_col]]), na.rm = TRUE)
-      HTML(paste0("<div style='font-size: 20px; font-weight: bold;'>", title, ", ", year_min, " to ", year_max, "</div>"))
-    })
-    
-    output$footer <- renderUI({
-      HTML(footer)
+      
+      HTML(paste0(
+        "<div style='font-size: 20px; font-weight: bold;'>",
+        chart_title(),
+        ", ", year_min, " to ", year_max,
+        "</div>"
+      ))
     })
     
    

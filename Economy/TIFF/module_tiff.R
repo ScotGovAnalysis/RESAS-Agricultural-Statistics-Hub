@@ -1,4 +1,4 @@
-# library(shiny)
+ library(shiny)
 
 ### Delete once module is finished to prevent loading twice ###
 #  load(here("Data","TIFF_data.Rda"))
@@ -17,7 +17,11 @@ tiffUI <- function(id) {
           choices = c("Total" = "tiff_Total", "Outputs" = "tiff_Outputs", "Inputs" = "tiff_Inputs"),
           selected = "tiff_Total"
         ),
-        
+        radioButtons(
+          ns("tiff_prices"), "Price",
+          choices = c("Current (nominal)", "Real terms"),
+          selected = "Current (nominal)"
+        ),
         conditionalPanel(
           condition = sprintf("input['%s'] == 'tiff_Total'", ns("in_out_type")),
           radioButtons(
@@ -69,7 +73,9 @@ tiffServer <- function(id){
     # Chart data remains unformatted for proper rendering
     chart_data <- reactive({
       data <- main_tiff_data_long
-      data  # return data explicitly
+      req(input$tiff_prices)
+      data <- data %>% filter(Price == input$tiff_prices)
+      data
     })
     
     # Table data with formatted values for better readability
@@ -138,6 +144,37 @@ tiffServer <- function(id){
     # 
     yAxisTitle <- "£ Million"
     
+    titleText <- reactive({
+      req(input$selected_var)
+      req(input$selected_year)
+      
+      # Use the first selected variable for title
+      measure <- input$selected_var[1]
+      
+      # Price type
+      price_text <- paste("in", input$tiff_prices, "prices")
+      
+      # Support payments
+      support_text <- if (input$in_out_type == "tiff_Total") {
+        if (input$support_payments == "Yes") {
+          "with support payments"
+        } else {
+          "without support payments"
+        }
+      } else {
+        NULL
+      }
+      
+      # Build title
+      parts <- c(
+        paste0(measure_label, " timeseries"),
+        price_text,
+        support_text
+      )
+      paste(parts[!sapply(parts, is.null)], collapse = ", ")
+    })
+    
+    
     lineChartServer(
       id = "line",
       chart_data = reactive({
@@ -155,7 +192,7 @@ tiffServer <- function(id){
         #no filtering on Category here
        data
       }),
-      title = "TIFF Timeseries",
+      title = titleText,
       yAxisTitle = "£ Million",
       xAxisTitle = "Year",
       footer = census_footer,
@@ -169,8 +206,8 @@ tiffServer <- function(id){
     output$data_table <- renderDT({
       datatable(
         table_data() %>%
-          select(`Measure`, Year, Value),
-        colnames = c("Measure", "Year", "Value"),
+          select(`Measure`, Price, Year, Value),
+        colnames = c("Measure","Price", "Year", "Value"),
         options = list(pageLength = 20, scrollX = TRUE)  # Show 20 entries by default, enable horizontal scrolling
       )
     })
