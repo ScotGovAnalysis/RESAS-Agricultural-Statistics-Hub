@@ -15,6 +15,8 @@ source("charts_tables_functions/function_data_table.R")
 source("charts_tables_functions/function_regions_map.R")
 source("charts_tables_functions/function_map.R")
 source("charts_tables_functions/function_multi_bar_chart.R")
+source("charts_tables_functions/fbs_function_line_chart.R")
+
 
 ### Load module scripts
 source("Agri-Env/module_subsector_emissions.R")
@@ -40,7 +42,7 @@ source("Crops/module_human_vegetables.R")
 source("Crops/module_fruit.R")
 source("Home/module_home.R")
 source("Economy/module_economy_summary.R")
-source("Economy/FBS/module_fbs_average_outputs_costs.R")
+source("Economy/FBS/module_fbs.R")
 source("Livestock/module_animals_summary.R")
 source("Agri-Env/module_soil_testing.R")
 source("Agri-Env/module_manure.R")
@@ -128,7 +130,7 @@ ui <- fluidPage(
             ),
             navbarMenu("Economy",
                        tabPanel("Summary", value = "economy", economySummaryUI("economy")),
-                       tabPanel("Farm level outputs and Costs", value = "fbs_average_outputs_costs_module", CostOutUI("fbs_average_outputs_costs_module"))
+                       tabPanel("Farm level economic data", value = "module_fbs", CostOutUI("module_fbs"))
             ))
           ),
           create_footer()

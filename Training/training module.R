@@ -14,8 +14,8 @@ trainingUI <- function(id) {
           ns("variable"), 
           "Select Variable", 
           choices = c(
-            "Total Cattle" = "Total Cattle",
-            "Total Female Dairy Cattle" = "Total Female Dairy Cattle",
+            "Total le" = "Total Cattle",
+            "Total Female Dairy Cattle" = "Totle Dairy Cattle",
             "Total Female Beef Cattle" = "Total Female Beef Cattle",
             "Total Male Cattle" = "Total Male Cattle",
             "Total Calves" = "Total Calves"

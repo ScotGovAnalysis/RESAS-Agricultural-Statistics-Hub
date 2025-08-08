@@ -75,7 +75,7 @@ CostOutServer <- function(id) {
       
       updateCheckboxGroupInput(session, "selected_var",
                                choices = choices,
-                               selected = NULL)
+                               selected = out_totals[1])
     })
     
   ### chart logic ####   
@@ -86,22 +86,12 @@ CostOutServer <- function(id) {
       input$selected_var  # returns a character vector of selected column names
     })
   
-    yAxisTitle <- reactive({
-      if (input$data_type == "totals") {
-        "Summary outputs"
-      } else {
-        "Area of Holdings (1,000 hectares)"
-      }
-    })
-    
     
     tooltip_unit <- reactive({
-      if (input$data_type == "totals") {
-        "totals"
-      } else {
-        "hectares"
-      }
+    "(£ per farm, real prices)"
     })
+
+   
     
     multibarChartServer(
       id = "bar_chart1",
@@ -110,14 +100,15 @@ CostOutServer <- function(id) {
           filter(farm_type == farm_types[1]) %>% # select farm type
           filter(paste(input$in_out_type, input$data_type, sep = "_")  == tot_item) %>%  
          filter(year %in% input$selected_year) %>%  # filter for selected year
-          filter(Measure %in% input$selected_var) # fitler for selected var
+          filter(Measure %in% input$selected_var) # filter for selected var
         data
       }),
-      title = paste0(farm_types[1], ": ", input$in_out_type, ", ", prev_year, " and ", current_year),
-      yAxisTitle = yAxisTitle,
-      xAxisTitle = input$data_type,
+      title = paste0(farm_types[1], ": ",# input$in_out_type, ", 
+                      prev_year, " and ", current_year),
+      yAxisTitle =NULL,
+      xAxisTitle = "" ,
      
-      footer = census_footer,
+      footer = fbs_footer,
       x_col = "year",
       y_col = y_col,
       tooltip_unit = tooltip_unit,
@@ -134,11 +125,12 @@ CostOutServer <- function(id) {
           filter(Measure %in% input$selected_var) # fitler for selected var
         data
       }),
-      title = paste0(farm_types[2], ": ", input$in_out_type, ", ", prev_year, " and ", current_year),
-      yAxisTitle = yAxisTitle,
-      xAxisTitle = input$data_type,
+      title = paste0(farm_types[2], ": ",# input$in_out_type, ", "
+                      prev_year, " and ", current_year),
+      yAxisTitle ="",
+      xAxisTitle = "",
       
-      footer = census_footer,
+      footer = fbs_footer,
       x_col = "year",
       y_col = y_col,
       tooltip_unit = tooltip_unit,
@@ -155,11 +147,12 @@ CostOutServer <- function(id) {
           filter(Measure %in% input$selected_var) # fitler for selected var
         data
       }),
-      title = paste0(farm_types[3], ": ", input$in_out_type, ", ", prev_year, " and ", current_year),
-      yAxisTitle = yAxisTitle,
-      xAxisTitle = input$data_type,
+      title = paste0(farm_types[3], ": ",# input$in_out_type, ", ",
+                     prev_year, " and ", current_year),
+      yAxisTitle ="",
+      xAxisTitle = "" ,
       
-      footer = census_footer,
+      footer = fbs_footer,
       x_col = "year",
       y_col = y_col,
       tooltip_unit = tooltip_unit,
@@ -173,14 +166,15 @@ CostOutServer <- function(id) {
           filter(farm_type == farm_types[4]) %>% # select farm type
           filter(paste(input$in_out_type, input$data_type, sep = "_")  == tot_item) %>%  
           filter(year %in% input$selected_year) %>%  # filter for selected year
-          filter(Measure %in% input$selected_var) # fitler for selected var
+          filter(Measure %in% input$selected_var) # filter for selected var
         data
       }),
-      title = paste0(farm_types[4], ": ", input$in_out_type, ", ", prev_year, " and ", current_year),
-      yAxisTitle = yAxisTitle,
-      xAxisTitle = input$data_type,
+      title = paste0(farm_types[4], ": ",# input$in_out_type, ", ", 
+                     prev_year, " and ", current_year),
+      yAxisTitle =NULL,
+      xAxisTitle = "",
       
-      footer = census_footer,
+      footer = fbs_footer,
       x_col = "year",
       y_col = y_col,
       tooltip_unit = tooltip_unit,
@@ -197,11 +191,12 @@ CostOutServer <- function(id) {
           filter(Measure %in% input$selected_var) # fitler for selected var
         data
       }),
-      title = paste0(farm_types[5], ": ", input$in_out_type, ", ", prev_year, " and ", current_year),
-      yAxisTitle = yAxisTitle,
-      xAxisTitle = input$data_type,
+      title = paste0(farm_types[5], ": ",#input$in_out_type, ", ", 
+                     prev_year, " and ", current_year),
+      yAxisTitle =NULL,
+      xAxisTitle = "",
       
-      footer = census_footer,
+      footer = fbs_footer,
       x_col = "year",
       y_col = y_col,
       tooltip_unit = tooltip_unit,
@@ -217,11 +212,12 @@ CostOutServer <- function(id) {
           filter(Measure %in% input$selected_var) # fitler for selected var
         data
       }),
-      title = paste0(farm_types[6], ": ", input$in_out_type, ", ", prev_year, " and ", current_year),
-      yAxisTitle = yAxisTitle,
-      xAxisTitle = input$data_type,
+      title = paste0(farm_types[6], ": ", #input$in_out_type, ", ",
+                     prev_year, " and ", current_year),
+      yAxisTitle =NULL,
+      xAxisTitle ="" ,
       
-      footer = census_footer,
+      footer = fbs_footer,
       x_col = "year",
       y_col = y_col,
       tooltip_unit = tooltip_unit,
@@ -238,11 +234,12 @@ CostOutServer <- function(id) {
            filter(Measure %in% input$selected_var) # fitler for selected var
          data
        }),
-       title = paste0(farm_types[7], ": ", input$in_out_type, ", ", prev_year, " and ", current_year),
-       yAxisTitle = yAxisTitle,
-       xAxisTitle = input$data_type,
+       title = paste0(farm_types[7], ": ", #input$in_out_type, ", ", 
+                      prev_year, " and ", current_year),
+       yAxisTitle =NULL,
+       xAxisTitle = "",
        
-       footer = census_footer,
+       footer = fbs_footer,
        x_col = "year",
        y_col = y_col,
        tooltip_unit = tooltip_unit,
@@ -259,11 +256,12 @@ CostOutServer <- function(id) {
            filter(Measure %in% input$selected_var) # fitler for selected var
          data
        }),
-       title = paste0(farm_types[8], ": ", input$in_out_type, ", ", prev_year, " and ", current_year),
-       yAxisTitle = yAxisTitle,
-       xAxisTitle = input$data_type,
+       title = paste0(farm_types[8], ": ",# input$in_out_type, ", ",
+                      prev_year, " and ", current_year),
+       yAxisTitle =NULL,
+       xAxisTitle = "",
        
-       footer = census_footer,
+       footer = fbs_footer,
        x_col = "year",
        y_col = y_col,
        tooltip_unit = tooltip_unit,
@@ -279,11 +277,12 @@ CostOutServer <- function(id) {
            filter(Measure %in% input$selected_var) # fitler for selected var
          data
        }),
-       title = paste0(farm_types[9], ": ", input$in_out_type, ", ", prev_year, " and ", current_year),
-       yAxisTitle = yAxisTitle,
-       xAxisTitle = input$data_type,
+       title = paste0(farm_types[9], ": ", #input$in_out_type, ", ", 
+                      prev_year, " and ", current_year),
+       yAxisTitle =NULL,
+       xAxisTitle ="" ,
        
-       footer = census_footer,
+       footer = fbs_footer,
        x_col = "year",
        y_col = y_col,
        tooltip_unit = tooltip_unit,
@@ -317,21 +316,21 @@ CostOutServer <- function(id) {
 }
 
 ### Testing module --------
-# source("utility/util_test_barchart_function.R")
-# source("utility/util_updates.R")
-# source("utility/util_functions.R")
-# source("utility/hc_theme.R")
-# source("utility/util_options.R")
-# 
-# 
-# 
-# content_demo <- function() {
-#   ui <- fluidPage(CostOutUI("test"))
-#   server <- function(input, output, session) {
-#     CostOutServer("test")
-#   }
-#   shinyApp(ui, server)
-# }
-# 
-# content_demo()
+source("utility/util_test_barchart_function.R")
+source("utility/util_updates.R")
+source("utility/util_functions.R")
+source("utility/hc_theme.R")
+source("utility/util_options.R")
+
+
+
+content_demo <- function() {
+  ui <- fluidPage(CostOutUI("test"))
+  server <- function(input, output, session) {
+    CostOutServer("test")
+  }
+  shinyApp(ui, server)
+}
+
+content_demo()
 
