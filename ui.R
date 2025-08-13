@@ -51,6 +51,12 @@ source("Machinery/module_total_number_of_vehicles.R")
 source("Machinery/module_ag_mach_farm_type.R")
 source("Machinery/module_ag_mach_ownership.R")
 source("Machinery/module_ag_mach_fuel.R")
+source("Organic Farming/module_organic_summary.R")
+source("Organic Farming/module_organic_land_area.R")
+source("Organic Farming/module_organic_land_use.R")
+source("Organic Farming/module_organic_livestock.R")
+source("Organic Farming/module_organic_operators.R")
+source("Organic Farming/module_regional_variation.R")
 
 
 create_footer <- function() {
@@ -129,9 +135,18 @@ ui <- fluidPage(
             navbarMenu("Economy",
                        tabPanel("Summary", value = "economy", economySummaryUI("economy")),
                        tabPanel("Farm level outputs and Costs", value = "fbs_average_outputs_costs_module", CostOutUI("fbs_average_outputs_costs_module"))
-            ))
+            ),
+            # navbarMenu("Organic Farming",
+            #            tabPanel("Summary", value = "module_organic_summary", organicsummaryUI("module_organic_summary")),
+            #            tabPanel("Land use", value = "module_organic_land_use", organiclanduseUI("module_organic_land_use")),
+            #            tabPanel("Land area", value = "module_organic_land_area", organiclandareaUI("module_organic_land_area")),
+            #            tabPanel("Livestock", value = "module_organic_livestock", organiclivestockUI("module_organic_livestock")),
+            #            tabPanel("Operators", value = "module_organic_operators", organicoperatorsUI("module_organic_operators")),
+            #            tabPanel("Regional variation", value = "module_regional_variation", organicregionalvariationUI("module_regional_variation")))
+            # )
           ),
           create_footer()
       )
   )
+)
 

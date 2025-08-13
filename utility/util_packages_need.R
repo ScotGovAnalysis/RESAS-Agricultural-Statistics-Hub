@@ -8,6 +8,7 @@ install.packages("geojsonio")
 install.packages("shinyWidgets")
 install.packages("shinydashboard")
 install.packages("rsconnect")
+install.packages("here")
 
 
 
@@ -22,3 +23,4 @@ library(scales)
 library(shiny)
 library(highcharter)
 library(geojsonio)
+library(here)
