@@ -1,7 +1,5 @@
- library(shiny)
-
 ### Delete once module is finished to prevent loading twice ###
-#  load(here("Data","TIFF_data.Rda"))
+#load(here("Data","TIFF_data.Rda"))
 ###############################################################
 
 # Define UI ----
@@ -19,7 +17,7 @@ tiffUI <- function(id) {
         ),
         radioButtons(
           ns("tiff_prices"), "Price",
-          choices = c("Current (nominal)", "Real terms"),
+          choices = c("Current (nominal)", "Real terms (Constant 2024)"),
           selected = "Current (nominal)"
         ),
         conditionalPanel(

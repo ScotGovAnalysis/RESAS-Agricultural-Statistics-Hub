@@ -15,12 +15,12 @@
 library(readxl)
 library(dplyr)
 library(tidyr)
+library(shiny)
+library(here)
 
 #data pre-load ------
 #LOAD TIFF data - run this once to save processed tiff data to tiff folder (uncomment and edit parameters for new year )
 #### parameters ----
-tiff_year <- max(main_tiff_data_long$Year) #Current TIFF year
-tiff_year_min <- min(main_tiff_data_long$Year)
 
 tiff_data_path <- "//s0196a/ADM-Rural and Environmental Science-Farming Statistics/Agriculture/Source/TIFF/TIFF 2024/"
 file_path <- paste0(tiff_data_path, "Downloaded TIFF Table 2024.xlsx")
@@ -55,7 +55,7 @@ for (sheet in table_sheets) {
   price_value <- if (table_num %in% c(1, 2)) {
     "Current (nominal)"
   } else if (table_num %in% c(4, 5)) {
-    "Real terms"
+    "Real terms (Constant 2024)"
   } else {
     NA
   }
@@ -143,7 +143,7 @@ Table3_clean <- Table3 %>%
   mutate(
     Price = case_when(
       grepl("current \\(nominal\\)", Measure, ignore.case = TRUE) ~ "Current (nominal)",
-      grepl("real terms", Measure, ignore.case = TRUE) ~ "Real terms",
+      grepl("Real terms \\(Constant 2024 price\\)", Measure, ignore.case = TRUE) ~ "Real terms (Constant 2024)",
       TRUE ~ NA_character_
     ),
     Measure = case_when(
@@ -202,3 +202,7 @@ save(main_tiff_data_long, file="Data/TIFF_data.Rda" )
 
 table(main_tiff_data_long$Measure)
 range(main_tiff_data_long$Year, na.rm = TRUE)
+
+tiff_year <- max(main_tiff_data_long$Year) #Current TIFF year
+tiff_year_min <- min(main_tiff_data_long$Year)
+
