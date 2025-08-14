@@ -80,7 +80,7 @@ tiffServer <- function(id){
     
     # Table data with formatted values for better readability
     table_data <- main_tiff_data_long %>%
-      rename(`Value (GBP million)` = Value)
+      rename(`Value (GBP 000)` = Value)
     
     # change checkboxes dynamically depending on radio box selection
     observe({
@@ -126,7 +126,7 @@ tiffServer <- function(id){
       }
     })
     
-    yAxisTitle <- "£ Million"
+    yAxisTitle <- "£ (000)"
     
     titleText <- reactive({
       req(input$selected_var)
@@ -177,7 +177,7 @@ tiffServer <- function(id){
        data
       }),
       chart_title = titleText,
-      yAxisTitle = "£ Million",
+      yAxisTitle = "£ 000",
       xAxisTitle = "Year",
       footer = census_footer,
       x_col = "Year",
@@ -190,10 +190,10 @@ tiffServer <- function(id){
     output$data_table <- renderDT({
       datatable(
         table_data %>%
-          select(Measure, Price, Year, `Value (GBP million)`) %>% 
+          select(Measure, Price, Year, `Value (GBP 000)`) %>% 
         arrange(Price, desc(Year)) %>%
-          mutate(`Value (GBP million)` = round(`Value (GBP million)`, 0)),  # 0 dp
-        colnames = c("Measure","Price", "Year", "Value (£ million)"),
+          mutate(`Value (GBP 000)` = comma(round(`Value (GBP 000)`, 0))),  # 0 dp
+        colnames = c("Measure","Price", "Year", "Value (£ 000)"),
         options = list(pageLength = 25, # Show 25 entries by default
                        scrollX = TRUE, #enable horizontal scrolling
                        order = list(3, 'desc') # Price asc, Year desc
