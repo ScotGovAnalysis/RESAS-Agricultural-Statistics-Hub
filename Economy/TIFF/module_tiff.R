@@ -24,10 +24,11 @@ tiffUI <- function(id) {
         ),
         conditionalPanel(
           condition = sprintf("input['%s'] == 'tiff_Total'", ns("in_out_type")),
-          radioButtons(
-            ns("support_payments"), "With Support Payments",
-            choices = c("Yes", "No"),
-            selected = "Yes"
+          checkboxGroupInput(
+            ns("support_payments"), 
+            "Support Payments", 
+            choices = c("Yes", "No"), 
+            selected = c("Yes")
           )
         ),
         
@@ -75,6 +76,21 @@ tiffServer <- function(id){
       data <- main_tiff_data_long
       req(input$tiff_prices)
       data <- data %>% filter(Price == input$tiff_prices)
+      
+      if (input$in_out_type == "tiff_Total") {
+        # create a vector of selected Measure names depending on Yes/No
+        selected_measures <- c()
+        if ("Yes" %in% input$support_payments) {
+          selected_measures <- c(selected_measures, "Total income from farming")
+        }
+        if ("No" %in% input$support_payments) {
+          selected_measures <- c(selected_measures, "Total income from farming, without support payments")
+        }
+        data <- data %>% filter(Measure %in% selected_measures)
+      } else {
+        data <- data %>% filter(Measure %in% input$selected_var)
+      }
+      
       data
     })
     
@@ -90,10 +106,13 @@ tiffServer <- function(id){
         shinyjs::show("sidebar")
       }
       if (input$in_out_type == "tiff_Total") {
-        selected <- if (is.null(input$support_payments) || input$support_payments == "Yes") {
-          "Total income from farming"
+        selected <- c()
+        if (!is.null(input$support_payments)) {
+          if ("Yes" %in% input$support_payments) selected <- c(selected, "Total income from farming")
+          if ("No"  %in% input$support_payments) selected <- c(selected, "Total income from farming, without support payments")
         } else {
-          "Total income from farming, without support payments"
+          # default selection if nothing is selected
+          selected <- "Total income from farming"
         }
         
         updateCheckboxGroupInput(
@@ -105,15 +124,15 @@ tiffServer <- function(id){
       } else {
         choices <- switch(
           input$in_out_type,
-          "tiff_Outputs" = names(tiff_Outputs),
-          "tiff_Inputs" = names(tiff_Inputs),
+          "tiff_Outputs" = setNames(tiff_Outputs, gsub("_", " ", tiff_Outputs)),
+          "tiff_Inputs"  = setNames(tiff_Inputs, gsub("_", " ", tiff_Inputs)),
           NULL
         )
         
         default_selection <- switch(
           input$in_out_type,
-          "tiff_Outputs" = grep("Gross Output", choices, value = TRUE),
-          "tiff_Inputs" = grep("Total Costs", choices, value = TRUE),
+          "tiff_Outputs" = "Gross_output",  # internal value
+          "tiff_Inputs"  = "Total_Costs",
           NULL
         )
         
@@ -162,19 +181,15 @@ tiffServer <- function(id){
     lineChartServer(
       id = "line",
       chart_data = reactive({
-        req(input$selected_var)
         year_start <- as.numeric(input$selected_year[1])
         year_end <- as.numeric(input$selected_year[2])
         
-       data <-  chart_data() %>% 
-         select(Measure, Year, Value) |> 
-         # need to convert Measures column to values in all_Tiff list...this will match value of input$selected var
-        mutate(Measure = str_replace_all(Measure, setNames(names(all_tiff), unname(all_tiff))))|>
-        filter(Measure %in% input$selected_var)%>%
-       filter(Year >= year_start & Year <= year_end)
-      
-        #no filtering on Category here
-       data
+        data <- chart_data() %>%
+          filter(Measure %in% input$selected_var) %>%
+          filter(Year >= year_start & Year <= year_end) %>%
+          mutate(Measure = gsub("_", " ", Measure))  # overwrite Measure for display
+        
+        data
       }),
       chart_title = titleText,
       yAxisTitle = "£ 000",
