@@ -26,7 +26,7 @@ tiffUI <- function(id) {
           condition = sprintf("input['%s'] == 'tiff_Total'", ns("in_out_type")),
           checkboxGroupInput(
             ns("support_payments"), 
-            "Support Payments", 
+            "Include support payments", 
             choices = c("Yes", "No"), 
             selected = c("Yes")
           )
@@ -52,7 +52,7 @@ tiffUI <- function(id) {
         width = 9,
         tabsetPanel(
           id = ns("tabs"),
-          tabPanel("Time series", lineChartUI(ns("line")), value = ns("line")),
+          tabPanel("Time series", lineChartUI(ns("line")), value = ns("line"), note_type = 2),
           tabPanel(
             "Data Table",
             DTOutput(ns("data_table")),
@@ -144,39 +144,6 @@ tiffServer <- function(id){
         )
       }
     })
-    
-    yAxisTitle <- "£ (000)"
-    
-    titleText <- reactive({
-      req(input$selected_var)
-      req(input$selected_year)
-      
-      # Use the first selected variable for title
-      measure <- input$selected_var[1]
-      
-      # Price type
-      price_text <- paste("in", input$tiff_prices, "prices")
-      
-      # Support payments
-      support_text <- if (input$in_out_type == "tiff_Total") {
-        if (input$support_payments == "Yes") {
-          "with support payments"
-        } else {
-          "without support payments"
-        }
-      } else {
-        NULL
-      }
-      
-      # Build title
-      parts <- c(
-        paste0(measure_label, " timeseries"),
-        price_text,
-        support_text
-      )
-      paste(parts[!sapply(parts, is.null)], collapse = ", ")
-    })
-    
     
     lineChartServer(
       id = "line",
