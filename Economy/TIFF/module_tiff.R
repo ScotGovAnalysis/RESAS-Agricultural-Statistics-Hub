@@ -52,7 +52,7 @@ tiffUI <- function(id) {
         width = 9,
         tabsetPanel(
           id = ns("tabs"),
-          tabPanel("Time series", lineChartUI(ns("line")), value = ns("line"), note_type = 2),
+          tabPanel("Time series", lineChartUI(ns("line")), value = ns("line"), note_type = 1),
           tabPanel(
             "Data Table",
             DTOutput(ns("data_table")),
