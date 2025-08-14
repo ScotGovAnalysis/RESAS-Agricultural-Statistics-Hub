@@ -203,10 +203,15 @@ tiffServer <- function(id){
     # Render the data table based only on data_type selection with 20 entries by default
     output$data_table <- renderDT({
       datatable(
-        table_data() %>%
-          select(`Measure`, Price, Year, Value),
+        main_tiff_data_long %>%
+          select(Measure, Price, Year, Value) %>% 
+        arrange(Price, desc(Year)) %>%
+          mutate(Value = round(Value, 0)),  # 0 dp
         colnames = c("Measure","Price", "Year", "Value"),
-        options = list(pageLength = 20, scrollX = TRUE)  # Show 20 entries by default, enable horizontal scrolling
+        options = list(pageLength = 25, # Show 25 entries by default
+                       scrollX = TRUE, #enable horizontal scrolling
+                       order = list(3, 'desc') # Price asc, Year desc
+                       ), 
       )
     })
     
