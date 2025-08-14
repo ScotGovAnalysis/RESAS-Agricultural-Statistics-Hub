@@ -6,8 +6,10 @@
 tiffUI <- function(id) {
   ns <- NS(id)
   tagList(
+    useShinyjs(),
     sidebarLayout(
       sidebarPanel(
+        id = ns("sidebar"),
         width = 3,
         
         radioButtons(
@@ -95,6 +97,11 @@ tiffServer <- function(id){
     
     # change checkboxes dynamically depending on radio box selection
     observe({
+      if (input$tabs == ns("data")) {  # your Data Table tab value
+        shinyjs::hide("sidebar")
+      } else {
+        shinyjs::show("sidebar")
+      }
       if (input$in_out_type == "tiff_Total") {
         selected <- if (is.null(input$support_payments) || input$support_payments == "Yes") {
           "Total income from farming"

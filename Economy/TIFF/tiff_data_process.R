@@ -17,6 +17,7 @@ library(dplyr)
 library(tidyr)
 library(shiny)
 library(here)
+library(shinyjs)
 
 #data pre-load ------
 #LOAD TIFF data - run this once to save processed tiff data to tiff folder (uncomment and edit parameters for new year )
