@@ -196,7 +196,8 @@ main_categories <- c(
 )
 
 main_tiff_data_long <- full_clean_data %>%
-  filter(Measure %in% main_categories)
+  filter(Measure %in% main_categories) %>% 
+  mutate(Value = Value * 1000)
 
 #save to data
 save(main_tiff_data_long, file="Data/TIFF_data.Rda" )
