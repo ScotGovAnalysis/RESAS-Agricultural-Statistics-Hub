@@ -79,21 +79,8 @@ tiffServer <- function(id){
     })
     
     # Table data with formatted values for better readability
-    table_data <- reactive({
-      req(input$selected_year)
-      req(length(input$selected_year) == 2)
-      req(input$selected_var)
-      
-      year_start <- as.numeric(input$selected_year[1])
-      year_end <- as.numeric(input$selected_year[2])
-
-      chart_data() %>%
-        mutate(Measure = str_replace_all(Measure, setNames(names(all_tiff), unname(all_tiff))))|>
-        filter(Measure %in% input$selected_var) %>%
-        filter(Year >= year_start& Year <= year_end) %>%
-        mutate(Value = scales::comma(Value))
-      
-    })
+    table_data <- main_tiff_data_long %>%
+      rename(`Value (GBP million)` = Value)
     
     # change checkboxes dynamically depending on radio box selection
     observe({
@@ -139,14 +126,6 @@ tiffServer <- function(id){
       }
     })
     
-    ### chart logic ####   
-    # Select the appropriate column based on data_type
-    
-    # y_col <- reactive({
-    #   req(input$selected_var)
-    #   input$selected_var  # returns a character vector of selected column names
-    # })
-    # 
     yAxisTitle <- "£ Million"
     
     titleText <- reactive({
@@ -210,10 +189,10 @@ tiffServer <- function(id){
     # Render the data table based only on data_type selection with 20 entries by default
     output$data_table <- renderDT({
       datatable(
-        main_tiff_data_long %>%
-          select(Measure, Price, Year, Value) %>% 
+        table_data %>%
+          select(Measure, Price, Year, `Value (GBP million)`) %>% 
         arrange(Price, desc(Year)) %>%
-          mutate(Value = round(Value, 0)),  # 0 dp
+          mutate(`Value (GBP million)` = round(`Value (GBP million)`, 0)),  # 0 dp
         colnames = c("Measure","Price", "Year", "Value (£ million)"),
         options = list(pageLength = 25, # Show 25 entries by default
                        scrollX = TRUE, #enable horizontal scrolling
@@ -229,8 +208,8 @@ tiffServer <- function(id){
         paste("tiff_data", Sys.Date(), ".csv", sep = "")
       },
       content = function(file) {
-        write.csv(table_data(), file, row.names = FALSE)
-      }
+    write.csv(table_data, file, row.names = FALSE)
+  }
     )
   })
 }
