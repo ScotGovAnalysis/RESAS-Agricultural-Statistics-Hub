@@ -207,7 +207,7 @@ tiffServer <- function(id){
           select(Measure, Price, Year, Value) %>% 
         arrange(Price, desc(Year)) %>%
           mutate(Value = round(Value, 0)),  # 0 dp
-        colnames = c("Measure","Price", "Year", "Value"),
+        colnames = c("Measure","Price", "Year", "Value (£ million)"),
         options = list(pageLength = 25, # Show 25 entries by default
                        scrollX = TRUE, #enable horizontal scrolling
                        order = list(3, 'desc') # Price asc, Year desc
