@@ -1,5 +1,5 @@
 # File: module_FBS.R
-# source("Economic/FBS/fbs_data_process.R")
+source(here("Economy/FBS/fbs_data_process.R"))
 
 ###UI#####
 CostOutUI <- function(id) {
@@ -12,7 +12,7 @@ CostOutUI <- function(id) {
           "Detailed outputs" = "output", 
           "Detailed costs" = "costs", 
           "Farm Business Income (FBI)" = "fbi",
-          "FBI without support payments" = "fbi_nosupp",
+          #"FBI without support payments" = "fbi_nosupp",
           "Support payments" = "supp",
           "Diversified income" = "div_inc",
           "Off farm income" = "ofi",
@@ -36,7 +36,7 @@ CostOutUI <- function(id) {
         # For output/costs
         conditionalPanel(
           condition = sprintf("input['%s'] == 'output' || input['%s'] == 'costs'", ns("in_out_type"), ns("in_out_type")),
-          checkboxGroupInput(ns("selected_years_checkbox"), "Select year", choices = c(current_year, prev_year), selected = current_year)
+          checkboxGroupInput(ns("selected_years_checkbox"), "Select year", choices = c(current_year, prev_year), selected = c(current_year, prev_year))
         ),
         
         # For all other types
@@ -46,7 +46,7 @@ CostOutUI <- function(id) {
             inputId = ns("selected_years_slider"),
             label = "Select year range",
             choices = year_levels,
-            selected = c("2022-23", "2023-24"),
+            selected = c("2012-13", current_year),
             grid = TRUE
           )
         )
@@ -240,7 +240,7 @@ CostOutServer <- function(id) {
               id = bar_id,
               chart_data = filtered_chart_data,
               title = chart_title,
-              yAxisTitle = NULL,
+              yAxisTitle = "£ Thousand (real prices)",
               xAxisTitle = "",
               footer = fbs_footer,
               x_col = "year",
@@ -253,11 +253,12 @@ CostOutServer <- function(id) {
               id = line_id,
               chart_data = filtered_chart_data,
               title = chart_title,
-              yAxisTitle = NULL,
+              yAxisTitle = "£ Thousand (real prices)",
               xAxisTitle = "",
               footer = fbs_footer,
               x_col = "year",
-              y_col= "value"
+              y_col= "value",
+              unit = tooltip_unit
             )
           }
         },
@@ -326,23 +327,23 @@ CostOutServer <- function(id) {
 # check for empty data:
 
 
-### Testing module --------
-# source(here("testing", "test_multibarchart_function.R"))
-# source(here("utility", "util_updates.R"))
-# source(here("utility", "util_functions.R"))
-# source(here("utility", "hc_theme.R"))
-# source(here("utility", "util_options.R"))
-# source(here("testing", "test_fbs_function_line_chart.R"))
-# 
-# 
-# 
-# content_demo <- function() {
-#   ui <- fluidPage(CostOutUI("test"))
-#   server <- function(input, output, session) {
-#     CostOutServer("test")
-#   }
-#   shinyApp(ui, server)
-# }
-# 
-# content_demo()
+## Testing module --------
+source(here("testing", "test_multibarchart_function.R"))
+source(here("utility", "util_updates.R"))
+source(here("utility", "util_functions.R"))
+source(here("utility", "hc_theme.R"))
+source(here("utility", "util_options.R"))
+source(here("testing", "test_fbs_function_line_chart.R"))
+
+
+
+content_demo <- function() {
+  ui <- fluidPage(CostOutUI("test"))
+  server <- function(input, output, session) {
+    CostOutServer("test")
+  }
+  shinyApp(ui, server)
+}
+
+content_demo()
 

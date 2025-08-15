@@ -12,7 +12,7 @@ CostOutUI <- function(id) {
         radioButtons(ns("data_type"), "Choose summary totals or itemised", choices = c("Totals" = "totals", "Sub-category totals" = "sub-cat"#, "Itemised" = "itemised"
                                                                                                                     ), selected = "totals"),
         checkboxGroupInput(ns("selected_var"), "Select variables", choices = NULL),
-        checkboxGroupInput(ns("selected_year"), "Select year", choices = c(current_year, prev_year), selected = current_year)
+        checkboxGroupInput(ns("selected_year"), "Select year", choices = c(current_year, prev_year), selected = c(current_year, pre_year))
       ),
       mainPanel(
         id = ns("mainpanel"),
@@ -316,7 +316,7 @@ CostOutServer <- function(id) {
 }
 
 ### Testing module --------
-source("utility/util_test_barchart_function.R")
+source("testing/util_test_barchart_function.R")
 source("utility/util_updates.R")
 source("utility/util_functions.R")
 source("utility/hc_theme.R")

@@ -17,9 +17,10 @@
 ####
 #################################
 # Load necessary libraries
+library(here)
 library(readxl)
 library(stringr)
-library(dplyr)
+library(tidyverse)
 source(here("Economy/FBS", "fbs_utility.R"))
 #data pre-load ------
 #LOAD FBS data - run this once to save processed fbs data to data folder (uncomment and edit parameters for new year )
@@ -234,15 +235,30 @@ fbs_cost_centre <- fbs_data %>%
 
 
 
-# add income timeseries data: filter for real prices and reformat
+# add income timeseries data
 load(paste0(fbs_data_path, "income_timeseries_2023-24.Rda"))
 
+# load fbi no support payment data  - reformat and add cols before binding 
+fbi_no_supp <- read_excel(paste0(fbs_data_path, "fbi_no_supp.xlsx")) |> 
+  pivot_longer(-(farmtype), names_to = "year", values_to = "value") |> 
+  mutate(Measure = "Farm business income without support payments",
+         value = round(value, 0)) |> # round to nearest pound
+  rename(`Farm type` = farmtype)  
+  
 
-
+# filter income for real prices and reformat
 fbs_income <- ag_hub$income |> filter (Prices == "Real") |> 
   select (-Prices) |> 
   pivot_longer(-(Measure), names_to = "year", values_to = "value") |> 
-  mutate(`Farm type` = "All farms")
+  mutate(`Farm type` = "All farms") |>
+  filter (!grepl("FTE", Measure)) # remove fte measures
+
+fbs_income$Measure <- gsub("\\(£\\)", "", fbs_income$Measure) # remove £
+fbs_income$Measure <- gsub("FBI", "Farm business income", fbs_income$Measure) # spell out fbi
+
+
+# join fbi no supp with income timeseries
+fbs_income <- rbind(fbs_income, fbi_no_supp)
 
 # same for net farm income
 nfi <-ag_hub$NFI |> filter(Prices == "Real") |> 
@@ -250,12 +266,15 @@ nfi <-ag_hub$NFI |> filter(Prices == "Real") |>
   mutate(Measure = "Net farm income") |> # add measure col before binding
   pivot_longer(-c(Measure, `Farm type`), names_to = "year", values_to = "value")
 
+nfi$`Farm type` <- gsub("Cereal", "Cereals", nfi$`Farm type`) # change cereal to cereals
+
 # same for farm business income
 fbi <-ag_hub$FBI |> filter(Prices == "Real") |> 
   select (-Prices) |> 
   mutate(Measure = "Farm business income") |> # add measure col before binding
   pivot_longer(-c(Measure, `Farm type`), names_to = "year", values_to = "value")
 
+fbi$`Farm type` <- gsub("Cereal", "Cereals", fbi$`Farm type`) # change cereal to cereals
 
 # bind
 fbs_income <- rbind(fbs_income, nfi, fbi) |> 
@@ -266,7 +285,7 @@ fbs_income$farm_type <- gsub("\\(LFA\\)", "", fbs_income$farm_type)
 fbs_income$farm_type <- gsub("Specialist", "LFA", fbs_income$farm_type)
 fbs_income$farm_type <- gsub("LFA Cattle", "LFA cattle", fbs_income$farm_type)
 fbs_income$farm_type <- gsub("Cattle", "LFA cattle", fbs_income$farm_type)
-fbs_income$farm_type <- gsub("Cereal", "Cereals", fbs_income$farm_type)
+
 fbs_income$farm_type <- sub("\\s+$", "", fbs_income$farm_type) # remove trailing space
 
 
@@ -275,9 +294,9 @@ fbs_income$farm_type <- sub("\\s+$", "", fbs_income$farm_type) # remove trailing
 
 # add in_out_type column
 
-fbs_income <- fbs_income |> mutate(input_output_type = case_when(Measure == "Farm business income" ~ "fbi",
+fbs_income <- fbs_income |> mutate(input_output_type = case_when(grepl("Farm business income", Measure) ~ "fbi",
                                                            Measure == "Net farm income" ~ "nfi",
-                                                           grepl("FBI without support payments", Measure) ~ "fbi_nosupp",
+                                                          # grepl("FBI", Measure) ~ "fbi", # for both to appear on chart
                                                            grepl("Support payments", Measure) ~ "supp",
                                                            grepl("Diversified income", Measure) ~ "div_inc",
                                                            grepl("Off farm income", Measure) ~ "ofi",
