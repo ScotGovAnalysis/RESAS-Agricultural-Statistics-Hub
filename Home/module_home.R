@@ -65,7 +65,8 @@ homeUI <- function(id) {
           "Economy"
         ),
         tags$ul(
-          tags$li(actionLink(ns("nav_economy"), "Economy"))
+          tags$li(actionLink(ns("nav_economy"), "Economy")),
+          tags$li(actionLink(ns("tiff_module"), "Total income from farming"))
         )
       ),
       mainPanel(
@@ -180,7 +181,8 @@ homeServer <- function(id) {
       human_vegetables_module = "human_vegetables_module",
       fruit_module = "fruit_module",
       structure_information = "structure_information",
-      economy = "economy"
+      economy = "economy",
+      tiff_module = "Total income from farming"
     )
     
     # Set up observeEvent for each page
