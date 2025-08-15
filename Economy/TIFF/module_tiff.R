@@ -12,12 +12,12 @@ tiffUI <- function(id) {
         id = ns("sidebar"),
         width = 3,
         radioButtons(
-          ns("in_out_type"), "Measure",
+          ns("in_out_type"), "Select a measure",
           choices = c("Total" = "tiff_Total", "Outputs" = "tiff_Outputs", "Inputs" = "tiff_Inputs"),
           selected = "tiff_Total"
         ),
         radioButtons(
-          ns("tiff_prices"), "Price",
+          ns("tiff_prices"), "Select a price type",
           choices = c("Current (nominal)", "Real terms (Constant 2024)"),
           selected = "Current (nominal)"
         ),
@@ -35,7 +35,7 @@ tiffUI <- function(id) {
           checkboxGroupInput(ns("selected_var"), "Select variables", choices = NULL)
         ),
         sliderInput(
-          ns("selected_year"), "Select year range",
+          ns("selected_year"), "Select the year range by dragging the ends of the slider",
           min = tiff_year_min,
           max = tiff_year,
           value = c(tiff_year - 10, tiff_year),
@@ -53,7 +53,7 @@ tiffUI <- function(id) {
             "Data Table",
             DTOutput(ns("data_table")),
             downloadButton(ns("downloadData"), "Download Data"),
-            generateCensusTableFooter(),
+            generatetiffTableFooter(),
             value = ns("data")
           )
         )
@@ -63,18 +63,16 @@ tiffUI <- function(id) {
 }
 
 # Define Server ----
-tiffServer <- function(id){
-  moduleServer(id, function(input, output, session){
+tiffServer <- function(id) {
+  moduleServer(id, function(input, output, session) {
     ns <- session$ns
     
-    # Chart data remains unformatted for proper rendering
+    # ---- Chart data (unformatted) ----
     chart_data <- reactive({
-      data <- main_tiff_data_long
       req(input$tiff_prices)
-      data <- data %>% filter(Price == input$tiff_prices)
+      data <- main_tiff_data_long %>% filter(Price == input$tiff_prices)
       
       if (input$in_out_type == "tiff_Total") {
-        # create a vector of selected Measure names depending on Yes/No
         selected_measures <- c()
         if ("Yes" %in% input$support_payments) {
           selected_measures <- c(selected_measures, "Total income from farming")
@@ -84,43 +82,43 @@ tiffServer <- function(id){
         }
         data <- data %>% filter(Measure %in% selected_measures)
       } else {
-        data <- data %>% filter(Measure %in% input$selected_var)
+        if (!is.null(input$selected_var)) {
+          data <- data %>% filter(Measure %in% input$selected_var)
+        }
       }
       
+      req(nrow(data) > 0)  # ensure non-empty
       data
     })
     
-    # Table data with formatted values for better readability
-    table_data <- main_tiff_data_long %>%
-      rename(`Value (GBP 000)` = Value) %>%
-      mutate(
-        Measure = coalesce(unname(measure_lookup2[Measure]), Measure),  # map underscores to readable names
-        `Value (GBP 000)` = comma(round(`Value (GBP 000)`, 0))
-      )
+    # ---- Table data (formatted) ----
+    table_data <- reactive({
+      req(nrow(chart_data()) > 0)
+      chart_data() %>%
+        rename(`Value (GBP 000)` = Value) %>%
+        mutate(
+          Measure = gsub("_", " ", Measure),
+          `Value (GBP 000)` = scales::comma(round(`Value (GBP 000)`, 0))
+        )
+    })
     
-    # change checkboxes dynamically depending on radio box selection
+    # ---- Update checkboxes dynamically ----
     observe({
-      if (input$tabs == ns("data")) {  # your Data Table tab value
-        shinyjs::hide("sidebar")
+      if (input$tabs == ns("data")) {
+        shinyjs::hide(id = "sidebar", anim = TRUE, animType = "slide")
       } else {
-        shinyjs::show("sidebar")
+        shinyjs::show(id = "sidebar", anim = TRUE, animType = "slide")
       }
       if (input$in_out_type == "tiff_Total") {
-        selected <- c()
-        if (!is.null(input$support_payments)) {
-          if ("Yes" %in% input$support_payments) selected <- c(selected, "Total income from farming")
-          if ("No"  %in% input$support_payments) selected <- c(selected, "Total income from farming, without support payments")
+        selected <- if (!is.null(input$support_payments)) {
+          c(
+            if ("Yes" %in% input$support_payments) "Total income from farming" else NULL,
+            if ("No"  %in% input$support_payments) "Total income from farming, without support payments" else NULL
+          )
         } else {
-          # default selection if nothing is selected
-          selected <- "Total income from farming"
+          "Total income from farming"
         }
-        
-        updateCheckboxGroupInput(
-          session,
-          "selected_var",
-          choices = tiff_Total,
-          selected = selected
-        )
+        updateCheckboxGroupInput(session, "selected_var", choices = tiff_Total, selected = selected)
       } else {
         choices <- switch(
           input$in_out_type,
@@ -128,99 +126,72 @@ tiffServer <- function(id){
           "tiff_Inputs"  = setNames(tiff_Inputs, gsub("_", " ", tiff_Inputs)),
           NULL
         )
-        
         default_selection <- switch(
           input$in_out_type,
-          "tiff_Outputs" = "Gross_output",  # internal value
+          "tiff_Outputs" = "Gross_output",
           "tiff_Inputs"  = "Total_Costs",
           NULL
         )
-        
-        updateCheckboxGroupInput(
-          session,
-          "selected_var",
-          choices = choices,
-          selected = default_selection
-        )
+        updateCheckboxGroupInput(session, "selected_var", choices = choices, selected = default_selection)
       }
     })
     
+    # ---- Line chart ----
     lineChartServer(
       id = "line",
       chart_data = reactive({
-        year_start <- as.numeric(input$selected_year[1])
-        year_end <- as.numeric(input$selected_year[2])
-        
+        req(input$selected_var)
         data <- chart_data() %>%
           filter(Measure %in% input$selected_var) %>%
-          filter(Year >= year_start & Year <= year_end) %>%
-          mutate(Measure = gsub("_", " ", Measure))  # overwrite Measure for display
-        
+          filter(Year >= input$selected_year[1], Year <= input$selected_year[2]) %>%
+          mutate(Measure = gsub("_", " ", Measure))
+        req(nrow(data) > 0)
         data
       }),
-      chart_title = titleText,
+      title = "Total income from farming timeseries",
       yAxisTitle = "Value (£000)",
       xAxisTitle = "Year",
-      footer = census_footer,
+      footer = tiff_footer,
       x_col = "Year",
       y_col = "Value"
     )
     
-    
-    # Render the data table with formatted values
-    measure_lookup2 <- c(
-      setNames(names(tiff_Outputs), tiff_Outputs),
-      setNames(names(tiff_Inputs),  tiff_Inputs),
-      setNames(names(tiff_Total),   tiff_Total)
-    )
-    
+    # ---- Data Table ----
     output$data_table <- renderDT({
+      req(nrow(table_data()) > 0)
       datatable(
-        table_data %>%
-          select(Measure, Price, Year, `Value (GBP 000)`) %>%
-          arrange(Price, desc(Year)),
+        table_data() %>% select(Measure, Price, Year, `Value (GBP 000)`) %>% arrange(Price, desc(Year)),
         colnames = c("Measure","Price", "Year", "Value (£000)"),
-        options = list(
-          pageLength = 25,
-          scrollX = TRUE,
-          order = list(list(3, 'desc'))
-        )
+        options = list(pageLength = 25, scrollX = TRUE, order = list(list(3, 'desc')))
       )
     })
     
-    
-    # Download handler with formatted values
     output$downloadData <- downloadHandler(
-      filename = function() {
-        paste("tiff_data", Sys.Date(), ".csv", sep = "")
-      },
-      content = function(file) {
-    write.csv(table_data, file, row.names = FALSE)
-  }
+      filename = function() paste0("tiff_data_", Sys.Date(), ".csv"),
+      content = function(file) write.csv(table_data(), file, row.names = FALSE)
     )
   })
 }
 
 
-
   
   
-### Testing module --------
-source(here("Economy/TIFF", "line_chart_copy.R"))
-source("Economy/TIFF/tiff_utility.R")
-source("utility/util_updates.R")
-source("utility/util_functions.R")
-source("utility/hc_theme.R")
-source("utility/util_options.R")
-
-
-content_demo <- function() {
-  ui <- fluidPage(tiffUI("tifftest"))
-  server <- function(input, output, session) {
-    tiffServer("tifftest")
-  }
-  shinyApp(ui, server)
-}
-
-content_demo()
+# ### Testing module --------
+# source(here("Economy/TIFF", "line_chart_copy.R"))
+# source("Economy/TIFF/tiff_utility.R")
+# source("utility/util_updates.R")
+# source("utility/util_functions.R")
+# source("utility/hc_theme.R")
+# source("utility/util_options.R")
+# 
+# 
+# content_demo <- function() {
+#   ui <- fluidPage(tiffUI("tifftest"))
+#   server <- function(input, output, session) {
+#     tiffServer("tifftest")
+#   }
+#   shinyApp(ui, server)
+# }
+# 
+# content_demo()
 
