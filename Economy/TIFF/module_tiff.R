@@ -92,7 +92,11 @@ tiffServer <- function(id){
     
     # Table data with formatted values for better readability
     table_data <- main_tiff_data_long %>%
-      rename(`Value (GBP 000)` = Value)
+      rename(`Value (GBP 000)` = Value) %>%
+      mutate(
+        Measure = coalesce(unname(measure_lookup2[Measure]), Measure),  # map underscores to readable names
+        `Value (GBP 000)` = comma(round(`Value (GBP 000)`, 0))
+      )
     
     # change checkboxes dynamically depending on radio box selection
     observe({
@@ -164,18 +168,23 @@ tiffServer <- function(id){
     
     
     # Render the data table with formatted values
-    # Render the data table based only on data_type selection with 20 entries by default
+    measure_lookup2 <- c(
+      setNames(names(tiff_Outputs), tiff_Outputs),
+      setNames(names(tiff_Inputs),  tiff_Inputs),
+      setNames(names(tiff_Total),   tiff_Total)
+    )
+    
     output$data_table <- renderDT({
       datatable(
         table_data %>%
-          select(Measure, Price, Year, `Value (GBP 000)`) %>% 
-        arrange(Price, desc(Year)) %>%
-          mutate(`Value (GBP 000)` = comma(round(`Value (GBP 000)`, 0))),  # 0 dp
-        colnames = c("Measure","Price", "Year", "Value (£ 000)"),
-        options = list(pageLength = 25, # Show 25 entries by default
-                       scrollX = TRUE, #enable horizontal scrolling
-                       order = list(3, 'desc') # Price asc, Year desc
-                       ), 
+          select(Measure, Price, Year, `Value (GBP 000)`) %>%
+          arrange(Price, desc(Year)),
+        colnames = c("Measure","Price", "Year", "Value (£000)"),
+        options = list(
+          pageLength = 25,
+          scrollX = TRUE,
+          order = list(list(3, 'desc'))
+        )
       )
     })
     
