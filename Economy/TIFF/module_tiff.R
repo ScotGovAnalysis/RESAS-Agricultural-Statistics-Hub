@@ -159,7 +159,7 @@ tiffServer <- function(id){
         data
       }),
       chart_title = titleText,
-      yAxisTitle = "£ 000",
+      yAxisTitle = "Value (£000)",
       xAxisTitle = "Year",
       footer = census_footer,
       x_col = "Year",
