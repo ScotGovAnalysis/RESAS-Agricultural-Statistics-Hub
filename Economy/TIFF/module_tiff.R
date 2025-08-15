@@ -11,7 +11,6 @@ tiffUI <- function(id) {
       sidebarPanel(
         id = ns("sidebar"),
         width = 3,
-        
         radioButtons(
           ns("in_out_type"), "Measure",
           choices = c("Total" = "tiff_Total", "Outputs" = "tiff_Outputs", "Inputs" = "tiff_Inputs"),
@@ -31,12 +30,10 @@ tiffUI <- function(id) {
             selected = c("Yes")
           )
         ),
-        
         conditionalPanel(
           condition = sprintf("input['%s'] != 'tiff_Total'", ns("in_out_type")),
           checkboxGroupInput(ns("selected_var"), "Select variables", choices = NULL)
         ),
-        
         sliderInput(
           ns("selected_year"), "Select year range",
           min = tiff_year_min,
@@ -46,7 +43,6 @@ tiffUI <- function(id) {
           sep = ""
         )
       ),
-      
       mainPanel(
         id = ns("mainpanel"),
         width = 9,

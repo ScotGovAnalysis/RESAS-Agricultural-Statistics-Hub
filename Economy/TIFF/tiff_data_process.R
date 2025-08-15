@@ -172,7 +172,7 @@ main_categories <- c(
   "Total_output_from_crops", 
   "Total_output_from_livestock",
   "Total_output_from_other_agricultural_activities", 
-  "Total_output_from_non-agricultural_activities",
+  "Total_output_from_non_agricultural_activities",
   "Gross_output", 
   "Total_input_from_feedstuffs",
   "Total_input_from_seeds", 
@@ -180,7 +180,7 @@ main_categories <- c(
   "Total_input_from_farm_maintenance",
   "Total_input_from_miscellaneous_expenses", 
   "FISIM",
-  "Total_input_from_non-agricultural_activities", 
+  "Total_input_from_non_agricultural_activities", 
   "Gross_input", 
   "Gross_value_added",
   "Total_consumption_of_fixed_capital",
@@ -196,8 +196,15 @@ main_categories <- c(
 )
 
 main_tiff_data_long <- full_clean_data %>%
-  filter(Measure %in% main_categories) %>% 
-  mutate(Value = Value * 1000)
+  mutate(
+    Measure = recode(
+      Measure,
+      "Total_output_from_non-agricultural_activities" = "Total_output_from_non_agricultural_activities",
+      "Total_input_from_non-agricultural_activities" = "Total_input_from_non_agricultural_activities"
+    ),
+    Value = Value * 1000
+  ) %>%
+  filter(Measure %in% main_categories)
 
 #save to data
 save(main_tiff_data_long, file="Data/TIFF_data.Rda" )
