@@ -204,7 +204,12 @@ main_tiff_data_long <- full_clean_data %>%
     ),
     Value = Value * 1000
   ) %>%
-  filter(Measure %in% main_categories)
+  filter(Measure %in% main_categories)%>%
+  mutate(
+    Measure = recode(
+      Measure,
+      "Interest,_rent_and_taxes" = "Interest_rent_and_taxes"))
+
 
 #save to data
 save(main_tiff_data_long, file="Data/TIFF_data.Rda" )

@@ -26,7 +26,7 @@ tiff_Inputs <- c(
   "Other Support" = "Total_other_support",
   "Net Value Added (Factor Cost)" = "Net_value_added_at_factor_cost",
   "Hired Labour" = "Hired_labour",
-  "Interest, Rent and Taxes" = "Interest,_rent_and_taxes"
+  "Interest Rent and Taxes" = "Interest_rent_and_taxes"
 )
 
 
