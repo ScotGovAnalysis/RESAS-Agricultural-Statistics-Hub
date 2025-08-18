@@ -92,15 +92,12 @@ tiffServer <- function(id) {
     })
     
     # ---- Table data (formatted) ----
-    table_data <- reactive({
-      req(nrow(chart_data()) > 0)
-      chart_data() %>%
-        rename(`Value (GBP 000)` = Value) %>%
-        mutate(
-          Measure = gsub("_", " ", Measure),
-          `Value (GBP 000)` = scales::comma(round(`Value (GBP 000)`, 0))
-        )
-    })
+    table_data <- main_tiff_data_long %>%
+    rename(`Value (GBP 000)` = Value) %>%
+      mutate(
+        Measure = coalesce(unname(measure_lookup2[Measure]), Measure),  # map underscores to readable names
+        `Value (GBP 000)` = comma(round(`Value (GBP 000)`, 0))
+      )
     
     # ---- Update checkboxes dynamically ----
     observe({
@@ -157,12 +154,14 @@ tiffServer <- function(id) {
     )
     
     # ---- Data Table ----
+    
     output$data_table <- renderDT({
-      req(nrow(table_data()) > 0)
       datatable(
-        table_data() %>% select(Measure, Price, Year, `Value (GBP 000)`) %>% arrange(Price, desc(Year)),
+        table_data %>%
+        select(Measure, Price, Year, `Value (GBP 000)`) %>% 
+          arrange(Price, desc(Year)),
         colnames = c("Measure","Price", "Year", "Value (£000)"),
-        options = list(pageLength = 25, scrollX = TRUE, order = list(list(3, 'desc')))
+        options = list(pageLength = 20, scrollX = TRUE, order = list(list(3, 'desc')))
       )
     })
     

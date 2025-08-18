@@ -38,4 +38,9 @@ tiff_Total <- c(
 all_tiff <- c(tiff_Inputs, tiff_Outputs, tiff_Total)
 all_tiff
 
+measure_lookup2 <- c(
+  setNames(names(tiff_Outputs), tiff_Outputs),
+  setNames(names(tiff_Inputs),  tiff_Inputs),
+  setNames(names(tiff_Total),   tiff_Total)
+)
 
