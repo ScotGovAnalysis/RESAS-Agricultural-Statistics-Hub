@@ -93,7 +93,8 @@ tiffServer <- function(id) {
     
     # ---- Table data (formatted) ----
     table_data <- main_tiff_data_long %>%
-    rename(`Value (GBP 000)` = Value) %>%
+      select(Measure, Price, Year, Value) %>% 
+      rename(`Value (GBP 000)` = Value) %>%
       mutate(
         Measure = coalesce(unname(measure_lookup2[Measure]), Measure),  # map underscores to readable names
         `Value (GBP 000)` = comma(round(`Value (GBP 000)`, 0))
@@ -167,7 +168,7 @@ tiffServer <- function(id) {
     
     output$downloadData <- downloadHandler(
       filename = function() paste0("tiff_data_", Sys.Date(), ".csv"),
-      content = function(file) write.csv(table_data(), file, row.names = FALSE)
+      content = function(file) write.csv(table_data, file, row.names = FALSE)
     )
   })
 }
