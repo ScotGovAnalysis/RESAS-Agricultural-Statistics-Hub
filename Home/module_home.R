@@ -66,7 +66,7 @@ homeUI <- function(id) {
         ),
         tags$ul(
           tags$li(actionLink(ns("nav_economy"), "Economy")),
-          tags$li(actionLink(ns("nav_tiff_module"), "Total income from farming"))
+          tags$li(actionLink(ns("nav_tiff_module"), "Total Income From Farming"))
         )
       ),
       mainPanel(
@@ -126,7 +126,7 @@ homeUI <- function(id) {
             tags$a(href = "https://www.gov.scot/collections/scottish-cereal-harvest-estimates/", target = "_blank", "Scottish cereal harvest: estimates")
           ),
           tags$li(
-            tags$a(href = "https://www.gov.scot/collections/total-income-from-farming/", target = "_blank", "Total income from farming")
+            tags$a(href = "https://www.gov.scot/collections/total-income-from-farming/", target = "_blank", "Total income from farming: estimates")
           ),
           tags$li(
             tags$a(href = "https://www.gov.scot/collections/scottish-agriculture-greenhouse-gas-emissions-and-nitrogen-use/", target = "_blank", "Scottish agriculture greenhouse gas emissions and nitrogen use")
