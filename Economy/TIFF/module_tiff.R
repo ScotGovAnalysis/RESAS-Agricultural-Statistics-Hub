@@ -13,7 +13,7 @@ tiffUI <- function(id) {
         width = 3,
         radioButtons(
           ns("in_out_type"), "Select a measure",
-          choices = c("Total" = "tiff_Total", "Outputs" = "tiff_Outputs", "Inputs" = "tiff_Inputs"),
+          choices = c("Total" = "tiff_Total", "Outputs" = "tiff_Outputs", "Costs" = "tiff_Costs"),
           selected = "tiff_Total"
         ),
         radioButtons(
@@ -71,7 +71,6 @@ tiffServer <- function(id) {
     chart_data <- reactive({
       req(input$tiff_prices)
       data <- main_tiff_data_long %>% filter(Price == input$tiff_prices)
-      
       if (input$in_out_type == "tiff_Total") {
         selected_measures <- c()
         if ("Yes" %in% input$support_payments) {
@@ -86,7 +85,6 @@ tiffServer <- function(id) {
           data <- data %>% filter(Measure %in% input$selected_var)
         }
       }
-      
       req(nrow(data) > 0)  # ensure non-empty
       data
     })
@@ -96,7 +94,6 @@ tiffServer <- function(id) {
       select(Measure, Price, Year, Value) %>% 
       rename(`Value (GBP 000)` = Value) %>%
       mutate(
-        Measure = coalesce(unname(measure_lookup2[Measure]), Measure),  # map underscores to readable names
         `Value (GBP 000)` = comma(round(`Value (GBP 000)`, 0))
       )
     
@@ -120,17 +117,19 @@ tiffServer <- function(id) {
       } else {
         choices <- switch(
           input$in_out_type,
-          "tiff_Outputs" = setNames(tiff_Outputs, gsub("_", " ", tiff_Outputs)),
-          "tiff_Inputs"  = setNames(tiff_Inputs, gsub("_", " ", tiff_Inputs)),
+          "tiff_Outputs" = tiff_Outputs,   
+          "tiff_Costs"   = tiff_Costs,
           NULL
         )
         default_selection <- switch(
           input$in_out_type,
-          "tiff_Outputs" = "Gross_output",
-          "tiff_Inputs"  = "Total_Costs",
+          "tiff_Outputs" = "Gross Output",     
+          "tiff_Costs"   = "Total Costs",      
           NULL
         )
-        updateCheckboxGroupInput(session, "selected_var", choices = choices, selected = default_selection)
+        updateCheckboxGroupInput(session, "selected_var", 
+                                 choices = choices, 
+                                 selected = default_selection)
       }
     })
     
@@ -139,10 +138,17 @@ tiffServer <- function(id) {
       id = "line",
       chart_data = reactive({
         req(input$selected_var)
-        data <- chart_data() %>%
-          filter(Measure %in% input$selected_var) %>%
-          filter(Year >= input$selected_year[1], Year <= input$selected_year[2]) %>%
-          mutate(Measure = gsub("_", " ", Measure))
+        data <- chart_data()
+        
+        if (input$in_out_type != "tiff_Total") {
+          req(input$selected_var)
+          data <- data %>% filter(Measure %in% input$selected_var)
+        }
+        
+        data <- data %>%
+          filter(Year >= input$selected_year[1],
+                 Year <= input$selected_year[2])
+        
         req(nrow(data) > 0)
         data
       }),
@@ -158,8 +164,7 @@ tiffServer <- function(id) {
     
     output$data_table <- renderDT({
       datatable(
-        table_data %>%
-        select(Measure, Price, Year, `Value (GBP 000)`) %>% 
+        table_data %>% 
           arrange(Price, desc(Year)),
         colnames = c("Measure","Price", "Year", "Value (£000)"),
         options = list(pageLength = 20, scrollX = TRUE, order = list(list(3, 'desc')))
@@ -176,7 +181,7 @@ tiffServer <- function(id) {
 
   
   
-# ### Testing module --------
+# # ### Testing module --------
 # source(here("Economy/TIFF", "line_chart_copy.R"))
 # source("Economy/TIFF/tiff_utility.R")
 # source("utility/util_updates.R")
