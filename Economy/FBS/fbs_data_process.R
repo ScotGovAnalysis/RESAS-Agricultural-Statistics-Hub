@@ -17,34 +17,35 @@
 ####
 #################################
 # Load necessary libraries
+library(here)
 library(readxl)
 library(stringr)
-library(dplyr)
-
+library(tidyverse)
+source(here("Economy/FBS", "fbs_utility.R"))
 #data pre-load ------
 #LOAD FBS data - run this once to save processed fbs data to data folder (uncomment and edit parameters for new year )
 #### parameters ----
-# current_year <- "2023-24"
-# prev_year <- "2022-23"
-# fbs_data_path <- "//s0196a/ADM-Rural and Environmental Science-Farming Statistics/Agriculture/Source/FBS/FBS 2023-24/"
-# 
-# fbs_data <- load(paste0(fbs_data_path, "FBS2023-24_CC.rda"))
+current_year <- "2023-24"
+prev_year <- "2022-23"
+fbs_data_path <- "//s0196a/ADM-Rural and Environmental Science-Farming Statistics/Agriculture/Source/FBS/FBS 2023-24/"
+
+fbs_data <- load(paste0(fbs_data_path, "FBS2023-24_CC.rda"))
 
 # ###Data pre-process ------
 # #remove unwanted columns and flatten into one dataframe
 # #
-# fbs_data <- map(Outputs_Costs, ~ .x %>%
-#                   select(Measure,
-#                          !!sym(current_year),
-#                          !!sym(prev_year),
-#                          farm_type,
-#                          input_output_type,
-#                          main_category, sub_category_1)) %>% bind_rows(.)
-# # ####save data  ------
-# save(fbs_data, file="Data/FBS_data.Rda" )
-# 
+fbs_data <- map(Outputs_Costs, ~ .x %>%
+                  select(Measure,
+                         !!sym(current_year),
+                         !!sym(prev_year),
+                         farm_type,
+                         input_output_type,
+                         main_category, sub_category_1)) %>% bind_rows(.)
+# ####save data  ------
+save(fbs_data, file="Data/FBS_data.Rda" )
+#
 # # load data -----
-# load("Data/FBS_data.Rda")
+load("Data/FBS_data.Rda")
 
 # change farm types to sentence case
 snake_to_sentence <- function(snake_str) {
@@ -59,7 +60,7 @@ fbs_data$farm_type <- snake_to_sentence(fbs_data$farm_type)
 # edit Lfa to LFA
 fbs_data$farm_type <- gsub("Lfa", "LFA", fbs_data$farm_type)
 
-# edit LFA sheep cattle to LFA cattle and sheep 
+# edit LFA sheep cattle to LFA cattle and sheep
 fbs_data$farm_type <- gsub("sheep cattle", "cattle and sheep", fbs_data$farm_type)
 
 # add cattle and sheep to lowland
@@ -139,11 +140,11 @@ out_items <- c("Wheat",
                "ESA Grants",
                "Support Advisory",
                "Other miscellaneous grants"
-               
+
                )
 
 cost_sub_totals <- c(
-                "Variable agricultural costs", #costs 
+                "Variable agricultural costs", #costs
                 "Fixed agricultural costs",
                 "Fixed contract costs",
                 "Variable contract costs",
@@ -162,7 +163,7 @@ cost_sub_totals <- c(
                 "Fixed diversification costs",
                 "Variable payment schemes costs",
                 "Fixed payment schemes costs"
-                
+
                 )
 
 cost_items <- c("Casual labour",
@@ -199,8 +200,8 @@ cost_items <- c("Casual labour",
                 "Variable payment schemes costs",
                 "Variable diversification costs",
                 "Variable agri-environment costs"
-                )              
-   # add identifiers to data for charts             
+                )
+   # add identifiers to data for charts
  fbs_data <- fbs_data %>% mutate(#total_value = case_when(Measure %in% totals~value,
                                                     #.default = NA_integer_),
                                  tot_item = case_when(Measure %in% out_totals ~ "output_totals",
@@ -211,29 +212,101 @@ cost_items <- c("Casual labour",
                                                       Measure %in% cost_items ~ "costs_itemised",
                                                       .default =NA_character_))
                                  #itemised_value = case_when(Measure %in% sub_totals~value,
-                                                     # .default = NA_integer_))               
-                
-                
-                
+                                                     # .default = NA_integer_))
+
+
+
   #farm types
 farm_types <- c("All farms",
              "Cereals",
-             "General cropping", 
+             "General cropping",
              "Dairy",
-             "LFA sheep", 
+             "LFA sheep",
              "LFA cattle",
-             "LFA cattle and sheep", 
+             "LFA cattle and sheep",
              "Lowland cattle and sheep",
              "Mixed")
 
 # reformat for charts
-fbs_long <- fbs_data %>% pivot_longer(cols = c(!!sym(current_year), !!sym(prev_year) ), names_to = "year", values_to = "value")
-# fbs_wide <- fbs_long %>% select(Measure,
-#                                 farm_type,
-#                                 value,year,
-#                                 tot_item) %>% 
-#                                 pivot_wider(names_from = Measure, values_from = value )
+fbs_cost_centre <- fbs_data %>%
+  pivot_longer(cols = c(!!sym(current_year), !!sym(prev_year) ), names_to = "year", values_to = "value") |> 
+# add numeric year col
+ mutate(sampyear = recode(as.character(year), !!!fbs_years))
 
-#save to data
-save(fbs_long, file="Data/FBS_data.Rda" )
+
+
+# add income timeseries data
+load(paste0(fbs_data_path, "income_timeseries_2023-24.Rda"))
+
+# load fbi no support payment data  - reformat and add cols before binding 
+fbi_no_supp <- read_excel(paste0(fbs_data_path, "fbi_no_supp.xlsx")) |> 
+  pivot_longer(-(farmtype), names_to = "year", values_to = "value") |> 
+  mutate(Measure = "Farm business income without support payments",
+         value = round(value, 0)) |> # round to nearest pound
+  rename(`Farm type` = farmtype)  
+  
+
+# filter income for real prices and reformat
+fbs_income <- ag_hub$income |> filter (Prices == "Real") |> 
+  select (-Prices) |> 
+  pivot_longer(-(Measure), names_to = "year", values_to = "value") |> 
+  mutate(`Farm type` = "All farms") |>
+  filter (!grepl("FTE", Measure)) # remove fte measures
+
+fbs_income$Measure <- gsub("\\(£\\)", "", fbs_income$Measure) # remove £
+fbs_income$Measure <- gsub("FBI", "Farm business income", fbs_income$Measure) # spell out fbi
+
+
+# join fbi no supp with income timeseries
+fbs_income <- rbind(fbs_income, fbi_no_supp)
+
+# same for net farm income
+nfi <-ag_hub$NFI |> filter(Prices == "Real") |> 
+  select (-Prices) |> 
+  mutate(Measure = "Net farm income") |> # add measure col before binding
+  pivot_longer(-c(Measure, `Farm type`), names_to = "year", values_to = "value")
+
+nfi$`Farm type` <- gsub("Cereal", "Cereals", nfi$`Farm type`) # change cereal to cereals
+
+# same for farm business income
+fbi <-ag_hub$FBI |> filter(Prices == "Real") |> 
+  select (-Prices) |> 
+  mutate(Measure = "Farm business income") |> # add measure col before binding
+  pivot_longer(-c(Measure, `Farm type`), names_to = "year", values_to = "value")
+
+fbi$`Farm type` <- gsub("Cereal", "Cereals", fbi$`Farm type`) # change cereal to cereals
+
+# bind
+fbs_income <- rbind(fbs_income, nfi, fbi) |> 
+  rename(farm_type = `Farm type`)
+
+# edit farm types to match app
+fbs_income$farm_type <- gsub("\\(LFA\\)", "", fbs_income$farm_type)
+fbs_income$farm_type <- gsub("Specialist", "LFA", fbs_income$farm_type)
+fbs_income$farm_type <- gsub("LFA Cattle", "LFA cattle", fbs_income$farm_type)
+fbs_income$farm_type <- gsub("Cattle", "LFA cattle", fbs_income$farm_type)
+
+fbs_income$farm_type <- sub("\\s+$", "", fbs_income$farm_type) # remove trailing space
+
+
+
+
+
+# add in_out_type column
+
+fbs_income <- fbs_income |> mutate(input_output_type = case_when(grepl("Farm business income", Measure) ~ "fbi",
+                                                           Measure == "Net farm income" ~ "nfi",
+                                                          # grepl("FBI", Measure) ~ "fbi", # for both to appear on chart
+                                                           grepl("Support payments", Measure) ~ "supp",
+                                                           grepl("Diversified income", Measure) ~ "div_inc",
+                                                           grepl("Off farm income", Measure) ~ "ofi",
+                                                           .default = NA_character_
+                                                           ))
+
+
+# add numeric year col
+fbs_income <- fbs_income |>  mutate(sampyear = recode(as.character(year), !!!fbs_years))
+# save all
+
+save(fbs_cost_centre, fbs_income, file="Data/FBS_data.Rda" )
 load("Data/FBS_data.Rda")

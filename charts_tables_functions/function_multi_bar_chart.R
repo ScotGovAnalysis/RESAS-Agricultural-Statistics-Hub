@@ -62,8 +62,8 @@ multibarChartServer <- function(id, chart_data, title, yAxisTitle, xlab, xAxisTi
       hc <- highchart() %>%
         hc_chart(type = "bar", inverted = TRUE, zoomType = "xy") %>%
         hc_xAxis(categories = measures, title = list(text = xAxisTitle))%>%
-        hc_yAxis(title = list(text = if (is.reactive(yAxisTitle)) yAxisTitle() else yAxisTitle),
-                 allowDecimals = FALSE) %>%
+        hc_yAxis(title = FALSE) |>  #list(text = if (is.reactive(yAxisTitle)) yAxisTitle() else yAxisTitle),
+                   #  allowDecimals = FALSE) %>%
         hc_plotOptions(bar = list(
           dataLabels = list(enabled = FALSE),
           groupPadding = 0.1,
@@ -82,7 +82,7 @@ multibarChartServer <- function(id, chart_data, title, yAxisTitle, xlab, xAxisTi
           } else {
             formattedValue = value.toLocaleString(undefined, {minimumFractionDigits: 1, maximumFractionDigits: 2});
           }
-          return this.series.name + ': ' + formattedValue + ' %s';
+          return this.series.name + ': £' + formattedValue + ' %s';
         }", tooltip_unit()))
         )
       

@@ -15,6 +15,8 @@ census_year <- 2024
 
 emissions_year <- 2023
 
+fbs_year <-2023-24 
+
 #emissions_year 
 
 #some footers need manually updated - e.g. poultry - run print_code and search for 2022 / 2023 to find issues
@@ -22,7 +24,12 @@ census_footer <- '<div style="font-size: 16px; font-weight: bold;"><a href="http
 
 emissions_footer <- '<div style="font-size: 16px; font-weight: bold;"> <a href="https://www.gov.scot/collections/scottish-agriculture-greenhouse-gas-emissions-and-nitrogen-use/" target="_blank">Source: Scottish agriculture greenhouse gas emissions and nitrogen use 2023-24</a>, analysis based on results of the <a href="https://www.gov.scot/publications/scottish-greenhouse-gas-statistics-2023/" target="_blank">Scottish Greenhouse Gas Statistics 2023</a>.</div>'
 
+
+fbs_footer <- '<div style="font-size: 16px; font-weight: bold;"> <a href="https://www.gov.scot/collections/scottish-farm-business-income-fbi-annual-estimates/" target="_blank">Source: Scottish farm business income: annual estimates 2023-24</a></div>'
+
+
 tiff_footer <- '<div style="font-size: 16px; font-weight: bold;"> <a href="https://www.gov.scot/publications/total-income-from-farming-estimates-2018-2024/">Source: Total income from farming estimates: 2018-2024</a></div>'
+
 
 # Function to generate the census data table footer with a light grey background
 generateCensusTableFooter <- function() {
@@ -75,6 +82,19 @@ generate2023ModuleTableFooter <- function() {
   )
 }
 
+# Function to generate the census data table footer with a light grey background
+generateFBSTableFooter <- function() {
+  div(
+    style = "background-color: #f0f0f0; padding: 15px; border-radius: 5px; margin-top: 20px;",
+    "This data is sourced from ",
+    tags$a(href = "https://www.gov.scot/collections/scottish-farm-business-income-fbi-annual-estimates/",
+           "Scottish farm business income: annual estimates 2023-24"),
+    " which was published on 3 April 2025.",
+    tags$br(),
+    "Full data tables and detailed analysis are available within the full report."
+  )
+}
+
 generatetiffTableFooter <- function() {
   div(
     style = "background-color: #f0f0f0; padding: 15px; border-radius: 5px; margin-top: 20px;",
@@ -92,3 +112,4 @@ generatetiffTableFooter <- function() {
     "Full data tables and detailed analysis are available within the full report."
   )
 }
+

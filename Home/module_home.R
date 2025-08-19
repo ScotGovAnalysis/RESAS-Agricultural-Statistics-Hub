@@ -65,8 +65,11 @@ homeUI <- function(id) {
           "Economy"
         ),
         tags$ul(
+          tags$li(actionLink(ns("nav_economy"), "Economy")), 
+          tags$li(actionLink(ns("nav_module_fbs"), "Farm level economic data"))
           tags$li(actionLink(ns("nav_economy"), "Economy")),
           tags$li(actionLink(ns("nav_tiff_module"), "Total Income From Farming"))
+
         )
       ),
       mainPanel(
@@ -182,6 +185,7 @@ homeServer <- function(id) {
       fruit_module = "fruit_module",
       structure_information = "structure_information",
       economy = "economy",
+      module_fbs = "module_fbs"
       tiff_module = "tiff_module"
     )
     
