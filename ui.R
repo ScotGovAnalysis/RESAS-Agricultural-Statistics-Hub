@@ -41,6 +41,7 @@ source("Crops/module_fruit.R")
 source("Home/module_home.R")
 source("Economy/module_economy_summary.R")
 source("Economy/FBS/module_fbs_average_outputs_costs.R")
+source("Economy/TIFF/module_tiff.R")
 source("Livestock/module_animals_summary.R")
 source("Agri-Env/module_soil_testing.R")
 source("Agri-Env/module_manure.R")
@@ -134,8 +135,11 @@ ui <- fluidPage(
             ),
             navbarMenu("Economy",
                        tabPanel("Summary", value = "economy", economySummaryUI("economy")),
+
+                       tabPanel("Farm level outputs and Costs", value = "fbs_average_outputs_costs_module", CostOutUI("fbs_average_outputs_costs_module")),
+                       tabPanel("Total income from farming", value = "tiff_module", tiffUI("tiff_module")),
                        tabPanel("Farm level outputs and Costs", value = "fbs_average_outputs_costs_module", CostOutUI("fbs_average_outputs_costs_module"))
-            ),
+            #),
             # navbarMenu("Organic Farming",
             #            tabPanel("Summary", value = "module_organic_summary", organicsummaryUI("module_organic_summary")),
             #            tabPanel("Land use", value = "module_organic_land_use", organiclanduseUI("module_organic_land_use")),
