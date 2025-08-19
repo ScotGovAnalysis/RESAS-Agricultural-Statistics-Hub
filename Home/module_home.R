@@ -67,6 +67,9 @@ homeUI <- function(id) {
         tags$ul(
           tags$li(actionLink(ns("nav_economy"), "Economy")), 
           tags$li(actionLink(ns("nav_module_fbs"), "Farm level economic data"))
+          tags$li(actionLink(ns("nav_economy"), "Economy")),
+          tags$li(actionLink(ns("nav_tiff_module"), "Total Income From Farming"))
+
         )
       ),
       mainPanel(
@@ -126,7 +129,7 @@ homeUI <- function(id) {
             tags$a(href = "https://www.gov.scot/collections/scottish-cereal-harvest-estimates/", target = "_blank", "Scottish cereal harvest: estimates")
           ),
           tags$li(
-            tags$a(href = "https://www.gov.scot/collections/total-income-from-farming/", target = "_blank", "Total income from farming")
+            tags$a(href = "https://www.gov.scot/collections/total-income-from-farming/", target = "_blank", "Total income from farming: estimates")
           ),
           tags$li(
             tags$a(href = "https://www.gov.scot/collections/scottish-agriculture-greenhouse-gas-emissions-and-nitrogen-use/", target = "_blank", "Scottish agriculture greenhouse gas emissions and nitrogen use")
@@ -183,6 +186,7 @@ homeServer <- function(id) {
       structure_information = "structure_information",
       economy = "economy",
       module_fbs = "module_fbs"
+      tiff_module = "tiff_module"
     )
     
     # Set up observeEvent for each page

@@ -55,4 +55,5 @@ server <- function(input, output, session) {
   agmachownershipServer("ag_mach_ownership_module")
   agmachfuelServer("ag_mach_fuel_module")
   CostOutServer("module_fbs")
+  tiffServer("tiff_module")
 }

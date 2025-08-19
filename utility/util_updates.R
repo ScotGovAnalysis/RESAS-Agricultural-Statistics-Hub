@@ -24,8 +24,11 @@ census_footer <- '<div style="font-size: 16px; font-weight: bold;"><a href="http
 
 emissions_footer <- '<div style="font-size: 16px; font-weight: bold;"> <a href="https://www.gov.scot/collections/scottish-agriculture-greenhouse-gas-emissions-and-nitrogen-use/" target="_blank">Source: Scottish agriculture greenhouse gas emissions and nitrogen use 2023-24</a>, analysis based on results of the <a href="https://www.gov.scot/publications/scottish-greenhouse-gas-statistics-2023/" target="_blank">Scottish Greenhouse Gas Statistics 2023</a>.</div>'
 
+
 fbs_footer <- '<div style="font-size: 16px; font-weight: bold;"> <a href="https://www.gov.scot/collections/scottish-farm-business-income-fbi-annual-estimates/" target="_blank">Source: Scottish farm business income: annual estimates 2023-24</a></div>'
 
+
+tiff_footer <- '<div style="font-size: 16px; font-weight: bold;"> <a href="https://www.gov.scot/publications/total-income-from-farming-estimates-2018-2024/">Source: Total income from farming estimates: 2018-2024</a></div>'
 
 
 # Function to generate the census data table footer with a light grey background
@@ -91,3 +94,22 @@ generateFBSTableFooter <- function() {
     "Full data tables and detailed analysis are available within the full report."
   )
 }
+
+generatetiffTableFooter <- function() {
+  div(
+    style = "background-color: #f0f0f0; padding: 15px; border-radius: 5px; margin-top: 20px;",
+    "This data is sourced from the ",
+    tags$a(href = "https://www.gov.scot/publications/total-income-from-farming-estimates-2018-2024/",
+           "Total income from farming estimates: 2018-2024"),
+    " which was published on 29 May 2025.",
+    tags$br(),
+    "Total income from farming (TIFF) is the official measure of the profit gained by the agricultural industry in Scotland.",
+    tags$br(),
+    "The report provides a breakdown of the value of farm production, support payments and costs.",
+    tags$br(),
+    "Where data is unavailable, findings have been suppressed to prevent disclosure of individual holdings.",
+    tags$br(),
+    "Full data tables and detailed analysis are available within the full report."
+  )
+}
+

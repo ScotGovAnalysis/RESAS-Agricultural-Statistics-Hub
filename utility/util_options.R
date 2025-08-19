@@ -27,6 +27,7 @@ load(here("Data", "module_2023.RData"))
 load(here("Data", "vehicle_data.RData"))
 load(here("Data", "manure_fertiliser.RData"))
 load(here("Data", "FBS_data.Rda"))
+load(here("Data", "TIFF_data.Rda"))
 
 # Load FBS options
 source(here("Economy/FBS", "fbs_utility.R"))
