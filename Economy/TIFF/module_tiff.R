@@ -1,5 +1,5 @@
 ### Delete once module is finished to prevent loading twice ###
-#load(here("Data","TIFF_data.Rda"))
+load(here("Data","TIFF_data.Rda"))
 ###############################################################
 
 # Define UI ----
@@ -70,7 +70,9 @@ tiffServer <- function(id) {
     # ---- Chart data (unformatted) ----
     chart_data <- reactive({
       req(input$tiff_prices)
-      data <- main_tiff_data_long %>% filter(Price == input$tiff_prices)
+      data <- main_tiff_data_long %>% 
+        filter(Price == input$tiff_prices)
+      
       if (input$in_out_type == "tiff_Total") {
         selected_measures <- c()
         if ("Yes" %in% input$support_payments) {
@@ -82,9 +84,11 @@ tiffServer <- function(id) {
         data <- data %>% filter(Measure %in% selected_measures)
       } else {
         if (!is.null(input$selected_var)) {
-          data <- data %>% filter(Measure %in% input$selected_var)
+          data <- data %>%
+            filter(Measure %in% input$selected_var)
         }
       }
+      
       req(nrow(data) > 0)  # ensure non-empty
       data
     })
@@ -142,7 +146,8 @@ tiffServer <- function(id) {
         
         if (input$in_out_type != "tiff_Total") {
           req(input$selected_var)
-          data <- data %>% filter(Measure %in% input$selected_var)
+          data <- data %>% 
+            filter(Measure %in% input$selected_var)
         }
         
         data <- data %>%
@@ -172,7 +177,7 @@ tiffServer <- function(id) {
     })
     
     output$downloadData <- downloadHandler(
-      filename = function() paste0("tiff_data_", Sys.Date(), ".csv"),
+      filename = function() paste0("Total_income_from_farming_data_", tiff_year, ".csv"),
       content = function(file) write.csv(table_data, file, row.names = FALSE)
     )
   })
