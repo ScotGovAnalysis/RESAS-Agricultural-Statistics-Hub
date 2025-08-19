@@ -1,3 +1,31 @@
+main_categories <- c(
+  "Total_output_from_crops", 
+  "Total_output_from_livestock",
+  "Total_output_from_other_agricultural_activities", 
+  "Total_output_from_non-agricultural_activities",
+  "Gross_output", 
+  "Total_input_from_feedstuffs",
+  "Total_input_from_seeds", 
+  "Total_input_from_fertilisers_and_lime", 
+  "Total_input_from_farm_maintenance",
+  "Total_input_from_miscellaneous_expenses", 
+  "FISIM",
+  "Total_input_from_non-agricultural_activities", 
+  "Gross_input", 
+  "Gross_value_added",
+  "Total_consumption_of_fixed_capital",
+  "Net_value_added",
+  "Total_other_support",
+  "Total_of_all_support_payments", 
+  "Net_value_added_at_factor_cost",
+  "Hired_labour", 
+  "Interest,_rent_and_taxes",
+  "Total_Costs", 
+  "Total income from farming", 
+  "Total income from farming, without support payments"
+)
+
+
 tiff_list <- c("Gross_output" = "Gross Output",
                "Total_output_from_crops" = "Output from Crops",
                "Total_output_from_livestock" = "Output from Livestock",

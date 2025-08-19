@@ -1,6 +1,3 @@
-### Delete once module is finished to prevent loading twice ###
-load(here("Data","TIFF_data.Rda"))
-###############################################################
 
 # Define UI ----
 tiffUI <- function(id) {
