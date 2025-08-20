@@ -60,6 +60,7 @@ source("Organic Farming/module_organic_land_use.R")
 source("Organic Farming/module_organic_livestock.R")
 source("Organic Farming/module_organic_operators.R")
 source("Organic Farming/module_regional_variation.R")
+source("Economy/function_summary_copy.R")
 
 
 create_footer <- function() {
@@ -137,9 +138,9 @@ ui <- fluidPage(
             ),
             navbarMenu("Economy",
                        tabPanel("Summary", value = "economy", economySummaryUI("economy")),
-                       tabPanel("Farm level economic data", value = "module_fbs", CostOutUI("module_fbs"))
-                       tabPanel("Total income from farming", value = "tiff_module", tiffUI("tiff_module")),
-            ),
+                       tabPanel("Farm level economic data", value = "module_fbs", CostOutUI("module_fbs")),
+                       tabPanel("Total income from farming", value = "tiff_module", tiffUI("tiff_module"))
+            )
             # navbarMenu("Organic Farming",
             #            tabPanel("Summary", value = "module_organic_summary", organicsummaryUI("module_organic_summary")),
             #            tabPanel("Land use", value = "module_organic_land_use", organiclanduseUI("module_organic_land_use")),

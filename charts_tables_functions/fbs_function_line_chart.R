@@ -1,4 +1,4 @@
-lineChartUI <- function(id, note_type = 1) {
+fbsline_ChartUI <- function(id, note_type = 1) {
   ns <- NS(id)
   
   note_content <- if (note_type == 2) {
@@ -18,7 +18,7 @@ lineChartUI <- function(id, note_type = 1) {
   
   tagList(
     htmlOutput(ns("title")),
-    highchartOutput(ns("line_chart")),
+    highchartOutput(ns("fbsline_chart")),
     htmlOutput(ns("footer")),
     div(
       class = "note",
@@ -32,7 +32,12 @@ lineChartUI <- function(id, note_type = 1) {
 
 
 
-lineChartServer <- function(id, chart_data, title, yAxisTitle, xAxisTitle, unit = "", footer, x_col, y_col) {
+
+
+
+
+
+fbsline_ChartServer <- function(id, chart_data, title, yAxisTitle, xAxisTitle, unit, footer, x_col, y_col) {
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
     reactive_colors <- reactive({ assign_colors(chart_data(), preset_colors) })
@@ -47,7 +52,7 @@ lineChartServer <- function(id, chart_data, title, yAxisTitle, xAxisTitle, unit 
       HTML(footer)
     })
     
-    output$line_chart <- renderHighchart({
+    output$fbsline_chart <- renderHighchart({
       data <- chart_data()
       colors <- reactive_colors()
       
@@ -116,6 +121,8 @@ lineChartServer <- function(id, chart_data, title, yAxisTitle, xAxisTitle, unit 
           complete_series <- padded_series
         }
         
+        print(paste("Group:", g))
+        print(complete_series)
         
         color_to_use <- if (!is.null(colors[[g]])) colors[[g]] else NULL
         
@@ -137,7 +144,7 @@ lineChartServer <- function(id, chart_data, title, yAxisTitle, xAxisTitle, unit 
               formattedValue = value.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 2});
             }
             return this.series.name + ': £' + formattedValue + ' %s';
-          }", unit))
+          }", unit()))
         )
     })
   })

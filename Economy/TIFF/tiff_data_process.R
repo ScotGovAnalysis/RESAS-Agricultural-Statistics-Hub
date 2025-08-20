@@ -182,6 +182,3 @@ save(main_tiff_data_long, file="Data/TIFF_data.Rda" )
 table(main_tiff_data_long$Measure)
 range(main_tiff_data_long$Year, na.rm = TRUE)
 
-tiff_year <- max(main_tiff_data_long$Year) #Current TIFF year
-tiff_year_min <- min(main_tiff_data_long$Year)
-

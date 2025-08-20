@@ -85,7 +85,7 @@ tiff_Total <- c(
 )
 
 all_tiff <- c(tiff_Costs, tiff_Outputs, tiff_Total)
-all_tiff
+#all_tiff
 
 measure_lookup2 <- setNames(names(tiff_list), tiff_list)
 

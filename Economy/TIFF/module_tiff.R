@@ -1,4 +1,7 @@
 
+tiff_year <- max(main_tiff_data_long$Year) #Current TIFF year
+tiff_year_min <- min(main_tiff_data_long$Year)
+
 # Define UI ----
 tiffUI <- function(id) {
   ns <- NS(id)
@@ -201,4 +204,4 @@ tiffServer <- function(id) {
 # }
 # 
 # content_demo()
-
+# 

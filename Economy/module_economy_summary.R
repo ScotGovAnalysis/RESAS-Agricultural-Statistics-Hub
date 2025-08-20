@@ -54,12 +54,12 @@ economySummaryServer <- function(id) {
 
 
 # Testing module
-content_demo <- function() {
-  ui <- fluidPage(economySummaryUI("summary_economy_test"))
-  server <- function(input, output, session) {
-    economySummaryServer("summary_economy_test")
-  }
-  shinyApp(ui, server)
-}
-
-content_demo()
+# content_demo <- function() {
+#   ui <- fluidPage(economySummaryUI("summary_economy_test"))
+#   server <- function(input, output, session) {
+#     economySummaryServer("summary_economy_test")
+#   }
+#   shinyApp(ui, server)
+# }
+# 
+# content_demo()

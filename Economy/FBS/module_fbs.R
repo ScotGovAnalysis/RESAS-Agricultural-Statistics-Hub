@@ -1,5 +1,5 @@
 # File: module_FBS.R
-source(here("Economy/FBS/fbs_data_process.R"))
+#source(here("Economy/FBS/fbs_data_process.R"))
 
 ###UI#####
 CostOutUI <- function(id) {
@@ -200,7 +200,7 @@ CostOutServer <- function(id) {
           if (input$in_out_type %in% c("output", "costs")) {
             multibarChartUI(ns(paste0("bar_chart", farm_type_index)))
           } else {
-            lineChartUI(ns(paste0("line_chart", farm_type_index)))
+            fbsline_ChartUI(ns(paste0("fbs_line_chart", farm_type_index)))
           }
         }
       })
@@ -249,7 +249,7 @@ CostOutServer <- function(id) {
               maintain_order = TRUE
             )
           } else {
-            lineChartServer(
+            fbsline_ChartServer(
               id = line_id,
               chart_data = filtered_chart_data,
               title = chart_title,
@@ -276,7 +276,7 @@ CostOutServer <- function(id) {
         renderChartUI(paste0("bar_chart", farm_type_index), farm_type_index)
         renderChartServer(
           paste0("bar_chart", farm_type_index),
-          paste0("line_chart", farm_type_index),
+          paste0("fbs_line_chart", farm_type_index),
           farm_type_index
         )
       })
@@ -326,24 +326,24 @@ CostOutServer <- function(id) {
 
 # check for empty data:
 
-
+# 
 ## Testing module --------
-source(here("testing", "test_multibarchart_function.R"))
-source(here("utility", "util_updates.R"))
-source(here("utility", "util_functions.R"))
-source(here("utility", "hc_theme.R"))
-source(here("utility", "util_options.R"))
-source(here("testing", "test_fbs_function_line_chart.R"))
-
-
-
-content_demo <- function() {
-  ui <- fluidPage(CostOutUI("test"))
-  server <- function(input, output, session) {
-    CostOutServer("test")
-  }
-  shinyApp(ui, server)
-}
+# source(here("testing", "test_multibarchart_function.R"))
+# source(here("utility", "util_updates.R"))
+# source(here("utility", "util_functions.R"))
+# source(here("utility", "hc_theme.R"))
+# source(here("utility", "util_options.R"))
+# #source(here("testing", "test_fbs_function_line_chart.R"))
+# 
+# 
+# 
+# content_demo <- function() {
+#   ui <- fluidPage(CostOutUI("test"))
+#   server <- function(input, output, session) {
+#     CostOutServer("test")
+#   }
+#   shinyApp(ui, server)
+# }
 
 content_demo()
 

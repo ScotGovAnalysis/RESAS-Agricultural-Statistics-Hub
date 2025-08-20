@@ -32,6 +32,8 @@ load(here("Data", "TIFF_data.Rda"))
 # Load FBS options
 source(here("Economy/FBS", "fbs_utility.R"))
 
+# Load TIFF options
+source(here("Economy/TIFF", "tiff_utility.R"))
 
 # Highchart options
 hcoptslang <- getOption("highcharter.lang")
