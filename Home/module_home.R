@@ -182,7 +182,7 @@ homeServer <- function(id) {
       human_vegetables_module = "human_vegetables_module",
       fruit_module = "fruit_module",
       structure_information = "structure_information",
-      economy = "economy",
+      economy = "economy_summary_module",
       module_fbs = "module_fbs",
       tiff_module = "tiff_module"
     )
