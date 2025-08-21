@@ -6,18 +6,21 @@ economySummaryUI <- function(id) {
   tagList(
     tags$head(
       tags$style(HTML("
-        .panel-like {
-          background: #f9f9fb;
-          border: 1px solid #e5e5e5;
-          border-radius: 8px;
-          padding: 16px;
-          height: 100%;
-        }
-        /* Make the top row columns equal height */
-        .row-equal { display: flex; flex-wrap: wrap; }
-        .row-equal > [class*='col-'] { display: flex; }
-        .row-equal .panel-like { width: 100%; }
-      "))
+    body, html {
+      background-color: #ffffff !important;
+    }
+    .panel-like {
+      background: #ffffff;  /* or keep #f9f9fb if you like subtle contrast */
+      border: 1px solid #e5e5e5;
+      border-radius: 8px;
+      padding: 16px;
+      height: 100%;
+    }
+    /* Make the top row columns equal height */
+    .row-equal { display: flex; flex-wrap: wrap; }
+    .row-equal > [class*='col-'] { display: flex; }
+    .row-equal .panel-like { width: 100%; }
+  "))
     ),
     
     fluidPage(
@@ -54,16 +57,9 @@ economySummaryUI <- function(id) {
                          target = "_blank"
                        ),
                      div(
-                       style = "border: 1px solid #e5e5e5; border-radius: 6px; padding: 10px; margin-top: 15px; background-color: #f9f9fb;",
+                       style = "padding: 0; margin-top: 10px;",
                        fluidRow(
-                         column(
-                           width = 6,
-                           valueBoxEconomyUI(ns("Total income from farming"))
-                            ),
-                         column(
-                           width = 6,
-                           plotOutput(ns("tiff_plot"), height = "250px")
-                          )
+                         column(width = 12, valueBoxEconomyUI(ns("Total income from farming")))
                         )
                       )
                     )
@@ -124,20 +120,24 @@ economySummaryServer <- function(id) {
     
     tiff_filtered <- main_tiff_data_long %>%
       filter(
-        Measure == "Total income from farming",
+        Measure == "23. Total income from farming (19-20-21)",
         Price == "Current (nominal)"
       ) %>%
       select(Year, Value, Measure) %>%
-      mutate(Value = round(Value * 1000, 0))
+      mutate(
+        Value = round(Value * 1000, 0),
+        Measure = "Total income from farming"  # rename here
+      )
     
     valueBoxEconomyServer(
       id = "Total income from farming",
       data = reactive(tiff_filtered),
       category = "Measure",
-      industry = reactive("Total income from farming"),
+      industry = reactive("Total income from farming"),  # actual data value
       current_year = reactive(tiff_year),
       comparison_year = reactive(tiff_year - 10),
-      unit = NULL
+      unit = NULL,
+      display_title = "10-Year TIFF Summary"   # this will be displayed in the box
     )
   })
 }

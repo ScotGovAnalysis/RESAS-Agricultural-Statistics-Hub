@@ -15,7 +15,9 @@ source("charts_tables_functions/function_data_table.R")
 source("charts_tables_functions/function_regions_map.R")
 source("charts_tables_functions/function_map.R")
 source("charts_tables_functions/function_multi_bar_chart.R")
+source("charts_tables_functions/function_economy_summary.R")
 source("charts_tables_functions/fbs_function_line_chart.R")
+
 
 
 ### Load module scripts
@@ -60,7 +62,6 @@ source("Organic Farming/module_organic_land_use.R")
 source("Organic Farming/module_organic_livestock.R")
 source("Organic Farming/module_organic_operators.R")
 source("Organic Farming/module_regional_variation.R")
-source("Economy/function_summary_copy.R")
 
 
 create_footer <- function() {
@@ -137,7 +138,7 @@ ui <- fluidPage(
                        tabPanel("Fuel", value = "ag_mach_fuel_module", agmachfuelUI("ag_mach_fuel_module"))
             ),
             navbarMenu("Economy",
-                       tabPanel("Summary", value = "economy", economySummaryUI("economy")),
+                       tabPanel("Summary", value = "economy_summary_module", economySummaryUI("economy_summary_module")),
                        tabPanel("Farm level economic data", value = "module_fbs", CostOutUI("module_fbs")),
                        tabPanel("Total income from farming", value = "tiff_module", tiffUI("tiff_module"))
             )
