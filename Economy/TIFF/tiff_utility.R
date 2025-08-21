@@ -59,7 +59,7 @@ tiff_Outputs <- c("1. Output from crops",
                   "5. Gross output (1+2+3+4)")
 
 tiff_prices <- c("Current (nominal)",
-                 "Real terms (Constant 2024)")
+                 "Real (Constant 2024)")
 
 tiff_Costs <- c("6. Costs of seed",
                 "7. Costs of feed",

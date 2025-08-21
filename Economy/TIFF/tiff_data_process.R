@@ -56,7 +56,7 @@ for (sheet in table_sheets) {
   price_value <- if (table_num %in% c(1, 2)) {
     "Current (nominal)"
   } else if (table_num %in% c(4, 5)) {
-    "Real terms (Constant 2024)"
+    "Real (Constant 2024)"
   } else {
     NA
   }
@@ -144,7 +144,7 @@ Table3_clean <- Table3 %>%
   mutate(
     Price = case_when(
       grepl("current \\(nominal\\)", Measure, ignore.case = TRUE) ~ "Current (nominal)",
-      grepl("Real terms \\(Constant 2024 price\\)", Measure, ignore.case = TRUE) ~ "Real terms (Constant 2024)",
+      grepl("Real terms \\(Constant 2024 price\\)", Measure, ignore.case = TRUE) ~ "Real (Constant 2024)",
       TRUE ~ NA_character_
     ),
     Measure = case_when(

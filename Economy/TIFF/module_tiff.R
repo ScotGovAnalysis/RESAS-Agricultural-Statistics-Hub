@@ -18,7 +18,7 @@ tiffUI <- function(id) {
         ),
         radioButtons(
           ns("tiff_prices"), "Select a price type",
-          choices = c("Current (nominal)", "Real terms (Constant 2024)"),
+          choices = c("Current (nominal)", "Real (Constant 2024)"),
           selected = "Current (nominal)"
         ),
         conditionalPanel(
