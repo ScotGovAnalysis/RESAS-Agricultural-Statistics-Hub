@@ -158,7 +158,7 @@ tiffServer <- function(id) {
         data
       }),
       title = "Total income from farming timeseries",
-      yAxisTitle = "Value (£000)",
+      yAxisTitle = "Value (£Thousand)",
       xAxisTitle = "Year",
       footer = tiff_footer,
       x_col = "Year",
@@ -171,7 +171,7 @@ tiffServer <- function(id) {
       datatable(
         table_data %>% 
           arrange(Price, desc(Year)),
-        colnames = c("Measure","Price", "Year", "Value (£000)"),
+        colnames = c("Measure","Price", "Year", "Value (£Thousand)"),
         options = list(pageLength = 20, scrollX = TRUE, order = list(list(3, 'desc')))
       )
     })
