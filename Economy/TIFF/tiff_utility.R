@@ -26,64 +26,64 @@ main_categories <- c(
 )
 
 
-tiff_list <- c("Gross_output" = "Gross output",
-               "Total_output_from_crops" = "Output from crops",
-               "Total_output_from_livestock" = "Output from livestock",
-               "Total_output_from_other_agricultural_activities" = "Output from other agricultural activities",
-               "Total_output_from_non-agricultural_activities" = "Output from non-agricultural activities",
-               "Total_Costs" = "Total costs",
-               "Total_input_from_seeds" = "Costs of seed",
-               "Total_input_from_feedstuffs" = "Costs of feed",
-               "Total_input_from_fertilisers_and_lime" = "Costs of fertilisers and lime",
-               "Total_input_from_farm_maintenance" = "Costs of farm maintenance",
-               "Total_input_from_miscellaneous_expenses" = "Costs of miscellaneous expenses",
-               "FISIM" = "Costs of FISIM (Financial intermediation services indirectly measured)",
-               "Total_input_from_non-agricultural_activities" = "Costs of non-agricultural activities",
-               "Gross_input" = "Gross input",
-               "Gross_value_added" = "Gross value added",
-               "Total_consumption_of_fixed_capital" = "Consumption of fixed capital",
-               "Net_value_added" = "Net value added",
-               "Total_of_all_support_payments" = "All support payments",
-               "Total_other_support" = "Other support",
-               "Net_value_added_at_factor_cost" = "Net value added (Factor cost)",
-               "Hired_labour" = "Costs of hired labour",
-               "Interest,_rent_and_taxes" = "Costs of interest, rent and taxes",
-               "Total income from farming"= "Total income from farming",
-               "Total income from farming, without support payments" = "Total income from farming, without support payments"
+tiff_list <- c("Total_output_from_crops" = "1. Output from crops",
+               "Total_output_from_livestock" = "2. Output from livestock",
+               "Total_output_from_other_agricultural_activities" = "3. Output from other agricultural activities",
+               "Total_output_from_non-agricultural_activities" = "4. Output from non-agricultural activities",
+               "Gross_output" = "5. Gross output (1+2+3+4)",
+               "Total_input_from_seeds" = "6. Costs of seed",
+               "Total_input_from_feedstuffs" = "7. Costs of feed",
+               "Total_input_from_fertilisers_and_lime" = "8. Costs of fertilisers and lime",
+               "Total_input_from_farm_maintenance" = "9. Costs of farm maintenance",
+               "Total_input_from_miscellaneous_expenses" = "10. Costs of miscellaneous expenses",
+               "FISIM" = "11. Costs of FISIM (Financial intermediation services indirectly measured)",
+               "Total_input_from_non-agricultural_activities" = "12. Costs of non-agricultural activities",
+               "Gross_input" = "13. Gross input (6+7+8+9+10+11+12)",
+               "Gross_value_added" = "14. Gross value added (5-13)",
+               "Total_consumption_of_fixed_capital" = "15. Consumption of fixed capital",
+               "Net_value_added" = "16. Net value added (at basic price)(14-15)",
+               "Total_of_all_support_payments" = "17. All support payments",
+               "Total_other_support" = "18. Other support",
+               "Net_value_added_at_factor_cost" = "19. Net value added (Factor cost)(16+18)",
+               "Hired_labour" = "20. Costs of hired labour",
+               "Interest,_rent_and_taxes" = "21. Costs of interest, rent and taxes",
+               "Total_Costs" = "22. Total costs (13+15+20+21)",
+               "Total income from farming"= "23. Total income from farming (19-20-21)",
+               "Total income from farming, without support payments" = "24. Total income from farming, without support payments (23-17)"
 )
 
-tiff_Outputs <- c("Gross output",
-                  "Output from crops",
-                  "Output from livestock",
-                  "Output from other agricultural activities",
-                  "Output from non-agricultural activities")
+tiff_Outputs <- c("1. Output from crops",
+                  "2. Output from livestock",
+                  "3. Output from other agricultural activities",
+                  "4. Output from non-agricultural activities",
+                  "5. Gross output (1+2+3+4)")
 
 tiff_prices <- c("Current (nominal)",
                  "Real terms (Constant 2024)")
 
-tiff_Costs <- c("Total costs",
-                "Costs of seed",
-                "Costs of feed",
-                "Costs of fertilisers and lime",
-                "Costs of farm maintenance",
-                "Costs of miscellaneous expenses",
-                "Costs of FISIM (Financial intermediation services indirectly measured)",
-                "Costs of non-agricultural activities",
-                "Gross input",
-                "Gross value added",
-                "Consumption of fixed capital",
-                "Net value added",
-                "All support payments",
-                "Other support",
-                "Net value added (Factor cost)",
-                "Costs of hired labour",
-                "Costs of interest, rent and taxes"
+tiff_Costs <- c("6. Costs of seed",
+                "7. Costs of feed",
+                "8. Costs of fertilisers and lime",
+                "9. Costs of farm maintenance",
+                "10. Costs of miscellaneous expenses",
+                "11. Costs of FISIM (Financial intermediation services indirectly measured)",
+                "12. Costs of non-agricultural activities",
+                "13. Gross input (6+7+8+9+10+11+12)",
+                "14. Gross value added (5-13)",
+                "15. Consumption of fixed capital",
+                "16. Net value added (at basic price)(14-15)",
+                "17. All support payments",
+                "18. Other support",
+                "19. Net value added (Factor cost)(16+18)",
+                "20. Costs of hired labour",
+                "21. Costs of interest, rent and taxes",
+                "22. Total costs (13+15+20+21)"
                 )
 
 
 tiff_Total <- c(
-  "Total income from farming",
-  "Total income from farming, without support payments"
+  "23. Total income from farming (19-20-21)",
+  "24. Total income from farming, without support payments (23-17)"
 )
 
 all_tiff <- c(tiff_Costs, tiff_Outputs, tiff_Total)

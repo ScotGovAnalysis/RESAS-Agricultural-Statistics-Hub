@@ -76,10 +76,10 @@ tiffServer <- function(id) {
       if (input$in_out_type == "tiff_Total") {
         selected_measures <- c()
         if ("Yes" %in% input$support_payments) {
-          selected_measures <- c(selected_measures, "Total income from farming")
+          selected_measures <- c(selected_measures, "23. Total income from farming (19-20-21)")
         }
         if ("No" %in% input$support_payments) {
-          selected_measures <- c(selected_measures, "Total income from farming, without support payments")
+          selected_measures <- c(selected_measures, "24. Total income from farming, without support payments (23-17)")
         }
         data <- data %>% filter(Measure %in% selected_measures)
       } else {
@@ -111,11 +111,11 @@ tiffServer <- function(id) {
       if (input$in_out_type == "tiff_Total") {
         selected <- if (!is.null(input$support_payments)) {
           c(
-            if ("Yes" %in% input$support_payments) "Total income from farming" else NULL,
-            if ("No"  %in% input$support_payments) "Total income from farming, without support payments" else NULL
+            if ("Yes" %in% input$support_payments) "23. Total income from farming (19-20-21)" else NULL,
+            if ("No"  %in% input$support_payments) "24. Total income from farming, without support payments (23-17)" else NULL
           )
         } else {
-          "Total income from farming"
+          "23. Total income from farming (19-20-21)"
         }
         updateCheckboxGroupInput(session, "selected_var", choices = tiff_Total, selected = selected)
       } else {
@@ -127,8 +127,8 @@ tiffServer <- function(id) {
         )
         default_selection <- switch(
           input$in_out_type,
-          "tiff_Outputs" = "Gross output",     
-          "tiff_Costs"   = "Total costs",      
+          "tiff_Outputs" = "5. Gross output (1+2+3+4)",     
+          "tiff_Costs"   = "22. Total costs (13+15+20+21)",      
           NULL
         )
         updateCheckboxGroupInput(session, "selected_var", 
