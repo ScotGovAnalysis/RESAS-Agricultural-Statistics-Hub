@@ -43,7 +43,7 @@ economySummaryUI <- function(id) {
                  width = 6,
                  div(class = "panel-like",
                      div(style = "margin-top: 4px; font-size: 20px; font-weight: bold;",
-                         "Total income from farming: estimates"),
+                         "Total income from farming"),
                      tags$p(
                        style = "font-size: 16px; margin-top: 8px;",
                        "Total income from farming (TIFF) is the official measure of the profit gained by the agricultural industry in Scotland. ",
@@ -137,7 +137,7 @@ economySummaryServer <- function(id) {
       current_year = reactive(tiff_year),
       comparison_year = reactive(tiff_year - 10),
       unit = NULL,
-      display_title = "10-Year TIFF Summary"   # this will be displayed in the box
+      display_title = "Value of TIFF in Scotland"   # this will be displayed in the box
     )
   })
 }
