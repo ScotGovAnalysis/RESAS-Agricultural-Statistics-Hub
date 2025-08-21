@@ -45,18 +45,31 @@ economySummaryUI <- function(id) {
                        style = "font-size: 16px; margin-top: 8px;",
                        "Total income from farming (TIFF) is the official measure of the profit gained by the agricultural industry in Scotland. ",
                        "It provides a breakdown of the value of farm production, support payments and costs. ",
-                       "TIFF is the total profit from all farming businesses within the agricultural industry in Scotland. It measures the return to all entrepreneurs for their management, inputs, labour and capital invested, on a calendar year basis.",
+                       "TIFF is the total profit from all farming businesses within the agricultural industry in Scotland. ",
+                       "It measures the return to all entrepreneurs for their management, inputs, labour and capital invested, on a calendar year basis.",
                        "Estimates for the net income gained by the agriculture industry in Scotland are available in the ",
                        tags$a(
                          "Total income from farming (TIFF) publication",
                          href = "https://www.gov.scot/collections/total-income-from-farming/",
                          target = "_blank"
                        ),
-                       "."
-                     )
-                 )
-               )
-      ),
+                     div(
+                       style = "border: 1px solid #e5e5e5; border-radius: 6px; padding: 10px; margin-top: 15px; background-color: #f9f9fb;",
+                       fluidRow(
+                         column(
+                           width = 6,
+                           valueBoxEconomyUI(ns("Total income from farming"))
+                            ),
+                         column(
+                           width = 6,
+                           plotOutput(ns("tiff_plot"), height = "250px")
+                          )
+                        )
+                      )
+                    )
+                   )
+                  )
+                 ),
       
       # ---- Bottom row: full-width panel ----
       fluidRow(
@@ -115,7 +128,7 @@ economySummaryServer <- function(id) {
         Price == "Current (nominal)"
       ) %>%
       select(Year, Value, Measure) %>%
-      mutate(Value = round(Value * 1000, 0))  # KEEP numeric
+      mutate(Value = round(Value * 1000, 0))
     
     valueBoxEconomyServer(
       id = "Total income from farming",
