@@ -26,62 +26,64 @@ main_categories <- c(
 )
 
 
-tiff_list <- c("Gross_output" = "Gross Output",
-               "Total_output_from_crops" = "Output from Crops",
-               "Total_output_from_livestock" = "Output from Livestock",
-               "Total_output_from_other_agricultural_activities" = "Output from Other Agricultural activities",
-               "Total_output_from_non-agricultural_activities" = "Output from Non-Agricultural activities",
-               "Total_Costs" = "Total Costs",
-               "Total_input_from_seeds" = "Costs of Seed",
-               "Total_input_from_feedstuffs" = "Costs of Feed",
-               "Total_input_from_fertilisers_and_lime" = "Costs of Fertilisers and Lime",
-               "Total_input_from_farm_maintenance" = "Costs of Farm Maintenance",
-               "Total_input_from_miscellaneous_expenses" = "Costs of Miscellaneous Expenses",
-               "FISIM" = "Costs of FISIM (Financial Intermediation Services Indirectly Measured)",
-               "Total_input_from_non-agricultural_activities" = "Costs of Non-Agricultural activities",
+tiff_list <- c("Gross_output" = "Gross output",
+               "Total_output_from_crops" = "Output from crops",
+               "Total_output_from_livestock" = "Output from livestock",
+               "Total_output_from_other_agricultural_activities" = "Output from other agricultural activities",
+               "Total_output_from_non-agricultural_activities" = "Output from non-agricultural activities",
+               "Total_Costs" = "Total costs",
+               "Total_input_from_seeds" = "Costs of seed",
+               "Total_input_from_feedstuffs" = "Costs of feed",
+               "Total_input_from_fertilisers_and_lime" = "Costs of fertilisers and lime",
+               "Total_input_from_farm_maintenance" = "Costs of farm maintenance",
+               "Total_input_from_miscellaneous_expenses" = "Costs of miscellaneous expenses",
+               "FISIM" = "Costs of FISIM (Financial intermediation services indirectly measured)",
+               "Total_input_from_non-agricultural_activities" = "Costs of non-agricultural activities",
                "Gross_input" = "Gross input",
-               "Gross_value_added" = "Gross Value Added",
-               "Total_consumption_of_fixed_capital" = "Consumption of Fixed Capital",
-               "Net_value_added" = "Net Value Added",
-               "Total_of_all_support_payments" = "All Support Payments",
-               "Total_other_support" = "Other Support",
-               "Net_value_added_at_factor_cost" = "Net Value Added (Factor Cost)",
-               "Hired_labour" = "Costs of Hired Labour",
-               "Interest,_rent_and_taxes" = "Costs of Interest, Rent and Taxes"
+               "Gross_value_added" = "Gross value added",
+               "Total_consumption_of_fixed_capital" = "Consumption of fixed capital",
+               "Net_value_added" = "Net value added",
+               "Total_of_all_support_payments" = "All support payments",
+               "Total_other_support" = "Other support",
+               "Net_value_added_at_factor_cost" = "Net value added (Factor cost)",
+               "Hired_labour" = "Costs of hired labour",
+               "Interest,_rent_and_taxes" = "Costs of interest, rent and taxes",
+               "Total income from farming"= "Total income from farming",
+               "Total income from farming, without support payments" = "Total income from farming, without support payments"
 )
 
-tiff_Outputs <- c("Gross Output",
-                  "Output from Crops",
-                  "Output from Livestock",
-                  "Output from Other Agricultural activities",
-                  "Output from Non-Agricultural activities")
+tiff_Outputs <- c("Gross output",
+                  "Output from crops",
+                  "Output from livestock",
+                  "Output from other agricultural activities",
+                  "Output from non-agricultural activities")
 
 tiff_prices <- c("Current (nominal)",
                  "Real terms (Constant 2024)")
 
-tiff_Costs <- c("Total Costs",
-                "Costs of Seed",
-                "Costs of Feed",
-                "Costs of Fertilisers and Lime",
-                "Costs of Farm Maintenance",
-                "Costs of Miscellaneous Expenses",
-                "Costs of FISIM (Financial Intermediation Services Indirectly Measured)",
-                "Costs of Non-Agricultural activities",
+tiff_Costs <- c("Total costs",
+                "Costs of seed",
+                "Costs of feed",
+                "Costs of fertilisers and lime",
+                "Costs of farm maintenance",
+                "Costs of miscellaneous expenses",
+                "Costs of FISIM (Financial intermediation services indirectly measured)",
+                "Costs of non-agricultural activities",
                 "Gross input",
-                "Gross Value Added",
-                "Consumption of Fixed Capital",
-                "Net Value Added",
-                "All Support Payments",
-                "Other Support",
-                "Net Value Added (Factor Cost)",
-                "Costs of Hired Labour",
-                "Costs of Interest, Rent and Taxes"
+                "Gross value added",
+                "Consumption of fixed capital",
+                "Net value added",
+                "All support payments",
+                "Other support",
+                "Net value added (Factor cost)",
+                "Costs of hired labour",
+                "Costs of interest, rent and taxes"
                 )
 
 
 tiff_Total <- c(
-  "Total income from farming" = "Total income from farming",
-  "Total income from farming, without support payments" = "Total income from farming, without support payments"
+  "Total income from farming",
+  "Total income from farming, without support payments"
 )
 
 all_tiff <- c(tiff_Costs, tiff_Outputs, tiff_Total)

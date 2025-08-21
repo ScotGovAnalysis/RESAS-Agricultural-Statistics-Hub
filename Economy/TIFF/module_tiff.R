@@ -127,8 +127,8 @@ tiffServer <- function(id) {
         )
         default_selection <- switch(
           input$in_out_type,
-          "tiff_Outputs" = "Gross Output",     
-          "tiff_Costs"   = "Total Costs",      
+          "tiff_Outputs" = "Gross output",     
+          "tiff_Costs"   = "Total costs",      
           NULL
         )
         updateCheckboxGroupInput(session, "selected_var", 

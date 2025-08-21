@@ -179,6 +179,5 @@ main_tiff_data_long <- full_clean_data %>%
 #save to data
 save(main_tiff_data_long, file="Data/TIFF_data.Rda" )
 
-table(main_tiff_data_long$Measure)
-range(main_tiff_data_long$Year, na.rm = TRUE)
+
 
