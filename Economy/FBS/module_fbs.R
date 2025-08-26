@@ -9,15 +9,15 @@ CostOutUI <- function(id) {
       sidebarPanel(
         width = 3,
         selectInput(ns("in_out_type"), "Measure", choices = c(
-          "Detailed outputs" = "output", 
-          "Detailed costs" = "costs", 
-          "Farm Business Income (FBI)" = "fbi",
-          #"FBI without support payments" = "fbi_nosupp",
+          "Farm Business Income (FBI)" = "fbi",        
           "Support payments" = "supp",
           "Diversified income" = "div_inc",
           "Off farm income" = "ofi",
-          "Net farm income" = "nfi"
-        ), selected = "output"),
+          "Net farm income" = "nfi",
+          "Detailed outputs" = "output", 
+          "Detailed costs" = "costs"
+          #"FBI without support payments" = "fbi_nosupp",
+        ), selected = "fbi"),
         
         # only show if detailed outputs or detailed costs are selected
         conditionalPanel(
@@ -162,7 +162,7 @@ CostOutServer <- function(id) {
     
     # Reactive tooltip unit text
     tooltip_unit <- reactive({
-      "(£ per farm, real prices)"
+      ""
     })
     
     # Function to get filtered chart data reactive for a given farm_type index
@@ -188,6 +188,8 @@ CostOutServer <- function(id) {
       })
     }
     
+   
+      
     # Render UI for each chart based on filtered data availability
     renderChartUI <- function(chart_id, farm_type_index) {
       filtered_chart_data <- get_filtered_chart_data(chart_data, farm_type_index)
@@ -228,19 +230,23 @@ CostOutServer <- function(id) {
           
           chart_title <- paste0(
             farm_types[farm_type_index], ": ",
+            if(input$in_out_type %in% c("output", "costs")){input$in_out_type} else # Outputs or Costs
+              {gsub("Average", "", (head(filtered_chart_data()$Measure[filtered_chart_data()$input_output_type == input$in_out_type], n =1 )))}, # Long name for measure, select last row for only one title to appear!
+            " ", 
             if (length(years_sorted) == 1) {
               years_sorted[1]
             } else {
               paste(years_sorted[1], years_sorted[length(years_sorted)], sep = " to ")
-            }
+            },
+            ", real (constant ", substr(current_year, 1, 4), ") prices"
           )
           
           if (input$in_out_type %in% c("output", "costs")) {
             multibarChartServer(
               id = bar_id,
               chart_data = filtered_chart_data,
-              title = chart_title,
-              yAxisTitle = "£ Thousand (real prices)",
+              title =chart_title,
+              yAxisTitle = "£ Thousand",
               xAxisTitle = "",
               footer = fbs_footer,
               x_col = "year",
@@ -252,8 +258,8 @@ CostOutServer <- function(id) {
             fbsline_ChartServer(
               id = line_id,
               chart_data = filtered_chart_data,
-              title = chart_title,
-              yAxisTitle = "£ Thousand (real prices)",
+              title =  chart_title, 
+              yAxisTitle = "£ Thousand",
               xAxisTitle = "",
               footer = fbs_footer,
               x_col = "year",
@@ -263,7 +269,7 @@ CostOutServer <- function(id) {
           }
         },
         ignoreNULL = TRUE,
-        ignoreInit = TRUE
+        ignoreInit = FALSE
         
       )
     }

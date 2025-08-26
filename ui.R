@@ -139,8 +139,8 @@ ui <- fluidPage(
             ),
             navbarMenu("Economy",
                        tabPanel("Summary", value = "economy_summary_module", economySummaryUI("economy_summary_module")),
-                       tabPanel("Farm level economic data", value = "module_fbs", CostOutUI("module_fbs")),
-                       tabPanel("Total income from farming", value = "tiff_module", tiffUI("tiff_module"))
+                       tabPanel("Total income from farming", value = "tiff_module", tiffUI("tiff_module")),
+                       tabPanel("Farm business income", value = "module_fbs", CostOutUI("module_fbs"))
             )
             # navbarMenu("Organic Farming",
             #            tabPanel("Summary", value = "module_organic_summary", organicsummaryUI("module_organic_summary")),
