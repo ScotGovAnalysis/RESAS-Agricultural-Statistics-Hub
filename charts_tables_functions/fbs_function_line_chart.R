@@ -1,32 +1,46 @@
-fbsline_ChartUI <- function(id, note_type = 1) {
+fbsline_ChartUI <- function(id, in_out_type = NULL) {
   ns <- NS(id)
   
-  note_content <- if (note_type == 2) {
-    "<strong>Note:</strong><ul>
-      <li>To add a series to the chart, click inside the white box on the sidebar and select a variable.</li>
-      <li>To remove a series, click the x beside the variable name within the sidebar.</li>
+  base_note <- HTML("<strong>Note:</strong><ul>
+    <li>To view data for specific year ranges, use the scrollbar on the left sidebar menu to select desired years.</li>
     <li>Zoom into the graph by clicking and dragging over the area you wish to focus on.</li>
-      <li>You can see data values for a specific year by hovering your mouse over the line.</li>
-    </ul>"
-  } else {
-    "<strong>Note:</strong><ul>
-      <li>To add or remove a series from the chart, select/deselect the variable from the sidebar menu.</li>
-      <li>Zoom into the graph by clicking and dragging over the area you wish to focus on.</li>
-      <li>You can see data values for a specific year by hovering your mouse over the line.</li>
-    </ul>"
-  }
+    <li>You can see data values for a specific year by hovering your mouse over the line.</li>
+  </ul>")
+  
+  ofi_note <- HTML("<p><strong>Off farm income (OFI)</strong> includes income from activities not related to the farm business or farm diversification, such as income from another family member’s employment.
+  OFI is only collected for farmers and occupiers as the midpoint of the range in which their income falls.</p>")
+  
+  nfi_note <- HTML("<p><strong>Net farm income (NFI)</strong> represents the return to the farmer and occupier for their manual and managerial labour and on the tenant-type capital in the farm business. 
+                   It is intended as a consistent measure of the profitability of tenant-type farming. NFI is not a proxy either for farm business income or for farm household income.</p>")
+  
+  supp_note <- HTML("<p>This measure represents average output from support payments, including output from agri-environment activities and other payments and grants.</p>")
+  
+  div_note <- HTML("<p><strong>Diversified income</strong> includes income generated from non-agricultural activities that use farm resources.
+                   This measure is an average income for all farms - including farms that do not have diversified activities.</p>")
+  
+  fbi_note <- HTML("<p><strong>Farm business income (FBI)</strong> is the total average income available to all unpaid labour and their capital invested in the business. Income from diversified activities are included in overall FBI</p>")
+ 
+   note_content <- if (in_out_type == "ofi") {ofi_note} 
+  else if (in_out_type == "nfi") {nfi_note}
+  else if (in_out_type == "supp") {supp_note}
+  else if (in_out_type == "div_inc") {div_note}
+  else if (in_out_type == "fbi") {fbi_note}
+  else NULL
+  
   
   tagList(
     htmlOutput(ns("title")),
     highchartOutput(ns("fbsline_chart")),
+    note_content,
     htmlOutput(ns("footer")),
     div(
       class = "note",
       style = "margin-top: 20px; padding: 10px; border-top: 1px solid #ddd;",
-      HTML(note_content)
+      base_note
     )
   )
 }
+
 
 
 

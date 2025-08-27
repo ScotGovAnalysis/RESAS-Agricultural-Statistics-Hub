@@ -29,9 +29,10 @@ economySummaryUI <- function(id) {
                column(
                  width = 6,
                  div(class = "panel-like",
-                     h3(strong("Farm business level estimates of income")),
-                     p(
-                       "Farm business level estimates of average incomes from commercial farms in Scotland are available in the ",
+                     div(style = "margin-top: 4px; font-size: 20px; font-weight: bold;",
+                         "Farm business income"),
+                     tags$p(style = "font-size: 16px; margin-top: 8px;",
+                        "Farm business income measures average total income from commercial farms in Scotland, including income from diversified activities. More farm level income estimates are available in the ",
                        a("Scottish farm business income publication.",
                          href = "https://www.gov.scot/collections/scottish-farm-business-income-fbi-annual-estimates/",
                          target = "_blank"

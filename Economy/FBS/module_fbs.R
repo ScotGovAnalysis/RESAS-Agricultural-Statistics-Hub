@@ -12,8 +12,8 @@ CostOutUI <- function(id) {
           "Farm Business Income (FBI)" = "fbi",        
           "Support payments" = "supp",
           "Diversified income" = "div_inc",
-          "Off farm income" = "ofi",
           "Net farm income" = "nfi",
+          "Off farm income" = "ofi",
           "Detailed outputs" = "output", 
           "Detailed costs" = "costs"
           #"FBI without support payments" = "fbi_nosupp",
@@ -202,7 +202,7 @@ CostOutServer <- function(id) {
           if (input$in_out_type %in% c("output", "costs")) {
             multibarChartUI(ns(paste0("bar_chart", farm_type_index)))
           } else {
-            fbsline_ChartUI(ns(paste0("fbs_line_chart", farm_type_index)))
+            fbsline_ChartUI(ns(paste0("fbs_line_chart", farm_type_index)), in_out_type = input$in_out_type)
           }
         }
       })
