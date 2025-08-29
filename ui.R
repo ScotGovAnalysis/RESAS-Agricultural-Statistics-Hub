@@ -1,6 +1,6 @@
 source("utility/util_updates.R")
 source("utility/util_functions.R")
-source("utility/util_options.R")
+source("utility/util_options.R") # data load
 source("utility/hc_theme.R")
 
 ### Load scripts with functions used to create charts in module scripts

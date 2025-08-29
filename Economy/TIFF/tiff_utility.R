@@ -92,3 +92,6 @@ all_tiff <- c(tiff_Costs, tiff_Outputs, tiff_Total)
 measure_lookup2 <- setNames(names(tiff_list), tiff_list)
 
 
+tiff_year <- max(main_tiff_data_long$Year) #Current TIFF year
+tiff_year_min <- min(main_tiff_data_long$Year)
+
