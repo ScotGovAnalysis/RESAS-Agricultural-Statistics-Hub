@@ -197,7 +197,7 @@ economySummaryServer <- function(id) {
     #Data process ------
     tiff_filtered <- main_tiff_data_long %>%
       filter(Measure == "23. Total income from farming (19-20-21)",
-             Price == "Real (Constant 2024)") %>% # FBI is real!!
+             Price == "Real (constant 2024)") %>% # FBI is real!!
       select(Year, Value, Measure) %>%
       mutate(Value = signif(Value * 1000, 2), Measure = "Total income from farming")
     
