@@ -13,12 +13,12 @@ tiffUI <- function(id) {
         width = 3,
         radioButtons(
           ns("in_out_type"), "Select a measure",
-          choices = c("Total" = "tiff_Total", "Outputs" = "tiff_Outputs", "Costs" = "tiff_Costs"),
+          choices = c("Total income from farming" = "tiff_Total", "Outputs" = "tiff_Outputs", "Costs" = "tiff_Costs"),
           selected = "tiff_Total"
         ),
         radioButtons(
           ns("tiff_prices"), "Select a price type",
-          choices = c("Current (nominal)", "Real (Constant 2024)"),
+          choices = c("Current (nominal)", "Real (constant 2024)"),
           selected = "Current (nominal)"
         ),
         conditionalPanel(
