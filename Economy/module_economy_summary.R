@@ -103,7 +103,7 @@
              "TIFF comparison year",
              min = tiff_year_min,
              max = tiff_year,
-             value = tiff_year_min,
+             value = (tiff_year-10),
              step = 1,
              sep = ""
            ),
@@ -132,12 +132,13 @@
                             tags$p(
                               style = "font-size: 16px; margin-top: 8px;",
                               "Total income from farming (TIFF) is the total profit from all farming businesses within the agricultural industry in Scotland. ",
-                              "More estimates for total farm production, support payments and costs for Scottish agriculture are available in the ",
+                              "This data is sourced from the",
                               tags$a(
-                                "Total income from farming (TIFF) publication",
+                                "total income from farming (TIFF) publication",
                                 href = "https://www.gov.scot/collections/total-income-from-farming/",
                                 target = "_blank"
-                              )
+                              ),
+                              "which was published on 29 May 2025. Full data tables and detailed analysis are available within the full report."
                             ),
                             div(style = "padding: 0; margin-top: 10px;",
                                 fluidRow(column(width = 12, valueBoxEconomyUI(ns("tiff"))))
@@ -169,8 +170,8 @@
                  h3(strong("Glossary")),
                  div(style = "font-size: 16px; margin-top: 8px;",
                      tags$ul(
+                       tags$li(tags$b("Total income from farming (TIFF):"), " The official measure of agricultural industry profit."),
                        tags$li(tags$b("Farm Business income (FBI):"), " The total income available to all unpaid labour and their capital invested in the business."),
-                       tags$li(tags$b("Total Income From Farming (TIFF):"), " The official measure of agricultural industry profit."),
                        tags$li(tags$b("Current (nominal) prices:"), " Current (nominal) prices make no adjustment for inflation. These measure prices and inflation using the actual prices in that particular year. For example, current price estimates shown for 2020 are based on 2020 prices."),
                        tags$li(tags$b("Real (constant) prices:"), " Real (constant) prices use the latest gross domestic product GDP deflators to convert historic figures into prices representing prices in the most recent year."),
                        tags$li(tags$b("Gross Domestic Product (GDP):"), " GDP is a measure of the value of goods and services produced by residents, before allowing for depreciation or capital consumption. Net receipts from interest, profits and dividends abroad are excluded."),
@@ -196,7 +197,7 @@ economySummaryServer <- function(id) {
     #Data process ------
     tiff_filtered <- main_tiff_data_long %>%
       filter(Measure == "23. Total income from farming (19-20-21)",
-             Price == "Current (nominal)") %>% # FBI is real!!
+             Price == "Real (Constant 2024)") %>% # FBI is real!!
       select(Year, Value, Measure) %>%
       mutate(Value = signif(Value * 1000, 2), Measure = "Total income from farming")
     
@@ -213,7 +214,7 @@ economySummaryServer <- function(id) {
       category = "Total income from farming",
       current_year = tiff_current_year,
       comparison_year = tiff_comparison_year,
-      unit = "   real (constant) prices" # change if not
+      unit = "   real (constant 2024) prices" # change if not
       #display_title = "Value of TIFF in Scotland"
     )
     
