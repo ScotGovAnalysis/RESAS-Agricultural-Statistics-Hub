@@ -17,7 +17,7 @@ tiffUI <- function(id) {
                       "Total income from farming, without support payments" = "tiff_Total_wsp", 
                       "Outputs" = "tiff_Outputs", 
                       "Costs" = "tiff_Costs", 
-                      "GVA" = "tiff_GVA", 
+                      "Gross value added (GVA)" = "tiff_GVA", 
                       "Net value added" = "tiff_NVA", 
                       "Support payments"= "tiff_Support_payments"),
           selected = "tiff_Total"
@@ -141,32 +141,60 @@ tiffServer <- function(id) {
     })
     
     
-    # ---- Line chart ----
-    lineChartServer(
-      id = "line",
-      chart_data = reactive({
-        data <- chart_data()
-        
-        # Only apply sub-variable filtering if Outputs or Costs selected
-        if (input$in_out_type %in% c("tiff_Outputs", "tiff_Costs")) {
-          req(input$selected_var)
-          data <- data %>% filter(Measure %in% input$selected_var)
-        }
-        
-        data <- data %>%
-          filter(Year >= input$selected_year[1],
-                 Year <= input$selected_year[2])
-        
-        req(nrow(data) > 0)
-        data
-      }),
-      title = "Total income from farming timeseries",
-      yAxisTitle = "Value (£Thousand)",
-      xAxisTitle = "Year",
-      footer = tiff_footer,
-      x_col = "Year",
-      y_col = "Value"
-    )
+    line_title <- reactive({
+      measure_label <- switch(
+        input$in_out_type,
+        "tiff_Total"             = "Total income from farming",
+        "tiff_Total_wsp"         = "Total income from farming, without support payments",
+        "tiff_Outputs"           = "Outputs",
+        "tiff_Costs"             = "Costs",
+        "tiff_GVA"               = "Gross value added (GVA)",
+        "tiff_NVA"               = "Net value added",
+        "tiff_Support_payments"  = "Support payments",
+        input$in_out_type        # fallback
+      )
+      paste0(measure_label, " timeseries")
+    })
+    
+    # ---- Render Line Chart Dynamically ----
+    observe({
+      req(input$in_out_type, input$selected_year)
+      
+      # Generate title string
+      measure_label <- switch(
+        input$in_out_type,
+        "tiff_Total" = "total income from farming",
+        "tiff_Total_wsp" = "total income from farming, without support payments",
+        "tiff_Outputs" = "total income from farming outputs",
+        "tiff_Costs" = "total income from farming costs",
+        "tiff_GVA" = "gross value added",
+        "tiff_NVA" = "net value added",
+        "tiff_Support_payments" = "support payments",
+        input$in_out_type
+      )
+      chart_title <- paste0("Timeseries of ", measure_label)
+      
+      # Call lineChartServer
+      lineChartServer(
+        id = "line",
+        chart_data = reactive({
+          data <- chart_data()
+          if (input$in_out_type %in% c("tiff_Outputs", "tiff_Costs")) {
+            req(input$selected_var)
+            data <- data %>% filter(Measure %in% input$selected_var)
+          }
+          data <- data %>% filter(Year >= input$selected_year[1], Year <= input$selected_year[2])
+          req(nrow(data) > 0)
+          data
+        }),
+        title = chart_title,  # pass as string each time
+        yAxisTitle = "Value (£Thousand)",
+        xAxisTitle = "Year",
+        footer = tiff_footer,
+        x_col = "Year",
+        y_col = "Value"
+      )
+    })
     
     # ---- Data Table ----
     
