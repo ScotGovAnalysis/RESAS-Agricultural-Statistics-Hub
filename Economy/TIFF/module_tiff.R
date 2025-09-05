@@ -11,29 +11,28 @@ tiffUI <- function(id) {
       sidebarPanel(
         id = ns("sidebar"),
         width = 3,
-        radioButtons(
+        selectInput(
           ns("in_out_type"), "Select a measure",
-          choices = c("Total income from farming" = "tiff_Total","Total income from farming, without support payments" = "tiff_Total_wsp", "Outputs" = "tiff_Outputs", "Costs" = "tiff_Costs", "GVA" = "tiff_GVA", "Net value added" = "tiff_NVA", "Support payments"= "tiff_Support_payments"),
+          choices = c("Total income from farming" = "tiff_Total",
+                      "Total income from farming, without support payments" = "tiff_Total_wsp", 
+                      "Outputs" = "tiff_Outputs", 
+                      "Costs" = "tiff_Costs", 
+                      "GVA" = "tiff_GVA", 
+                      "Net value added" = "tiff_NVA", 
+                      "Support payments"= "tiff_Support_payments"),
           selected = "tiff_Total"
+        ),
+        # only show if  outputs or costs are selected
+        conditionalPanel(
+          condition = sprintf("input['%s'] == 'tiff_Outputs' || input['%s'] == 'tiff_Costs'", ns("in_out_type"), ns("in_out_type")),
+          checkboxGroupInput(ns("selected_var"), "Select variables", choices = NULL)
         ),
         radioButtons(
           ns("tiff_prices"), "Select a price type",
           choices = c("Real (constant 2024)", "Current (nominal)"),
           selected = "Real (constant 2024)"
         ),
-        conditionalPanel(
-          condition = sprintf("input['%s'] == 'tiff_Total'", ns("in_out_type")),
-          checkboxGroupInput(
-            ns("support_payments"), 
-            "Include support payments", 
-            choices = c("Yes", "No"), 
-            selected = c("Yes")
-          )
-        ),
-        conditionalPanel(
-          condition = sprintf("input['%s'] != 'tiff_Total'", ns("in_out_type")),
-          checkboxGroupInput(ns("selected_var"), "Select variables", choices = NULL)
-        ),
+        
         sliderInput(
           ns("selected_year"), "Select the year range by dragging the ends of the slider",
           min = tiff_year_min,
@@ -67,31 +66,30 @@ tiffServer <- function(id) {
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
     
-    # ---- Chart data (unformatted) ----
+    # Chart data #
+    # Reactive expression that returns the chart data based on in_out_type
     chart_data <- reactive({
-      req(input$tiff_prices)
-      data <- main_tiff_data_long %>% 
-        filter(Price == input$tiff_prices)
+      req(input$in_out_type)
       
-      if (input$in_out_type == "tiff_Total") {
-        selected_measures <- c()
-        if ("Yes" %in% input$support_payments) {
-          selected_measures <- c(selected_measures, "23. Total income from farming (19-20-21)")
-        }
-        if ("No" %in% input$support_payments) {
-          selected_measures <- c(selected_measures, "24. Total income from farming, without support payments (23-17)")
-        }
-        data <- data %>% filter(Measure %in% selected_measures)
-      } else {
-        if (!is.null(input$selected_var)) {
-          data <- data %>%
-            filter(Measure %in% input$selected_var)
-        }
-      }
-      
-      req(nrow(data) > 0)  # ensure non-empty
-      data
-    })
+    # Map in_out_type to corresponding measures
+    measures <- switch(
+      input$in_out_type,
+      "tiff_Total"         = tiff_Total,
+      "tiff_Total_wsp"     = tiff_Total_wsp,
+      "tiff_Outputs"       = tiff_Outputs,
+      "tiff_Costs"         = tiff_Costs,
+      "tiff_GVA"           = tiff_GVA,
+      "tiff_NVA"           = tiff_NVA,
+      "tiff_Support_payments" = tiff_Support_payments,
+      NULL
+    )
+    
+    main_tiff_data_long %>%
+      filter(Measure %in% measures,
+             Price == input$tiff_prices
+             )
+  })
+    
     
     # ---- Table data (formatted) ----
     table_data <- main_tiff_data_long %>%
@@ -101,53 +99,58 @@ tiffServer <- function(id) {
         `Value (GBP 000)` = comma(round(`Value (GBP 000)`, 0))
       )
     
-    # ---- Update checkboxes dynamically ----
+    # Hide side bar for data table tab
     observe({
       if (input$tabs == ns("data")) {
         shinyjs::hide(id = "sidebar", anim = TRUE, animType = "slide")
       } else {
         shinyjs::show(id = "sidebar", anim = TRUE, animType = "slide")
       }
-      if (input$in_out_type == "tiff_Total") {
-        selected <- if (!is.null(input$support_payments)) {
-          c(
-            if ("Yes" %in% input$support_payments) "23. Total income from farming (19-20-21)" else NULL,
-            if ("No"  %in% input$support_payments) "24. Total income from farming, without support payments (23-17)" else NULL
-          )
-        } else {
-          "23. Total income from farming (19-20-21)"
-        }
-        updateCheckboxGroupInput(session, "selected_var", choices = tiff_Total, selected = selected)
-      } else {
+      
+      # Only update choices if Outputs or Costs are selected
+      if (input$in_out_type %in% c("tiff_Outputs", "tiff_Costs")) {
         choices <- switch(
           input$in_out_type,
-          "tiff_Outputs" = tiff_Outputs,   
-          "tiff_Costs"   = tiff_Costs,
-          NULL
+          "tiff_Outputs" = tiff_Outputs,
+          "tiff_Costs"   = tiff_Costs
         )
+        
         default_selection <- switch(
           input$in_out_type,
           "tiff_Outputs" = "5. Gross output (1+2+3+4)",     
           "tiff_Costs"   = "22. Total costs (13+15+20+21)",      
           NULL
         )
-        updateCheckboxGroupInput(session, "selected_var", 
-                                 choices = choices, 
-                                 selected = default_selection)
+        
+        updateCheckboxGroupInput(
+          session,
+          "selected_var",
+          choices = choices,
+          selected = default_selection
+        )
+        
+      } else {
+        # Clear checkbox selections when not Outputs or Costs
+        updateCheckboxGroupInput(
+          session,
+          "selected_var",
+          choices = character(0),
+          selected = character(0)
+        )
       }
     })
+    
     
     # ---- Line chart ----
     lineChartServer(
       id = "line",
       chart_data = reactive({
-        req(input$selected_var)
         data <- chart_data()
         
-        if (input$in_out_type != "tiff_Total") {
+        # Only apply sub-variable filtering if Outputs or Costs selected
+        if (input$in_out_type %in% c("tiff_Outputs", "tiff_Costs")) {
           req(input$selected_var)
-          data <- data %>% 
-            filter(Measure %in% input$selected_var)
+          data <- data %>% filter(Measure %in% input$selected_var)
         }
         
         data <- data %>%
@@ -180,8 +183,8 @@ tiffServer <- function(id) {
       filename = function() paste0("Total_income_from_farming_data_", tiff_year, ".csv"),
       content = function(file) write.csv(table_data, file, row.names = FALSE)
     )
-  })
-}
+})
+    }
 
 
   
