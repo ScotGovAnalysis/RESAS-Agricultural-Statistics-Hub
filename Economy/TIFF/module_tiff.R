@@ -13,7 +13,7 @@ tiffUI <- function(id) {
         width = 3,
         radioButtons(
           ns("in_out_type"), "Select a measure",
-          choices = c("Total income from farming" = "tiff_Total", "Outputs" = "tiff_Outputs", "Costs" = "tiff_Costs"),
+          choices = c("Total income from farming" = "tiff_Total","Total income from farming, without support payments" = "tiff_Total_wsp", "Outputs" = "tiff_Outputs", "Costs" = "tiff_Costs", "GVA" = "tiff_GVA", "Net value added" = "tiff_NVA", "Support payments"= "tiff_Support_payments"),
           selected = "tiff_Total"
         ),
         radioButtons(
