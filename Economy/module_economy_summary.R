@@ -230,7 +230,7 @@ economySummaryServer <- function(id) {
       category = "Average farm business income",
       current_year = fbs_current_year,
       comparison_year = fbs_comparison_year,
-      unit = "   real (constant) prices"
+      unit = "   real (constant 2023) prices"
       # display_title = "Average farm business income (FBI) of commercial farms in Scotland"
     )
   })
