@@ -68,7 +68,7 @@ create_footer <- function() {
   div(
     class = "footer",
     span(style = "font-weight: bold;", "Content in development "),
-    span("\n | Last updated: 10/06/2025"),
+    span("\n | Last updated: 09/09/2025"),
     img(src = "sg.png", alt = "SG Logo", style = "height: 30px; margin-left: 10px;")
   )
 }

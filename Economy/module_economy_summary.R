@@ -132,13 +132,12 @@
                             tags$p(
                               style = "font-size: 16px; margin-top: 8px;",
                               "Total income from farming (TIFF) is the total profit from all farming businesses within the agricultural industry in Scotland. ",
-                              "This data is sourced from the",
+                              "More estimates for the value of Scottish agriculture are available in the ",
                               tags$a(
-                                "total income from farming (TIFF) publication",
+                                "total income from farming (TIFF) publication.",
                                 href = "https://www.gov.scot/collections/total-income-from-farming/",
                                 target = "_blank"
-                              ),
-                              "which was published on 29 May 2025. Full data tables and detailed analysis are available within the full report."
+                              )
                             ),
                             div(style = "padding: 0; margin-top: 10px;",
                                 fluidRow(column(width = 12, valueBoxEconomyUI(ns("tiff"))))
