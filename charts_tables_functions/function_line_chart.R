@@ -3,17 +3,24 @@ lineChartUI <- function(id, note_type = 1) {
   
   note_content <- if (note_type == 2) {
     "<strong>Note:</strong><ul>
-      <li>To add a series to the chart, click inside the white box on the sidebar and select a variable.</li>
-      <li>To remove a series, click the x beside the variable name within the sidebar.</li>
+    <li>To add a series to the chart, click inside the white box on the sidebar and select a variable.</li>
+    <li>To remove a series, click the x beside the variable name within the sidebar.</li>
     <li>Zoom into the graph by clicking and dragging over the area you wish to focus on.</li>
-      <li>You can see data values for a specific year by hovering your mouse over the line.</li>
-    </ul>"
+    <li>You can see data values for a specific year by hovering your mouse over the line.</li>
+  </ul>"
+  } else if (note_type == 3) {
+    "<strong>Note:</strong><ul>
+    <li>Each variable has been numbered. The totals include information in brackets about how they have been derived from the other variables.</li>
+    <li>To add or remove a series from the chart, select/deselect the variable from the sidebar menu.</li>
+    <li>Zoom into the graph by clicking and dragging over the area you wish to focus on.</li>
+    <li>You can see data values for a specific year by hovering your mouse over the line.</li>
+  </ul>"
   } else {
     "<strong>Note:</strong><ul>
-      <li>To add or remove a series from the chart, select/deselect the variable from the sidebar menu.</li>
-      <li>Zoom into the graph by clicking and dragging over the area you wish to focus on.</li>
-      <li>You can see data values for a specific year by hovering your mouse over the line.</li>
-    </ul>"
+    <li>To add or remove a series from the chart, select/deselect the variable from the sidebar menu.</li>
+    <li>Zoom into the graph by clicking and dragging over the area you wish to focus on.</li>
+    <li>You can see data values for a specific year by hovering your mouse over the line.</li>
+  </ul>"
   }
   
   tagList(

@@ -15,7 +15,6 @@ main_categories <- c(
   "Gross_value_added",
   "Total_consumption_of_fixed_capital",
   "Net_value_added",
-  "Total_other_support",
   "Total_of_all_support_payments", 
   "Net_value_added_at_factor_cost",
   "Hired_labour", 
@@ -43,7 +42,6 @@ tiff_list <- c("Total_output_from_crops" = "1. Output from crops",
                "Total_consumption_of_fixed_capital" = "15. Consumption of fixed capital",
                "Net_value_added" = "16. Net value added (at basic price)(14-15)",
                "Total_of_all_support_payments" = "17. All support payments",
-               "Total_other_support" = "18. Other support",
                "Net_value_added_at_factor_cost" = "19. Net value added (Factor cost)(16+18)",
                "Hired_labour" = "20. Costs of hired labour",
                "Interest,_rent_and_taxes" = "21. Costs of interest, rent and taxes",
@@ -59,7 +57,7 @@ tiff_Outputs <- c("1. Output from crops",
                   "5. Gross output (1+2+3+4)")
 
 tiff_prices <- c("Current (nominal)",
-                 "Real (Constant 2024)")
+                 "Real (constant 2024)")
 
 tiff_Costs <- c("6. Costs of seed",
                 "7. Costs of feed",
@@ -69,26 +67,24 @@ tiff_Costs <- c("6. Costs of seed",
                 "11. Costs of FISIM (Financial intermediation services indirectly measured)",
                 "12. Costs of non-agricultural activities",
                 "13. Gross input (6+7+8+9+10+11+12)",
-                "14. Gross value added (5-13)",
                 "15. Consumption of fixed capital",
-                "16. Net value added (at basic price)(14-15)",
-                "17. All support payments",
-                "18. Other support",
-                "19. Net value added (Factor cost)(16+18)",
                 "20. Costs of hired labour",
                 "21. Costs of interest, rent and taxes",
                 "22. Total costs (13+15+20+21)"
                 )
+tiff_GVA <- "14. Gross value added (5-13)"
+tiff_NVA <- c("16. Net value added (at basic price)(14-15)",
+         "19. Net value added (Factor cost)(16+18)")
+tiff_Support_payments <- "17. All support payments"
+tiff_Total <- "23. Total income from farming (19-20-21)"
+tiff_Total_wsp <- "24. Total income from farming, without support payments (23-17)"
 
-
-tiff_Total <- c(
-  "23. Total income from farming (19-20-21)",
-  "24. Total income from farming, without support payments (23-17)"
-)
-
-all_tiff <- c(tiff_Costs, tiff_Outputs, tiff_Total)
+all_tiff <- c(tiff_Costs, tiff_Outputs, tiff_Total, tiff_Total_wsp, tiff_GVA, tiff_NVA, tiff_Support_payments)
 #all_tiff
 
 measure_lookup2 <- setNames(names(tiff_list), tiff_list)
 
+
+tiff_year <- max(main_tiff_data_long$Year) #Current TIFF year
+tiff_year_min <- min(main_tiff_data_long$Year)
 

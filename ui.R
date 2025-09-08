@@ -1,6 +1,6 @@
 source("utility/util_updates.R")
 source("utility/util_functions.R")
-source("utility/util_options.R")
+source("utility/util_options.R") # data load
 source("utility/hc_theme.R")
 
 ### Load scripts with functions used to create charts in module scripts
@@ -68,7 +68,7 @@ create_footer <- function() {
   div(
     class = "footer",
     span(style = "font-weight: bold;", "Content in development "),
-    span("\n | Last updated: 10/06/2025"),
+    span("\n | Last updated: 09/09/2025"),
     img(src = "sg.png", alt = "SG Logo", style = "height: 30px; margin-left: 10px;")
   )
 }
@@ -139,8 +139,8 @@ ui <- fluidPage(
             ),
             navbarMenu("Economy",
                        tabPanel("Summary", value = "economy_summary_module", economySummaryUI("economy_summary_module")),
-                       tabPanel("Farm level economic data", value = "module_fbs", CostOutUI("module_fbs")),
-                       tabPanel("Total income from farming", value = "tiff_module", tiffUI("tiff_module"))
+                       tabPanel("Total income from farming", value = "tiff_module", tiffUI("tiff_module")),
+                       tabPanel("Farm business income", value = "module_fbs", CostOutUI("module_fbs"))
             )
             # navbarMenu("Organic Farming",
             #            tabPanel("Summary", value = "module_organic_summary", organicsummaryUI("module_organic_summary")),

@@ -24,8 +24,19 @@ census_footer <- '<div style="font-size: 16px; font-weight: bold;"><a href="http
 
 emissions_footer <- '<div style="font-size: 16px; font-weight: bold;"> <a href="https://www.gov.scot/collections/scottish-agriculture-greenhouse-gas-emissions-and-nitrogen-use/" target="_blank">Source: Scottish agriculture greenhouse gas emissions and nitrogen use 2023-24</a>, analysis based on results of the <a href="https://www.gov.scot/publications/scottish-greenhouse-gas-statistics-2023/" target="_blank">Scottish Greenhouse Gas Statistics 2023</a>.</div>'
 
-
-fbs_footer <- '<div style="font-size: 16px; font-weight: bold;"> <a href="https://www.gov.scot/collections/scottish-farm-business-income-fbi-annual-estimates/" target="_blank">Source: Scottish farm business income: annual estimates 2023-24</a></div>'
+fbs_footer <- HTML(
+  '<div style="font-size: 16px;">
+    <strong>Real (constant) prices</strong>: figures are adjusted for inflation using 
+    <a href="https://www.gov.uk/government/statistics/gdp-deflators-at-market-prices-and-money-gdp-december-2024-quarterly-national-accounts" target="_blank">
+      GDP deflators published 23 December 2024
+    </a>
+  </div>
+  <div style="font-size: 16px; font-weight: bold; margin-top: 8px;">
+    <a href="https://www.gov.scot/collections/scottish-farm-business-income-fbi-annual-estimates/" target="_blank">
+      Source: Scottish farm business income: annual estimates 2023–24
+    </a>
+  </div>'
+)
 
 
 tiff_footer <- '<div style="font-size: 16px; font-weight: bold;"> <a href="https://www.gov.scot/publications/total-income-from-farming-estimates-2018-2024/">Source: Total income from farming estimates: 2018-2024</a></div>'

@@ -241,7 +241,7 @@ load(paste0(fbs_data_path, "income_timeseries_2023-24.Rda"))
 # load fbi no support payment data  - reformat and add cols before binding 
 fbi_no_supp <- read_excel(paste0(fbs_data_path, "fbi_no_supp.xlsx")) |> 
   pivot_longer(-(farmtype), names_to = "year", values_to = "value") |> 
-  mutate(Measure = "Farm business income without support payments",
+  mutate(Measure = "FBI without support payments",
          value = round(value, 0)) |> # round to nearest pound
   rename(`Farm type` = farmtype)  
   
@@ -254,7 +254,7 @@ fbs_income <- ag_hub$income |> filter (Prices == "Real") |>
   filter (!grepl("FTE", Measure)) # remove fte measures
 
 fbs_income$Measure <- gsub("\\(£\\)", "", fbs_income$Measure) # remove £
-fbs_income$Measure <- gsub("FBI", "Farm business income", fbs_income$Measure) # spell out fbi
+#fbs_income$Measure <- gsub("FBI", "Farm business income", fbs_income$Measure) # spell out fbi
 
 
 # join fbi no supp with income timeseries
@@ -296,7 +296,7 @@ fbs_income$farm_type <- sub("\\s+$", "", fbs_income$farm_type) # remove trailing
 
 fbs_income <- fbs_income |> mutate(input_output_type = case_when(grepl("Farm business income", Measure) ~ "fbi",
                                                            Measure == "Net farm income" ~ "nfi",
-                                                          # grepl("FBI", Measure) ~ "fbi", # for both to appear on chart
+                                                          grepl("FBI", Measure) ~ "fbi", # for both to appear on chart
                                                            grepl("Support payments", Measure) ~ "supp",
                                                            grepl("Diversified income", Measure) ~ "div_inc",
                                                            grepl("Off farm income", Measure) ~ "ofi",
@@ -306,6 +306,13 @@ fbs_income <- fbs_income |> mutate(input_output_type = case_when(grepl("Farm bus
 
 # add numeric year col
 fbs_income <- fbs_income |>  mutate(sampyear = recode(as.character(year), !!!fbs_years))
+fbs_income <- fbs_income |>  mutate(Measure = paste("Average", tolower(Measure)))
+fbs_income$Measure <- gsub("fbi", "FBI",fbs_income$Measure) # capitalise FBI
+
+# CHANGE ORDER TO MAKE FBI APPEAR BEFORE FBI WITH SUPPS
+fbs_income <- fbs_income %>%
+  arrange(desc(grepl("farm business", Measure)))
+
 # save all
 
 save(fbs_cost_centre, fbs_income, file="Data/FBS_data.Rda" )

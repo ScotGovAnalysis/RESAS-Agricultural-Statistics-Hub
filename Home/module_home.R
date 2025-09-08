@@ -66,8 +66,8 @@ homeUI <- function(id) {
         ),
         tags$ul(
           tags$li(actionLink(ns("nav_economy"), "Economy")), 
-          tags$li(actionLink(ns("nav_module_fbs"), "Farm level economic data")),
-          tags$li(actionLink(ns("nav_tiff_module"), "Total Income From Farming"))
+          tags$li(actionLink(ns("nav_tiff_module"), "Total Income From Farming")),
+          tags$li(actionLink(ns("nav_module_fbs"), "Farm business income"))
         )
       ),
       mainPanel(
