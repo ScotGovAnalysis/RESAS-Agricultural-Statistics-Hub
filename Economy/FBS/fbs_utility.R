@@ -1,5 +1,5 @@
-current_year <- "2023-24"
-prev_year <- "2022-23"
+fbs_current_year <- "2023-24"
+fbs_prev_year <- "2022-23"
 
 farm_types <- c("All farms",
                 "Cereals",

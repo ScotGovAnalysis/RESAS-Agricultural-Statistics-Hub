@@ -25,8 +25,8 @@ source(here("Economy/FBS", "fbs_utility.R"))
 #data pre-load ------
 #LOAD FBS data - run this once to save processed fbs data to data folder (uncomment and edit parameters for new year )
 #### parameters ----
-current_year <- "2023-24"
-prev_year <- "2022-23"
+fbs_current_year <- "2023-24"
+fbs_prev_year <- "2022-23"
 fbs_data_path <- "//s0196a/ADM-Rural and Environmental Science-Farming Statistics/Agriculture/Source/FBS/FBS 2023-24/"
 
 fbs_data <- load(paste0(fbs_data_path, "FBS2023-24_CC.rda"))
@@ -36,8 +36,8 @@ fbs_data <- load(paste0(fbs_data_path, "FBS2023-24_CC.rda"))
 # #
 fbs_data <- map(Outputs_Costs, ~ .x %>%
                   select(Measure,
-                         !!sym(current_year),
-                         !!sym(prev_year),
+                         !!sym(fbs_current_year),
+                         !!sym(fbs_prev_year),
                          farm_type,
                          input_output_type,
                          main_category, sub_category_1)) %>% bind_rows(.)
@@ -229,7 +229,7 @@ farm_types <- c("All farms",
 
 # reformat for charts
 fbs_cost_centre <- fbs_data %>%
-  pivot_longer(cols = c(!!sym(current_year), !!sym(prev_year) ), names_to = "year", values_to = "value") |> 
+  pivot_longer(cols = c(!!sym(fbs_current_year), !!sym(fbs_prev_year) ), names_to = "year", values_to = "value") |> 
 # add numeric year col
  mutate(sampyear = recode(as.character(year), !!!fbs_years))
 

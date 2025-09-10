@@ -36,7 +36,7 @@ CostOutUI <- function(id) {
         # For output/costs
         conditionalPanel(
           condition = sprintf("input['%s'] == 'output' || input['%s'] == 'costs'", ns("in_out_type"), ns("in_out_type")),
-          checkboxGroupInput(ns("selected_years_checkbox"), "Select year", choices = c(current_year, prev_year), selected = c(current_year, prev_year))
+          checkboxGroupInput(ns("selected_years_checkbox"), "Select year", choices = c(fbs_current_year, fbs_prev_year), selected = c(fbs_current_year, fbs_prev_year))
         ),
         
         # For all other types
@@ -46,7 +46,7 @@ CostOutUI <- function(id) {
             inputId = ns("selected_years_slider"),
             label = "Select year range",
             choices = year_levels,
-            selected = c("2012-13", current_year),
+            selected = c("2012-13", fbs_current_year),
             grid = TRUE
           )
         )
@@ -238,7 +238,7 @@ CostOutServer <- function(id) {
             } else {
               paste(years_sorted[1], years_sorted[length(years_sorted)], sep = " to ")
             },
-            ", real (constant ", substr(current_year, 1, 4), ") prices"
+            ", real (constant ", substr(fbs_current_year, 1, 4), ") prices"
           )
           
           if (input$in_out_type %in% c("output", "costs")) {

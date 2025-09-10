@@ -62,11 +62,22 @@ homeUI <- function(id) {
         ),
         tags$div(
           style = "margin-top: 20px; font-size: 20px; font-weight: bold;",
+          "Machinery"
+        ),
+        tags$ul(
+          tags$li(actionLink(ns("nav_total_vehicles_module"), "Total number of machinery")),
+          tags$li(actionLink(ns("nav_ag_mach_farm_type_module"), "Number of machinery by farm type")),
+          tags$li(actionLink(ns("nav_ag_mach_ownership_module"), "Ownership")),
+          tags$li(actionLink(ns("nav_ag_mach_fuel_module"), "Fuel"))
+        ),
+          
+        tags$div(
+          style = "margin-top: 20px; font-size: 20px; font-weight: bold;",
           "Economy"
         ),
         tags$ul(
           tags$li(actionLink(ns("nav_economy"), "Economy")), 
-          tags$li(actionLink(ns("nav_tiff_module"), "Total Income From Farming")),
+          tags$li(actionLink(ns("nav_tiff_module"), "Total income from Ffarming")),
           tags$li(actionLink(ns("nav_module_fbs"), "Farm business income"))
         )
       ),
@@ -182,6 +193,10 @@ homeServer <- function(id) {
       human_vegetables_module = "human_vegetables_module",
       fruit_module = "fruit_module",
       structure_information = "structure_information",
+      total_vehicles_module = "total_vehicles_module",
+      ag_mach_farm_type_module = "ag_mach_farm_type_module",
+      ag_mach_ownership_module = "ag_mach_ownership_module",
+      ag_mach_fuel_module = "ag_mach_fuel_module",
       economy = "economy_summary_module",
       module_fbs = "module_fbs",
       tiff_module = "tiff_module"

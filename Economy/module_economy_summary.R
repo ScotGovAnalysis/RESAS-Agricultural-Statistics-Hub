@@ -1,60 +1,4 @@
-# economySummaryUI <- function(id) {
-#   ns <- NS(id)
-#   # min_econ_year <- as.numeric(substr(year_levels[1], 1, 4))
-  #max_econ_year <- as.numeric(tiff_year)
-  # tags$head(tags$style(
-  #   HTML(
-  #     "
-  #   body, html {
-  #     background-color: #ffffff !important;
-  #   }
-  # 
-  #   .row-equal {
-  #     display: flex;
-  #     flex-wrap: wrap;
-  #   }
-  # 
-  #   .row-equal > [class*='col-'] {
-  #     display: flex;
-  #     flex-direction: column;
-  #   }
-  # 
-  #   .panel-like {
-  #     flex: 1;
-  #     display: flex;
-  #     flex-direction: column;
-  #     justify-content: space-between;
-  #     background: #ffffff;
-  #     border: 1px solid #e5e5e5;
-  #     border-radius: 8px;
-  #     padding: 16px;
-  #   }
-  #   "
-  #   )
-  # ),
-  # 
-  # tags$head(
-  #  tags$style(HTML("
-  #     .economy-row {
-  #       display: flex;
-  #       flex-wrap: nowrap;
-  #     }
-  #     .economy-col {
-  #       flex: 1;
-  #       display: flex;
-  #       flex-direction: column;
-  #     }
-  #     .economy-panel {
-  #       flex: 1;
-  #       display: flex;
-  #       flex-direction: column;
-  #       justify-content: space-between;
-  #       background: #ffffff;
-  #       border: 1px solid #e5e5e5;
-  #       border-radius: 8px;
-  #       padding: 16px;
-  #     }")),
-  
+
    economySummaryUI <- function(id) {
      ns <- NS(id)
      tagList(
@@ -103,7 +47,7 @@
              "TIFF comparison year",
              min = tiff_year_min,
              max = tiff_year,
-             value = (tiff_year-10),
+             value = (tiff_year-1),
              step = 1,
              sep = ""
            ),
@@ -111,14 +55,14 @@
              inputId = ns("fbs_summary_current_year"),
              label = "FBI year of interest",
              choices = year_levels,
-             selected = current_year,
+             selected = fbs_current_year,
              grid = TRUE
            ),
            sliderTextInput(
              inputId = ns("fbs_summary_comparison_year"),
              label = "FBI comparison year",
              choices = year_levels,
-             selected = "2012-13",
+             selected = fbs_prev_year,
              grid = TRUE
            )
          ),
@@ -149,7 +93,7 @@
                             div(style = "margin-top: 4px; font-size: 20px; font-weight: bold;", "Farm business income"),
                             tags$p(
                               style = "font-size: 16px; margin-top: 8px;",
-                              "Farm business income measures average total income from commercial farms in Scotland, including income from diversified activities. More farm level average income estimates are available in the ",
+                              "Farm business income (FBI) measures average total income from commercial farms in Scotland, including income from diversified activities. More farm level average income estimates are available in the ",
                               tags$a(
                                 "Scottish farm business income publication.",
                                 href = "https://www.gov.scot/collections/scottish-farm-business-income-fbi-annual-estimates/",
