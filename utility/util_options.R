@@ -20,7 +20,7 @@ library(here)
 
 # Load the .RData file containing the datasets
 load(here("Data", "ghg_data.RData"))
-load(here("Data", "census_data.RData"))
+#load(here("Data", "census_data.RData"))
 load(here("Data", "crops_data.RData"))
 load(here("Data", "total_animals.RData"))
 load(here("Data", "module_2023.RData"))
@@ -28,6 +28,7 @@ load(here("Data", "vehicle_data.RData"))
 load(here("Data", "manure_fertiliser.RData"))
 load(here("Data", "FBS_data.Rda"))
 load(here("Data", "TIFF_data.Rda"))
+load(here("Data", "census_data_2025.RData"))
 
 # Load FBS options
 source(here("Economy/FBS", "fbs_utility.R"))

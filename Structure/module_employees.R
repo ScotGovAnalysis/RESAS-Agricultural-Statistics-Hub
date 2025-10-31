@@ -55,7 +55,7 @@ employeesMapServer <- function(id) {
     
     # Data Processing for Timeseries
     occupiers_employees <- occupiers_employees %>%
-      select(-`% Change 2024 to 2023`) %>%
+      select(-`% Change 2025 to 2024`) %>%
       mutate(across(starts_with("20"), as.numeric))
     
     # Reactive data for the time series chart

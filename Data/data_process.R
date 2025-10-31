@@ -73,7 +73,7 @@ library(ggthemes)
 #########################################
 
 # Define file path
-file_path <- "C:/Users/U457484/OneDrive - SCOTS Connect/Agricultural+Census+-+June+2024+-+Tables.xlsx"
+file_path <- "//s0177a/datashare/seerad/ags/census/branch1/NewStructure/Surveys/June/Main/June25/June Agricultural Census 2025 Data tables.xlsx"
 
 # Define the simplified table names and corresponding sheet names
 table_names <- c(
@@ -97,11 +97,18 @@ table_names <- c(
   "livestock_subregion" = "Table_18",
   "holdings_occupiers_employees_subregion" = "Table_19",
   "occupiers_employees_subregion" = "Table_20",
-  "slurry_destination" = "Module_2024_Table_1",
-  "number_of_ag_mach_farm_type" = "Module_2024_Table_2",
-  "holdings_with_ag_mach_farm_type" = "Module_2024_Table_3",
-  "number_of_ag_mach_ownership" = "Module_2024_Table_4",
-  "number_of_ag_mach_fuel_type" = "Module_2024_Table_5"
+  "holdings_region_subregion_farm_type" = "Table_21",
+  "agricultural_area_region_subregion_farm_type" = "Table_22",
+  "holdings_area_size_band_farm_type" = "Table_23",
+  "agricultural_area_area_size_band_farm_type" = "Table_24",
+ # "total_occupiers_sex" = "Table_25",
+  "irrigation_methods" = "Module_2025_Table_1",
+  "irrigation_drought_flood_protection" = "Module_2025_Table_2"
+  # "slurry_destination" = "Module_2024_Table_1",
+  # "number_of_ag_mach_farm_type" = "Module_2024_Table_2",
+  # "holdings_with_ag_mach_farm_type" = "Module_2024_Table_3",
+  # "number_of_ag_mach_ownership" = "Module_2024_Table_4",
+  # "number_of_ag_mach_fuel_type" = "Module_2024_Table_5"
 )
 # Function to remove rows until the first occurrence of "Source:" in the first column
 remove_until_source <- function(data) {
@@ -225,7 +232,7 @@ names(vegetables_bulbs_fruit_area) <- names(vegetables_bulbs_fruit_area) %>%
 
 # Preprocess and round the summary crops data
 crops_summary_data <- agricultural_area_hectares %>%
-  select(-`% Change 2024 to 2023`) %>%
+  select(-`% Change 2025 to 2024`) %>%
   filter(`Crop/Land use` %in% c("Total Combine Harvested Crops", "Total Crops For Stockfeeding",
                                 "Vegetables For Human Consumption", "Soft Fruit")) %>%
   pivot_longer(
@@ -243,7 +250,7 @@ crops_summary_data <- agricultural_area_hectares %>%
   )
 
 land_use_data <- agricultural_area_hectares %>% 
-  select(-`% Change 2024 to 2023`) %>%
+  select(-`% Change 2025 to 2024`) %>%
   filter(`Crop/Land use` %in% c("Total Crops, Fallow, And Set-Aside", "Total Grass", 
                                 "Rough Grazing", "Total Sole Right Agricultural Area", "Common Grazings"))
 
@@ -255,35 +262,35 @@ land_use_subregion <- crops_grass_area_subregion %>%
 
 # Subset for cereals data
 cereals_data <- agricultural_area_hectares %>%
-  select(-`% Change 2024 to 2023`) %>%
+  select(-`% Change 2025 to 2024`) %>%
   filter(`Crop/Land use` %in% c("Wheat", "Triticale", "Winter Barley", "Spring Barley", "Barley Total", 
                                 "Winter Oats", "Spring Oats", "Oats Total", "Rye", "Mixed Grain", 
                                 "Total Cereals"))
 
 # Subset for oilseeds data
 oilseed_data <- agricultural_area_hectares %>%
-  select(-`% Change 2024 to 2023`) %>%
+  select(-`% Change 2025 to 2024`) %>%
   filter(`Crop/Land use` %in% c("Winter Oilseed Rape", "Spring Oilseed Rape", "Linseed", "Total Oilseeds"))
 
 # Subset for potatoes data
 potatoes_data <- agricultural_area_hectares %>%
-  select(-`% Change 2024 to 2023`) %>%
+  select(-`% Change 2025 to 2024`) %>%
   filter(`Crop/Land use` %in% c("Seed Potatoes", "Ware Potatoes", "Total Potatoes"))
 
 # Subset for beans data
 beans_data <- agricultural_area_hectares %>%
-  select(-`% Change 2024 to 2023`) %>%
+  select(-`% Change 2025 to 2024`) %>%
   filter(`Crop/Land use` %in% c("Protein Peas", "Field Beans"))
 
 # Subset for animal feed data
 stockfeeding_data <- agricultural_area_hectares %>%
-  select(-`% Change 2024 to 2023`) %>%
+  select(-`% Change 2025 to 2024`) %>%
   filter(`Crop/Land use` %in% c("Turnips/Swedes", "Kale/Cabbage", "Maize", "Rape", "Fodder Beet", 
                                 "Lupins", "Other Crops For Stockfeeding", "Total Crops For Stockfeeding"))
 
 # Subset for human vegetables data
 human_vegetables_data <- vegetables_bulbs_fruit_area %>%
-  select(-`% Change 2024 to 2023`) %>%
+  select(-`% Change 2025 to 2024`) %>%
   filter(`Vegetables and fruits for human consumption` %in% c(
     "Peas For Canning, Freezing Or Drying",
     "Beans For Canning, Freezing Or Drying",
@@ -297,7 +304,7 @@ human_vegetables_data <- vegetables_bulbs_fruit_area %>%
 
 # Subset for soft fruit data
 fruit_data <- vegetables_bulbs_fruit_area %>%
-  select(-`% Change 2024 to 2023`) %>%
+  select(-`% Change 2025 to 2024`) %>%
   filter(`Vegetables and fruits for human consumption` %in% c(
     "Strawberries Grown In The Open",
     "Raspberries Grown In The Open",
@@ -325,13 +332,13 @@ cereals_subregion <- crops_grass_area_subregion %>%
     "Winter Barley",
     "Spring Barley",
     "Barley Total",
-    "Oats, Triticale and Mixed Grain"
+    "Oats and Mixed Grain"
   ))
 
 # Subset for oilseed_subregion
 oilseed_subregion <- crops_grass_area_subregion %>%
   filter(`Land use by category` %in% c(
-    "Oilseeds (including linseed)"
+    "Oilseeds (including Linseed)"
   ))
 
 # Subset for potato_subregion
@@ -355,7 +362,7 @@ stockfeeding_subregion <- crops_grass_area_subregion %>%
 # Subset for human_veg_subregion
 human_vegetables_subregion <- crops_grass_area_subregion %>%
   filter(`Land use by category` %in% c(
-    "Vegetables for human consumption"
+    "Vegetables For Human Consumption"
   ))
 
 # Subset for fruit_subregion
@@ -393,7 +400,7 @@ load("census_data.RData")
 
 # Convert the wide format data into long format using pivot_longer
 number_of_pigs_long <- number_of_pigs %>%
-  select(-`% Change 2024 to 2023`) %>%
+  select(-`% Change 2025 to 2024`) %>%
   pivot_longer(cols = -`Pigs by category`, names_to = "Year", values_to = "Total") %>%
   filter(`Pigs by category` == "Total Pigs") %>%
   select(Year, `Total Pigs` = Total)
@@ -404,13 +411,13 @@ number_of_poultry_long <- number_of_poultry %>%
   select(Year, `Total Poultry` = Total)
 
 number_of_sheep_long <- number_of_sheep %>%
-  select(-`% Change 2024 to 2023`) %>%
+  select(-`% Change 2025 to 2024`) %>%
   pivot_longer(cols = -`Sheep by category`, names_to = "Year", values_to = "Total") %>%
   filter(`Sheep by category` == "Total Sheep") %>%
   select(Year, `Total Sheep` = Total)
 
 number_of_cattle_long <- number_of_cattle %>%
-  select(-`% Change 2024 to 2023`) %>%
+  select(-`% Change 2025 to 2024`) %>%
   pivot_longer(cols = -`Cattle by category`, names_to = "Year", values_to = "Total") %>%
   filter(`Cattle by category` == "Total Cattle") %>%
   select(Year, `Total cattle` = Total)
@@ -598,55 +605,55 @@ save(list = names(data_frames), file = "module_2023.RData", envir = list2env(dat
 ####
 #### This script looks at the modular vehicle data
 
-# subset for total vehicle numbers
-total_number_vehicles_data <- number_of_ag_mach_fuel_type %>% 
-  select(`Agricultural machinery`, `All fuel types`) %>%
-  filter(`Agricultural machinery` %in% c("All-terrain vehicle (ATV)/Quads", "Combine harvesters", 
-                                "Other lifting equipment (such as wheeled loaders, diggers and fork-lifts)", 
-                                "Side-by-side utility vehicles", "Self-propelled sprayers", "Telescopic material handlers (such as telehandlers)",
-                                "All tractors", "All agricultural machinery"))
-
-# subset by farm type
-ag_mach_farm_type_data <- number_of_ag_mach_farm_type %>%
-  select(`Main farm type`, `All tractors`, `Combine harvesters`,
-         `Self-propelled sprayers`, `Telescopic material handlers`,
-         `All-terrain vehicle/Quads`, `Side-by-side utility vehicles`,
-         `Other lifting equipment`) %>%
-  filter(`Main farm type` %in% c("General cropping", "General cropping; forage", "LFA cattle and sheep",
-                                 "Mixed holdings", "Non-LFA cattle and sheep", "Specialist cereals",
-                                 "Specialist dairy", "Specialist horticulture & permanent crops",
-                                 "Specialist pigs", "Specialist poultry", "Unclassified", "Unknown"))
-# subset by ownership
-ag_mach_ownership_data <- number_of_ag_mach_ownership %>%
-  select(-`All ownership status`) %>%
-  filter(`Agricultural machinery` %in% c("All-terrain vehicle (ATV)/Quads", "Combine harvesters",
-                                         "Side-by-side utility vehicles", "Self-propelled sprayers", "Telescopic material handlers (such as telehandlers)",
-                                         "All tractors"))
-ag_mach_ownership_data <- ag_mach_ownership_data %>% 
-  pivot_longer(cols = -`Agricultural machinery`, names_to = "Status", values_to = "Value") # Pivot wider to turn category rows into columns 
-ag_mach_ownership_data <- ag_mach_ownership_data %>% 
-  pivot_wider(names_from = `Agricultural machinery`, values_from = Value)
-  
-
-# subset by fuel
-ag_mach_fuel_data <- number_of_ag_mach_fuel_type %>%
-  select(-`All fuel types`) %>%
-  filter(`Agricultural machinery` %in% c("All-terrain vehicle (ATV)/Quads", "Combine harvesters", "Other lifting equipment (such as wheeled loaders, diggers and fork-lifts)",
-                                         "Side-by-side utility vehicles", "Self-propelled sprayers", "Telescopic material handlers (such as telehandlers)",
-                                         "All tractors"))
-ag_mach_fuel_data <- ag_mach_fuel_data %>% 
-  pivot_longer(cols = -`Agricultural machinery`, names_to = "Fuel type", values_to = "Value") # Pivot wider to turn category rows into columns 
-ag_mach_fuel_data <- ag_mach_fuel_data %>% 
-  pivot_wider(names_from = `Agricultural machinery`, values_from = Value)
-
-# Saving all the subsets to an RData file
-save(
-  total_number_vehicles_data,
-  ag_mach_farm_type_data,
-  ag_mach_ownership_data,
-  ag_mach_fuel_data,
-  file = "vehicle_data.RData"
-)
+# # subset for total vehicle numbers
+# total_number_vehicles_data <- number_of_ag_mach_fuel_type %>% 
+#   select(`Agricultural machinery`, `All fuel types`) %>%
+#   filter(`Agricultural machinery` %in% c("All-terrain vehicle (ATV)/Quads", "Combine harvesters", 
+#                                 "Other lifting equipment (such as wheeled loaders, diggers and fork-lifts)", 
+#                                 "Side-by-side utility vehicles", "Self-propelled sprayers", "Telescopic material handlers (such as telehandlers)",
+#                                 "All tractors", "All agricultural machinery"))
+# 
+# # subset by farm type
+# ag_mach_farm_type_data <- number_of_ag_mach_farm_type %>%
+#   select(`Main farm type`, `All tractors`, `Combine harvesters`,
+#          `Self-propelled sprayers`, `Telescopic material handlers`,
+#          `All-terrain vehicle/Quads`, `Side-by-side utility vehicles`,
+#          `Other lifting equipment`) %>%
+#   filter(`Main farm type` %in% c("General cropping", "General cropping; forage", "LFA cattle and sheep",
+#                                  "Mixed holdings", "Non-LFA cattle and sheep", "Specialist cereals",
+#                                  "Specialist dairy", "Specialist horticulture & permanent crops",
+#                                  "Specialist pigs", "Specialist poultry", "Unclassified", "Unknown"))
+# # subset by ownership
+# ag_mach_ownership_data <- number_of_ag_mach_ownership %>%
+#   select(-`All ownership status`) %>%
+#   filter(`Agricultural machinery` %in% c("All-terrain vehicle (ATV)/Quads", "Combine harvesters",
+#                                          "Side-by-side utility vehicles", "Self-propelled sprayers", "Telescopic material handlers (such as telehandlers)",
+#                                          "All tractors"))
+# ag_mach_ownership_data <- ag_mach_ownership_data %>% 
+#   pivot_longer(cols = -`Agricultural machinery`, names_to = "Status", values_to = "Value") # Pivot wider to turn category rows into columns 
+# ag_mach_ownership_data <- ag_mach_ownership_data %>% 
+#   pivot_wider(names_from = `Agricultural machinery`, values_from = Value)
+#   
+# 
+# # subset by fuel
+# ag_mach_fuel_data <- number_of_ag_mach_fuel_type %>%
+#   select(-`All fuel types`) %>%
+#   filter(`Agricultural machinery` %in% c("All-terrain vehicle (ATV)/Quads", "Combine harvesters", "Other lifting equipment (such as wheeled loaders, diggers and fork-lifts)",
+#                                          "Side-by-side utility vehicles", "Self-propelled sprayers", "Telescopic material handlers (such as telehandlers)",
+#                                          "All tractors"))
+# ag_mach_fuel_data <- ag_mach_fuel_data %>% 
+#   pivot_longer(cols = -`Agricultural machinery`, names_to = "Fuel type", values_to = "Value") # Pivot wider to turn category rows into columns 
+# ag_mach_fuel_data <- ag_mach_fuel_data %>% 
+#   pivot_wider(names_from = `Agricultural machinery`, values_from = Value)
+# 
+# # Saving all the subsets to an RData file
+# save(
+#   total_number_vehicles_data,
+#   ag_mach_farm_type_data,
+#   ag_mach_ownership_data,
+#   ag_mach_fuel_data,
+#   file = "vehicle_data.RData"
+# )
 
 
 
