@@ -17,8 +17,8 @@ cropsSummaryUI <- function(id) {
         width = 3,
         div("Adjust the sliders to compare data from different years.", 
             style = "font-size: 14px; font-weight: bold; margin-bottom: 10px;"),
-        sliderInput(ns("summary_current_year_crops"), "Year of interest", min = 2012, max = census_year, value = census_year, step = 1, sep = ""),
-        sliderInput(ns("summary_comparison_year_crops"), "Comparison year", min = 2012, max = census_year, value = census_year - 1, step = 1, sep = "")
+        sliderInput(ns("summary_current_year_crops"), "Year of interest", min = 2013, max = census_year, value = census_year, step = 1, sep = ""),
+        sliderInput(ns("summary_comparison_year_crops"), "Comparison year", min = 2013, max = census_year, value = census_year - 1, step = 1, sep = "")
       ),
       mainPanel(
         id = ns("mainpanel"),

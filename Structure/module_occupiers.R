@@ -48,7 +48,7 @@ occupiersServer <- function(id) {
     chart_data <- reactive({
       occupiers_age_gender %>%
         filter(`Occupier working time` == "Total working occupiers") %>%
-        select(-`Male Total`, -`Female Total`) %>%
+        select(-`Male total`, -`Female total`) %>%
         pivot_longer(cols = -`Occupier working time`, names_to = "Gender_Age", values_to = "Count") %>%
         separate(Gender_Age, into = c("Gender", "Age"), sep = " ", extra = "merge") %>%
         mutate(Count = as.numeric(Count))
@@ -63,8 +63,8 @@ occupiersServer <- function(id) {
         pivot_longer(cols = -`Occupiers and employees by category`, names_to = "sub_region", values_to = "value") %>%
         mutate(value = ifelse(is.na(as.numeric(value)), NA, as.numeric(value))) %>%
         filter(`Occupiers and employees by category` %in% c(
-          "Total working occupiers", 
-          "Occupiers not working on the holding"
+          "Total Working Occupiers", 
+          "Occupiers Not Working On The Holding"
         ))
     })
     
@@ -84,8 +84,8 @@ occupiersServer <- function(id) {
       req(input$tabs)
       if (input$tabs == "map") {
         radioButtons(ns("variable"), "Select Variable", choices = c(
-          "Total working occupiers", 
-          "Occupiers not working on the holding"
+          "Total Working Occupiers", 
+          "Occupiers Not Working On The Holding"
         ))
       } else if (input$tabs == "data_table") {
         radioButtons(ns("data_source"), "Choose data to show:", choices = c("Map Data", "Population Pyramid Data",  "Timeseries Data"))

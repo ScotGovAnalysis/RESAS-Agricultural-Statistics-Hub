@@ -15,7 +15,7 @@ sheepUI <- function(id) {
           choices = c(
             "Total Sheep" = "Total Sheep",
             "Ewes for breeding" = "Ewes for breeding",
-            "Other sheep one year old and over for breeding" = "Other sheep one year old and over for breeding",
+            "Other sheep 1 year and over for breeding" = "Other sheep 1 year and over for breeding",
             "Rams for service" = "Rams for service",
             "Lambs" = "Lambs"
           )
@@ -81,7 +81,7 @@ sheepServer <- function(id) {
     sheep_data <- livestock_subregion %>%
       filter(`Livestock by category` %in%   
         c("Ewes for breeding",
-        "Other sheep one year old and over for breeding",
+        "Other sheep 1 year and over for breeding",
         "Rams for service",
         "Lambs",
         "Total Sheep"))%>%

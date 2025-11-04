@@ -122,8 +122,8 @@ landUseSummaryServer <- function(id) {
     chart_data <- reactive({
       agricultural_area_hectares %>%
         filter(`Crop/Land use` %in% input$variables) %>%
-        select(`Crop/Land use`, `2024 Area`) %>%
-        rename(Variable = `Crop/Land use`, Value = `2024 Area`)
+        select(`Crop/Land use`, `2025 Area`) %>%
+        rename(Variable = `Crop/Land use`, Value = `2025 Area`)
     })
     
     timeseries_data <- reactive({
@@ -175,8 +175,8 @@ landUseSummaryServer <- function(id) {
     # Download handler with formatted values
     output$download_data <- createDownloadHandler(
       input = input,
-      file_map_name = "Land Use Subregion Data 2023.xlsx",
-      file_timeseries_name = "Land Use Timeseries Data 2012 to 2023.xlsx",
+      file_map_name = "Land Use Subregion Data 2025.xlsx",
+      file_timeseries_name = "Land Use Timeseries Data 2013 to 2025.xlsx",
       map_data = table_data(),  # Use the formatted data for download
       timeseries_data = table_data()  # Use the formatted data for download
     )
