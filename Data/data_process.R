@@ -189,6 +189,13 @@ for (table in names(table_names)) {
   assign(table, cleaned_data)
 }
 
+# Change Sole Right Grazing to Rough Grazing
+crops_grass_area_subregion <- crops_grass_area_subregion %>%
+  mutate(`Land use by category` = if_else(`Land use by category` == "Sole Right Grazing", "Rough Grazing", `Land use by category`))
+
+holdings_crops_grass_subregion <- holdings_crops_grass_subregion %>%
+  mutate(`Land use by category` = if_else(`Land use by category` == "Sole Right Grazing", "Rough Grazing", `Land use by category`))
+
 # Remove % change column
 owned_rented_land <- owned_rented_land %>%
   select(-`% Change 2025 to 2024`)
