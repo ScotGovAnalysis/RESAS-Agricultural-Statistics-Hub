@@ -28,6 +28,7 @@ load(here("Data", "vehicle_data.RData"))
 load(here("Data", "manure_fertiliser.RData"))
 load(here("Data", "FBS_data.Rda"))
 load(here("Data", "TIFF_data.Rda"))
+load(here("Data", "irrigation_2025.RData"))
 #load(here("Data", "census_data_2025.RData"))
 
 # Load FBS options

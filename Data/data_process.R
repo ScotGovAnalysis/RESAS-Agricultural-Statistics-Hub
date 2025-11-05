@@ -677,7 +677,8 @@ save(
 
 
 #### Module 2025 Data ####
-
+irrigation_drought_flood_protection <- irrigation_drought_flood_protection %>%
+  filter(if_any(everything(), ~ grepl("[A-Za-z]", .)))
 save(
   irrigation_methods,
   irrigation_drought_flood_protection,

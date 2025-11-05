@@ -56,6 +56,8 @@ source("Machinery/module_total_number_of_vehicles.R")
 source("Machinery/module_ag_mach_farm_type.R")
 source("Machinery/module_ag_mach_ownership.R")
 source("Machinery/module_ag_mach_fuel.R")
+source("Irrigation/module_irrigation_methods.R")
+source("Irrigation/module_irrigation_drought_flood_protections.R")
 source("Organic Farming/module_organic_summary.R")
 source("Organic Farming/module_organic_land_area.R")
 source("Organic Farming/module_organic_land_use.R")
@@ -131,12 +133,16 @@ ui <- fluidPage(
                        tabPanel("Vegetables", value = "human_vegetables_module", humanVegetablesUI("human_vegetables_module")),
                        tabPanel("Fruit", value = "fruit_module", fruitUI("fruit_module"))
             ),
-            # navbarMenu("Machinery",
-            #            tabPanel("Total number", value = "total_vehicles_module", totalnumberofvehiclesUI("total_vehicles_module")),
-            #            tabPanel("Farm type", value = "ag_mach_farm_type_module", agmachfarmtypeUI("ag_mach_farm_type_module")),
-            #            tabPanel("Ownership", value = "ag_mach_ownership_module", agmachownershipUI("ag_mach_ownership_module")),
-            #            tabPanel("Fuel", value = "ag_mach_fuel_module", agmachfuelUI("ag_mach_fuel_module"))
-            # ),
+            navbarMenu("Machinery",
+                       tabPanel("Total number", value = "total_vehicles_module", totalnumberofvehiclesUI("total_vehicles_module")),
+                       tabPanel("Farm type", value = "ag_mach_farm_type_module", agmachfarmtypeUI("ag_mach_farm_type_module")),
+                       tabPanel("Ownership", value = "ag_mach_ownership_module", agmachownershipUI("ag_mach_ownership_module")),
+                       tabPanel("Fuel", value = "ag_mach_fuel_module", agmachfuelUI("ag_mach_fuel_module"))
+            ),
+            navbarMenu("Irrigation",
+                       tabPanel("Irrigation Methods", value = "module_irrigation_methods", irrigationmethodsUI("module_irrigation_methods")),
+                       tabPanel("Irrigation, drought and flood protection", value = "module_irrigation_drought_flood_protection", irrigationfloodUI("module_irrigation_drought_flood_protection"))
+                       ),                                                                                                                                        
             navbarMenu("Economy",
                        tabPanel("Summary", value = "economy_summary_module", economySummaryUI("economy_summary_module")),
                        tabPanel("Total income from farming", value = "tiff_module", tiffUI("tiff_module")),
