@@ -407,6 +407,7 @@ save(
   stockfeeding_subregion,
   human_vegetables_subregion,
   fruit_subregion,
+  
   file = "Data/crops_data.RData"
 )
 
@@ -622,6 +623,8 @@ save(list = names(data_frames), file = "module_2023.RData", envir = list2env(dat
 ####
 #### This script looks at the modular vehicle data
 
+
+
 # subset for total vehicle numbers
 total_number_vehicles_data <- number_of_ag_mach_fuel_type %>%
   select(`Agricultural machinery`, `All fuel types`) %>%
@@ -673,7 +676,13 @@ save(
 )
 
 
+#### Module 2025 Data ####
 
+save(
+  irrigation_methods,
+  irrigation_drought_flood_protection,
+  file = "Data/irrigation_2025.RData"
+)
 
 
 
