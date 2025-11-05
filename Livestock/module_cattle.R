@@ -150,8 +150,12 @@ cattleServer <- function(id) {
         data,
         options = list(
           scrollX = TRUE,  # Enable horizontal scrolling
-          pageLength = 20  # Show 20 entries by default
+          pageLength = 20,  # Show 20 entries by default
+          columnDefs = list(
+            list(width = '250px', targets = 1)
+            
         )
+      )
       )
     })
     

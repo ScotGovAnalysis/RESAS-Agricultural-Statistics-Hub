@@ -55,7 +55,6 @@ employeesMapServer <- function(id) {
     
     # Data Processing for Timeseries
     occupiers_employees <- occupiers_employees %>%
-      select(-`% Change 2025 to 2024`) %>%
       mutate(across(starts_with("20"), as.numeric))
     
     # Reactive data for the time series chart
@@ -150,7 +149,7 @@ employeesMapServer <- function(id) {
     output$downloadData <- downloadHandler(
       filename = function() {
         if (input$data_source == "Chart Data") {
-          paste("Scottish Agricultural Employees Timeseries Data - 2013 to 2025.csv", sep = "")
+          paste("Scottish Agricultural Employees Time Series Data - 2013 to 2025.csv", sep = "")
         } else if (input$data_source == "Map Data") {
           paste("Scottish Agricultural Employees Regional Data - 2025.csv", sep = "")
         }

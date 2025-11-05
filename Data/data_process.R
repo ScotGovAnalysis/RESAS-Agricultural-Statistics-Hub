@@ -200,6 +200,9 @@ holdings_crops_grass_subregion <- holdings_crops_grass_subregion %>%
 owned_rented_land <- owned_rented_land %>%
   select(-`% Change 2025 to 2024`)
 
+occupiers_employees <- occupiers_employees %>%
+  select(-`% Change 2025 to 2024`)
+
 # Set all values in the 2022 column to NA
 number_of_poultry$`2022` <- NA
 number_of_poultry <- number_of_poultry %>%
