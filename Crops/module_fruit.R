@@ -22,12 +22,12 @@ fruitUI <- function(id) {
           "Click within the box to select variables",
           choices = unique(fruit_data$`Vegetables and fruits for human consumption`),
           selected = c(
-            "Strawberries grown in open/under cover",
-            "Raspberries grown in open/under cover",
-            "Blackcurrants grown in open/under cover",
-            "Blueberries grown in open/under cover",
-            "Tomatoes grown in open/under cover",
-            "Other fruit grown in open/under cover"
+            "Strawberries Grown In Open/Under Cover",
+            "Raspberries Grown In Open/Under Cover",
+            "Blackcurrants Grown In Open/Under Cover",
+            "Blueberries Grown In Open/Under Cover",
+            "Tomatoes Grown In Open/Under Cover",
+            "Other Fruit Grown In Open/Under Cover"
           ),
           multiple = TRUE,
           options = list(
