@@ -203,6 +203,19 @@ owned_rented_land <- owned_rented_land %>%
 occupiers_employees <- occupiers_employees %>%
   select(-`% Change 2025 to 2024`)
 
+number_of_cattle <- number_of_cattle %>%
+  select(-`% Change 2025 to 2024`)
+
+number_of_sheep <- number_of_sheep %>%
+  select(-`% Change 2025 to 2024`)
+
+number_of_pigs <- number_of_pigs %>%
+  select(-`% Change 2025 to 2024`)
+
+number_of_other_livestock <- number_of_other_livestock %>%
+  select(-`% Change 2025 to 2024`)
+
+
 # Set all values in the 2022 column to NA
 number_of_poultry$`2022` <- NA
 number_of_poultry <- number_of_poultry %>%
@@ -286,17 +299,20 @@ cereals_data <- agricultural_area_hectares %>%
 # Subset for oilseeds data
 oilseed_data <- agricultural_area_hectares %>%
   select(-`% Change 2025 to 2024`) %>%
-  filter(`Crop/Land use` %in% c("Winter Oilseed Rape", "Spring Oilseed Rape", "Linseed", "Total Oilseeds"))
+  filter(`Crop/Land use` %in% c("Winter Oilseed Rape", "Spring Oilseed Rape", "Linseed", "Total Oilseeds")) %>%
+  mutate(`2025` = round(`2025`, 0))
 
 # Subset for potatoes data
 potatoes_data <- agricultural_area_hectares %>%
   select(-`% Change 2025 to 2024`) %>%
-  filter(`Crop/Land use` %in% c("Seed Potatoes", "Ware Potatoes", "Total Potatoes"))
+  filter(`Crop/Land use` %in% c("Seed Potatoes", "Ware Potatoes", "Total Potatoes")) %>%
+  mutate(`2025` = round(`2025`, 0))
 
 # Subset for beans data
 beans_data <- agricultural_area_hectares %>%
   select(-`% Change 2025 to 2024`) %>%
-  filter(`Crop/Land use` %in% c("Protein Peas", "Field Beans"))
+  filter(`Crop/Land use` %in% c("Protein Peas", "Field Beans")) %>%
+  mutate(`2025` = round(`2025`, 0))
 
 # Subset for animal feed data
 stockfeeding_data <- agricultural_area_hectares %>%
@@ -320,7 +336,8 @@ human_vegetables_data <- vegetables_bulbs_fruit_area %>%
     "Carrots",
     "Other Vegetables",
     "Total Vegetables"
-  ))
+  )) %>%
+  mutate(`2025` = round(`2025`, 0))
 
 # Subset for soft fruit data
 fruit_data <- vegetables_bulbs_fruit_area %>%
@@ -344,7 +361,8 @@ fruit_data <- vegetables_bulbs_fruit_area %>%
     "Tomatoes Grown In Open/Under Cover",
     "Other Fruit Grown In Open/Under Cover",
     "Total Soft Fruit"
-  ))
+  )) %>%
+  mutate(`2025` = round(`2025`, 0))
 # Subset for cereals_subregion
 cereals_subregion <- crops_grass_area_subregion %>%
   filter(`Land use by category` %in% c(
@@ -353,43 +371,50 @@ cereals_subregion <- crops_grass_area_subregion %>%
     "Spring Barley",
     "Barley Total",
     "Oats and Mixed Grain"
-  ))
+  )) %>%
+  mutate(across(where(is.numeric), ~ round(.x, 0)))
 
 # Subset for oilseed_subregion
 oilseed_subregion <- crops_grass_area_subregion %>%
   filter(`Land use by category` %in% c(
     "Oilseeds (including Linseed)"
-  ))
+  )) %>%
+  mutate(across(where(is.numeric), ~ round(.x, 0)))
 
 # Subset for potato_subregion
 potatoes_subregion <- crops_grass_area_subregion %>%
   filter(`Land use by category` %in% c(
     "Potatoes"
-  ))
+  )) %>%
+  mutate(across(where(is.numeric), ~ round(.x, 0)))
 
 # Subset for beans_subregion
 beans_subregion <- crops_grass_area_subregion %>%
   filter(`Land use by category` %in% c(
     "Peas and Beans for Combining"
-  ))
+  )) %>%
+  mutate(across(where(is.numeric), ~ round(.x, 0)))
 
 # Subset for stockfeeding_subregion
 stockfeeding_subregion <- crops_grass_area_subregion %>%
   filter(`Land use by category` %in% c(
     "Stockfeeding Crops"
-  ))
+  )) %>%
+  mutate(across(where(is.numeric), ~ round(.x, 0)))
 
 # Subset for human_veg_subregion
 human_vegetables_subregion <- crops_grass_area_subregion %>%
   filter(`Land use by category` %in% c(
     "Vegetables For Human Consumption"
-  ))
+  )) %>%
+  mutate(across(where(is.numeric), ~ round(.x, 0)))
 
 # Subset for fruit_subregion
 fruit_subregion <- crops_grass_area_subregion %>%
   filter(`Land use by category` %in% c(
     "Orchard and Soft Fruit"
-  ))
+  )) %>%
+  mutate(across(where(is.numeric), ~ round(.x, 0)))
 
 # Saving all the subsets to an RData file
 save(
@@ -421,7 +446,7 @@ load("Data/census_data.RData")
 
 # Convert the wide format data into long format using pivot_longer
 number_of_pigs_long <- number_of_pigs %>%
-  select(-`% Change 2025 to 2024`) %>%
+ # select(-`% Change 2025 to 2024`) %>%
   pivot_longer(cols = -`Pigs by category`, names_to = "Year", values_to = "Total") %>%
   filter(`Pigs by category` == "Total Pigs") %>%
   select(Year, `Total Pigs` = Total)
@@ -432,13 +457,13 @@ number_of_poultry_long <- number_of_poultry %>%
   select(Year, `Total Poultry` = Total)
 
 number_of_sheep_long <- number_of_sheep %>%
-  select(-`% Change 2025 to 2024`) %>%
+#  select(-`% Change 2025 to 2024`) %>%
   pivot_longer(cols = -`Sheep by category`, names_to = "Year", values_to = "Total") %>%
   filter(`Sheep by category` == "Total Sheep") %>%
   select(Year, `Total Sheep` = Total)
 
 number_of_cattle_long <- number_of_cattle %>%
-  select(-`% Change 2025 to 2024`) %>%
+  #select(-`% Change 2025 to 2024`) %>%
   pivot_longer(cols = -`Cattle by category`, names_to = "Year", values_to = "Total") %>%
   filter(`Cattle by category` == "Total Cattle") %>%
   select(Year, `Total cattle` = Total)
