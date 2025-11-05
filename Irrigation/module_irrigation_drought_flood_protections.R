@@ -9,7 +9,11 @@ irrigationfloodUI <- function(id) {
         checkboxGroupInput(
           ns("variables"), 
           "Select Variable", 
-          choices = unique(irrigation_drought_flood_protection$`Irrigation, drought or flood protection measure`)
+          choices = unique(irrigation_drought_flood_protection$`Irrigation, drought or flood protection measure`),
+          selected = c("Adopted water-saving technologies or practices in irrigation", 
+                       "Have or installed water storage facilities to support farming during drought conditions", 
+                       "Employed measures to prevent or reduce flood damage on your farm", 
+                       "Collaborate with other farmers or community members on water or flood management strategies")
         )
       ),
       conditionalPanel(

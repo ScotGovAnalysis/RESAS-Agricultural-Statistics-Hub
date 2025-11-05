@@ -9,7 +9,8 @@ irrigationmethodsUI <- function(id) {
         checkboxGroupInput(
           ns("variables"), 
           "Select Variable", 
-          choices = unique(irrigation_methods$`Irrigation practice`)
+          choices = unique(irrigation_methods$`Irrigation practice`),
+          selected = c("Drip", "Sprinkler", "Surface/Flood", "Furrow", "Micro-irrigation", "Other")
         )
       ),
       conditionalPanel(
@@ -48,12 +49,18 @@ irrigationmethodsServer <- function(id) {
     ns <- session$ns
     
     
-    chart_data <- reactive({
-      irrigation_methods %>%
-        rename(Variable = `Irrigation practice`, Value = `Responses`) %>%
-        filter(Variable %in% input$variables)
-    })
-    
+
+chart_data <- reactive({
+  data <- irrigation_methods %>%
+    rename(Variable = `Irrigation practice`, Value = `Responses`)
+  
+  if (!is.null(input$variables) && length(input$variables) > 0) {
+    data <- data %>% filter(Variable %in% input$variables)
+  }
+  
+  data
+})
+
     
     barChartServer(
       id = "bar_chart",
