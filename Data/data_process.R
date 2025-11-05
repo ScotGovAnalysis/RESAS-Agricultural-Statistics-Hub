@@ -269,7 +269,7 @@ land_use_data <- agricultural_area_hectares %>%
 
 
 land_use_subregion <- crops_grass_area_subregion %>%
-  filter(`Land use by category` %in% c("Total Agricultural Area", "Total Grass and Rough Grazing", 
+  filter(`Land use by category` %in% c("Total Agricultural Area", "Total Sole Right Agricultural Area", "Total Grass and Rough Grazing", 
                                        "Sole Right Grazing", "Total Crops, Fallow, And Set-Aside", "Common Grazings", "Other Land (including Woodland)"))
 
 
