@@ -140,8 +140,8 @@ ui <- fluidPage(
                        tabPanel("Fuel", value = "ag_mach_fuel_module", agmachfuelUI("ag_mach_fuel_module"))
             ),
             navbarMenu("Irrigation",
-                       tabPanel("Irrigation Methods", value = "module_irrigation_methods", irrigationmethodsUI("module_irrigation_methods")),
-                       tabPanel("Irrigation, drought and flood protection", value = "module_irrigation_drought_flood_protection", irrigationfloodUI("module_irrigation_drought_flood_protection"))
+                       tabPanel("Irrigation methods", value = "module_irrigation_methods", irrigationmethodsUI("module_irrigation_methods")),
+                       tabPanel("Drought and flood protection", value = "module_irrigation_drought_flood_protection", irrigationfloodUI("module_irrigation_drought_flood_protection"))
                        ),                                                                                                                                        
             navbarMenu("Economy",
                        tabPanel("Summary", value = "economy_summary_module", economySummaryUI("economy_summary_module")),

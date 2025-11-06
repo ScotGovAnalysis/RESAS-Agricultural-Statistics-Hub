@@ -93,6 +93,38 @@ generate2023ModuleTableFooter <- function() {
   )
 }
 
+generate2024ModuleTableFooter <- function() {
+  div(
+    style = "background-color: #f0f0f0; padding: 15px; border-radius: 5px; margin-top: 20px;",
+    "This data is sourced from the ",
+    tags$a(href = "https://www.gov.scot/publications/results-from-the-scottish-agricultural-census-june-2024/",
+           "Scottish Agricultural Census: June 2024"),
+    " which was published on 24 October 2024.",
+    tags$br(),
+    "This module included questions on the use of agriculcural machinery and the destination of slurry after storage.",
+    tags$br(),
+    "Where data is unavailable, findings have been suppressed to prevent disclosure of individual holdings.",
+    tags$br(),
+    "Full data tables and detailed analysis are available within the full report."
+  )
+}
+
+generate2025ModuleTableFooter <- function() {
+  div(
+    style = "background-color: #f0f0f0; padding: 15px; border-radius: 5px; margin-top: 20px;",
+    "This data is sourced from the ",
+    tags$a(href = "https://www.gov.scot/publications/results-from-the-scottish-agricultural-census-june-2025/",
+           "Scottish Agricultural Census: June 2025"),
+    " which was published on 30 October 2025.",
+    tags$br(),
+    "This module included questions on irrigation practices, and drought and flood management strategies.",
+    tags$br(),
+    "Where data is unavailable, findings have been suppressed to prevent disclosure of individual holdings.",
+    tags$br(),
+    "Full data tables and detailed analysis are available within the full report."
+  )
+}
+
 # Function to generate the census data table footer with a light grey background
 generateFBSTableFooter <- function() {
   div(

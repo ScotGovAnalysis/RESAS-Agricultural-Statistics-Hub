@@ -23,10 +23,9 @@ agmachfuelUI <- function(id) {
           tabPanel("Data Table",
                    DTOutput(ns("data_table")),
                    downloadButton(ns("downloadData"), "Download Data"), 
-                   generateCensusTableFooter(),
-                   
                    value = ns("data"))
-        )
+        ),
+        generate2024ModuleTableFooter()
       )
     )
   )
@@ -143,11 +142,11 @@ agmachfuelServer <- function(id) {
     barChartServer(
       id = "bar_chart",
       chart_data = chart_data,
-      title = paste("Fuel type of agriculture machinery in Scotland in", census_year),
+      title = paste("Fuel type of agriculture machinery in Scotland in 2024"),
       yAxisTitle = yAxisTitle,
       xAxisTitle = "Fuel type",
       unit = input$data_type,
-      footer = census_footer,
+      footer = NULL,
       x_col = "Fuel type",
       y_col = y_col,
       tooltip_unit = tooltip_unit,

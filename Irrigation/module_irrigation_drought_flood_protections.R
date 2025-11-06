@@ -38,10 +38,10 @@ irrigationfloodUI <- function(id) {
                  tags$div(
                    style = "margin-top: 20px;",
                    downloadButton(ns("download_data"), "Download Data"),
-                   generateCensusTableFooter()
                  )
         )
-      )
+      ),
+      generate2025ModuleTableFooter()
     )
   )
   
@@ -62,11 +62,11 @@ irrigationfloodServer <- function(id) {
     barChartServer(
       id = "bar_chart",
       chart_data = chart_data,
-      title = paste("Irrigation, drought or flood protection measure", census_year),
+      title = paste("Irrigation, drought and flood protection measures used in 2025"),
       yAxisTitle = "Number of responses",
       xAxisTitle = "",
       unit = "",
-      footer = census_footer,
+      footer = NULL,
       x_col = "Variable",
       y_col = "Value",
       tooltip_unit= reactive("")

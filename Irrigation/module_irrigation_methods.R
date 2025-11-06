@@ -34,14 +34,13 @@ irrigationmethodsUI <- function(id) {
                  DTOutput(ns("data_table")),
                  tags$div(
                    style = "margin-top: 20px;",
-                   downloadButton(ns("download_data"), "Download Data"),
-                   generateCensusTableFooter()
+                   downloadButton(ns("download_data"), "Download Data")
+                   )
+                 )
+        ),
+      generate2025ModuleTableFooter()  # Place the footer outside the tabsetPanel, but still inside the mainPanel
     )
   )
-    )
-    )
-  )
-  
 }
 
 irrigationmethodsServer <- function(id) {
@@ -65,11 +64,11 @@ chart_data <- reactive({
     barChartServer(
       id = "bar_chart",
       chart_data = chart_data,
-      title = paste("Irrigation practices used by respondents", census_year),
+      title = paste("Irrigation practices used in 2025"),
       yAxisTitle = "Number of responses",
       xAxisTitle = "",
       unit = "",
-      footer = census_footer,
+      footer = NULL,
       x_col = "Variable",
       y_col = "Value",
       tooltip_unit= reactive("")

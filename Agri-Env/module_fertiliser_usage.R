@@ -93,7 +93,7 @@ fertiliserUsageServer <- function(id) {
     barChartServer(
       id = "bar_chart",
       chart_data = chart_data,
-      title = "Fertiliser Usage by Type in Scotland 2023",
+      title = "Fertiliser Usage by Type in Scotland in 2023",
       yAxisTitle = yAxisTitle,
       xAxisTitle = "Fertiliser Type",
       unit = "",
