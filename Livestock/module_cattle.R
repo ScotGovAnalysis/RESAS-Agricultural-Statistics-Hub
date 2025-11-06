@@ -137,7 +137,6 @@ cattleServer <- function(id) {
       req(input$tabsetPanel == "Data Table")
       data <- if (input$table_data == "map") {
         cattle_data %>%
-          filter(`Livestock by category` == input$variable) %>%
           pivot_wider(names_from = sub_region, values_from = value) %>%
           mutate(across(where(is.numeric) & !contains("Year"), comma)) # Pivot wider for map data
       } else {

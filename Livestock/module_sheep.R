@@ -138,7 +138,6 @@ sheepServer <- function(id) {
       if (input$table_data == "map") {
         req(input$variable)
         sheep_data %>%
-          filter(`Livestock by category` == input$variable) %>%
           pivot_wider(names_from = sub_region, values_from = value) %>%
           mutate(across(where(is.numeric) & !contains("Year"), comma)) %>% 
           datatable(
