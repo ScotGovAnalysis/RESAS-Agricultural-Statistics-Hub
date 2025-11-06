@@ -128,7 +128,7 @@ ui <- fluidPage(
                        tabPanel("Cereals", value = "cereals_module", cerealsUI("cereals_module")),
                        tabPanel("Oilseed", value = "oilseed_module", oilseedUI("oilseed_module")),
                        tabPanel("Potatoes", value = "potatoes_module", potatoesUI("potatoes_module")),
-                       tabPanel("Beans", value = "beans_module", beansUI("beans_module")),
+                       tabPanel("Peas and Beans", value = "beans_module", beansUI("beans_module")),
                        tabPanel("Stockfeeding", value = "stockfeeding_module", stockfeedingUI("stockfeeding_module")),
                        tabPanel("Vegetables", value = "human_vegetables_module", humanVegetablesUI("human_vegetables_module")),
                        tabPanel("Fruit", value = "fruit_module", fruitUI("fruit_module"))
