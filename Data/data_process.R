@@ -61,7 +61,7 @@ library(ggthemes)
 ### Processing aims to standardise all tables to make them compatible with the different visualisation modules
 ### This includes removing the metadata above the tables, renaming headers, removing problematic trailing spaces, etc.
 ###
-### Additional processing can be included if necessary (e.g. 2022 poultry removed to emphasise change in methodology)
+### Additional processing can be included if necessary
 ### Some data processing could be moved from within the server pages in the app to speed up loading & improve efficiency
 ###
 ### To update, run the code below.
@@ -101,14 +101,8 @@ table_names <- c(
   "agricultural_area_region_subregion_farm_type" = "Table_22",
   "holdings_area_size_band_farm_type" = "Table_23",
   "agricultural_area_area_size_band_farm_type" = "Table_24",
- # "total_occupiers_sex" = "Table_25",
   "irrigation_methods" = "Module_2025_Table_1",
   "irrigation_drought_flood_protection" = "Module_2025_Table_2"
-  # "slurry_destination" = "Module_2024_Table_1",
-  # "number_of_ag_mach_farm_type" = "Module_2024_Table_2",
-  # "holdings_with_ag_mach_farm_type" = "Module_2024_Table_3",
-  # "number_of_ag_mach_ownership" = "Module_2024_Table_4",
-  # "number_of_ag_mach_fuel_type" = "Module_2024_Table_5"
 )
 # Function to remove rows until the first occurrence of "Source:" in the first column
 remove_until_source <- function(data) {
@@ -199,26 +193,7 @@ holdings_crops_grass_subregion <- holdings_crops_grass_subregion %>%
 # Remove % change column
 owned_rented_land <- owned_rented_land %>%
   select(-`% Change 2025 to 2024`)
-
 occupiers_employees <- occupiers_employees %>%
-  select(-`% Change 2025 to 2024`)
-
-number_of_cattle <- number_of_cattle %>%
-  select(-`% Change 2025 to 2024`)
-
-number_of_sheep <- number_of_sheep %>%
-  select(-`% Change 2025 to 2024`)
-
-number_of_pigs <- number_of_pigs %>%
-  select(-`% Change 2025 to 2024`)
-
-number_of_other_livestock <- number_of_other_livestock %>%
-  select(-`% Change 2025 to 2024`)
-
-
-# Set all values in the 2022 column to NA
-number_of_poultry$`2022` <- NA
-number_of_poultry <- number_of_poultry %>%
   select(-`% Change 2025 to 2024`)
 
 # Save all tables to an RData file
@@ -443,6 +418,18 @@ save(
 
 load("Data/census_data.RData")
 
+# Remove % change columns
+number_of_cattle <- number_of_cattle %>%
+  select(-`% Change 2025 to 2024`)
+
+number_of_sheep <- number_of_sheep %>%
+  select(-`% Change 2025 to 2024`)
+
+number_of_pigs <- number_of_pigs %>%
+  select(-`% Change 2025 to 2024`)
+
+number_of_other_livestock <- number_of_other_livestock %>%
+  select(-`% Change 2025 to 2024`)
 
 # Convert the wide format data into long format using pivot_longer
 number_of_pigs_long <- number_of_pigs %>%
