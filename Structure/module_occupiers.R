@@ -88,7 +88,7 @@ occupiersServer <- function(id) {
           "Occupiers Not Working On The Holding"
         ))
       } else if (input$tabs == "data_table") {
-        radioButtons(ns("data_source"), "Choose data to show:", choices = c("Map Data", "Population Pyramid Data",  "Timeseries Data"))
+        radioButtons(ns("data_source"), "Choose data to show:", choices = c("Map Data", "Population Pyramid Data",  "Time Series Data"))
       } else if (input$tabs == "timeseries") {
         checkboxGroupInput(
           ns("variables"), 
@@ -213,7 +213,7 @@ occupiersServer <- function(id) {
         datatable(pivoted_regions_data(), options = list(
           scrollX = TRUE
         ))
-      } else if (input$data_source == "Timeseries Data") {
+      } else if (input$data_source == "Time Series Data") {
         datatable(pivoted_timeseries_data(), options = list(
           scrollX = TRUE
         ))

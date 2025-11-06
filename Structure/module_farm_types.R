@@ -68,9 +68,9 @@ farmTypesServer <- function(id) {
     yAxisTitle <- reactive({
       switch(input$data_type,
              "holdings" = "Number of Holdings",
-             "area" = "Area (hectares x 1000)",
-             "total" = "Total from Standard Outputs (x £1000)",
-             "average" = "Average Standard Output per Holding (x £1000)")
+             "area" = "Area (hectares)",
+             "total" = "Total from Standard Outputs",
+             "average" = "Average Standard Output per Holding")
     })
     
     
