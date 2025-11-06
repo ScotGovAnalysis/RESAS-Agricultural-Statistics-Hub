@@ -139,7 +139,11 @@ poultryServer <- function(id) {
           datatable(
             options = list(
               scrollX = TRUE,  # Enable horizontal scrolling
-              pageLength = 20  # Show 20 entries by default
+              pageLength = 20,  # Show 20 entries by default
+              autoWidth = TRUE, # Apply column widths
+              columnDefs = list(
+                list(width = '150px', targets = 1)
+              )
             )
           )
       } else {
@@ -150,7 +154,11 @@ poultryServer <- function(id) {
           datatable(
             options = list(
               scrollX = TRUE,  # Enable horizontal scrolling
-              pageLength = 20  # Show 20 entries by default
+              pageLength = 20,  # Show 20 entries by default
+              autoWidth = TRUE, # Apply column widths
+              columnDefs = list(
+                list(width = '150px', targets = 1)
+              )
             )
           )
       }
