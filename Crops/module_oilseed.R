@@ -120,6 +120,7 @@ oilseedServer <- function(id) {
         oilseed_map %>%
           filter(`Land use by category` == input$variable) %>%
           pivot_wider(names_from = sub_region, values_from = value) %>%
+          mutate(across(where(is.numeric) & !contains("Year"), comma)) %>% 
           datatable(
             options = list(
               scrollX = TRUE,  # Enable horizontal scrolling
@@ -130,6 +131,7 @@ oilseedServer <- function(id) {
         oilseed_data %>%
           pivot_longer(cols = -`Crop/Land use`, names_to = "year", values_to = "value") %>%
           pivot_wider(names_from = year, values_from = value) %>%
+          mutate(across(where(is.numeric) & !contains("Year"), comma)) %>%
           datatable(
             options = list(
               scrollX = TRUE,  # Enable horizontal scrolling

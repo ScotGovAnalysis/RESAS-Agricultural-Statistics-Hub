@@ -5,19 +5,19 @@ soilTestingUI <- function(id) {
       tabPanel("Soil Testing",
                fluidRow(
                  column(12,
-                        div(style = "font-size: 20px; font-weight: bold;", "Soil testing is more likely to be carried out on cropping land than grassland"),
+                        div(style = "font-size: 20px; font-weight: bold;", "Soil testing is more likely to be carried out on cropping land than grassland (2023)"),
                         percentageBarChartUI(ns("soilTestingOverview"), chart_height = 420)
                  )
                ),
                fluidRow(
                  column(12,
-                        div(style = "font-size: 20px; font-weight: bold;", "Many holdings made changes to nutrient application based on soil testing"),
+                        div(style = "font-size: 20px; font-weight: bold;", "Many holdings made changes to nutrient application based on soil testing (2023)"),
                         percentageBarChartUI(ns("soilTestingEffectiveness"), chart_height = 240)
                  )
                ),
                fluidRow(
                  column(12,
-                        div(style = "font-size: 20px; font-weight: bold;", "pH testing is more likely to be carried out on cropping land than grassland"),
+                        div(style = "font-size: 20px; font-weight: bold;", "pH testing is more likely to be carried out on cropping land than grassland (2023)"),
                         percentageBarChartUI(ns("phTestingEffectiveness"), chart_height = 340)
                  )
                )
@@ -25,13 +25,13 @@ soilTestingUI <- function(id) {
       tabPanel("Nutrient Management Plans",
                fluidRow(
                  column(12,
-                        div(style = "font-size: 20px; font-weight: bold;", "Nutrient management plans are more likely to be conducted on cropping land than grassland"),
+                        div(style = "font-size: 20px; font-weight: bold;", "Nutrient management plans are more likely to be conducted on cropping land than grassland (2023)"),
                         percentageBarChartUI(ns("nutrientManagementOverview"), chart_height = 480)
                  )
                ),
                fluidRow(
                  column(12,
-                        div(style = "font-size: 20px; font-weight: bold;", "Few holdings regularly update a nutrient management plan"),
+                        div(style = "font-size: 20px; font-weight: bold;", "Few holdings regularly update a nutrient management plan (2023)"),
                         percentageBarChartUI(ns("nutrientManagementEffectiveness"), chart_height = 240)
                  )
                )

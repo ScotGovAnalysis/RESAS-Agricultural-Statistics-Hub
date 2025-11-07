@@ -137,7 +137,6 @@ cattleServer <- function(id) {
       req(input$tabsetPanel == "Data Table")
       data <- if (input$table_data == "map") {
         cattle_data %>%
-          filter(`Livestock by category` == input$variable) %>%
           pivot_wider(names_from = sub_region, values_from = value) %>%
           mutate(across(where(is.numeric) & !contains("Year"), comma)) # Pivot wider for map data
       } else {
@@ -150,8 +149,12 @@ cattleServer <- function(id) {
         data,
         options = list(
           scrollX = TRUE,  # Enable horizontal scrolling
-          pageLength = 20  # Show 20 entries by default
+          autoWidth = TRUE, # Apply column widths
+          pageLength = 20,  # Show 20 entries by default
+          columnDefs = list(
+            list(width = '200px', targets = 1)
         )
+      )
       )
     })
     

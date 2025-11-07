@@ -78,13 +78,15 @@ legalResponsibilityServer <- function(id) {
         "hectares"
       }
     })
-    
+
     barChartServer(
       id = "bar_chart",
       chart_data = reactive({
         data <- chart_data() %>%
           filter(`Legal responsibility` %in% input$selected_variables) %>%
-          mutate(`Legal responsibility` = factor(`Legal responsibility`, levels = initial_order())) %>%
+          mutate(`Legal responsibility` = factor(`Legal responsibility`, levels = c(
+            "Unknown", "One person", "Two or more related", "Two or more not related","An organisation"
+            ))) %>%
           arrange(`Legal responsibility`)
         data
       }),

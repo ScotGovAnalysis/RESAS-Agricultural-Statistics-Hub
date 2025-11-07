@@ -10,10 +10,10 @@ regions_data <- occupiers_employees_subregion %>%
                            .default = as.numeric(value)))
 
 # Filter for the specific categories
-categories <- c("Regular full-time staff total", 
-                "Regular part-time staff total", 
-                "Total Casual and seasonal staff", 
-                "Total agricultural workforce")
+categories <- c("Regular Full-Time Staff Total", 
+                "Regular Part-Time Staff Total", 
+                "Total Casual And Seasonal Staff", 
+                "Total Workforce (including occupiers)")
 
 filtered_regions_data <- regions_data %>%
   filter(`Occupiers and employees by category` %in% categories)
@@ -55,7 +55,6 @@ employeesMapServer <- function(id) {
     
     # Data Processing for Timeseries
     occupiers_employees <- occupiers_employees %>%
-      select(-`% Change 2024 to 2023`) %>%
       mutate(across(starts_with("20"), as.numeric))
     
     # Reactive data for the time series chart
@@ -77,7 +76,7 @@ employeesMapServer <- function(id) {
           ns("variables"), 
           "Click within the box to add more variables", 
           choices = unique(chart_data()$`Occupiers and employees by category`), 
-          selected = c('Regular full-time staff total', 'Regular part-time staff total', 'Total Casual and seasonal staff'), 
+          selected = c('Regular Full-Time Staff Total', 'Regular Part-Time Staff Total', 'Total Casual and seasonal staff'), 
           multiple = TRUE, 
           options = list(plugins = list('remove_button'), placeholder = "Click to add more variables")
         )
@@ -110,7 +109,7 @@ employeesMapServer <- function(id) {
       yAxisTitle = "Employees (1,000)",
       xAxisTitle = "Year",
       unit = "employees",
-      footer = '<div style="font-size: 16px; font-weight: bold;"><a href="https://www.gov.scot/publications/results-from-the-scottish-agricultural-census-june-2024/">Source: Scottish Agricultural Census: June 2024</a></div>',
+      footer = '<div style="font-size: 16px; font-weight: bold;"><a href="https://www.gov.scot/publications/results-from-the-scottish-agricultural-census-june-2025/">Source: Scottish Agricultural Census: June 2025</a></div>',
       x_col = "Year",
       y_col = "Value"
     )
@@ -124,7 +123,7 @@ employeesMapServer <- function(id) {
           filter(`Occupiers and employees by category` == input$variable)
       }),
       unit = "employees",
-      footer = '<div style="font-size: 16px; font-weight: bold;"><a href="https://www.gov.scot/publications/results-from-the-scottish-agricultural-census-june-2024/">Source: Scottish Agricultural Census: June 2024</a></div>',
+      footer = '<div style="font-size: 16px; font-weight: bold;"><a href="https://www.gov.scot/publications/results-from-the-scottish-agricultural-census-june-2025/">Source: Scottish Agricultural Census: June 2025</a></div>',
       variable = reactive(input$variable),
       title = paste("Agricultural employees by region in Scotland in", census_year),
       legend_title = "Number of employees"
@@ -150,9 +149,9 @@ employeesMapServer <- function(id) {
     output$downloadData <- downloadHandler(
       filename = function() {
         if (input$data_source == "Chart Data") {
-          paste("Scottish Agricultural Employees Timeseries Data - 2012 to 2024.csv", sep = "")
+          paste("Scottish Agricultural Employees Time Series Data - 2013 to 2025.csv", sep = "")
         } else if (input$data_source == "Map Data") {
-          paste("Scottish Agricultural Employees Regional Data - 2024.csv", sep = "")
+          paste("Scottish Agricultural Employees Regional Data - 2025.csv", sep = "")
         }
       },
       content = function(file) {

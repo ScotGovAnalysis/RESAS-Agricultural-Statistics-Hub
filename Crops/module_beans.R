@@ -49,7 +49,7 @@ beansUI <- function(id) {
                  DTOutput(ns("table")),
                  downloadButton(ns("download_data"), "Download Data"),
                  generateCensusTableFooter()
-
+                 
         )
       )
     )
@@ -128,13 +128,13 @@ beansServer <- function(id) {
       } else {
         datatable(
           beans_data %>%
-            pivot_wider(names_from = year, values_from = value) %>%
+           # pivot_wider(names_from = year, values_from = value) %>%
             mutate(across(where(is.numeric) & !contains("Year"), comma)), # Apply comma formatting to numeric columns except 'Year'
           options = list(scrollX = TRUE) # Enable horizontal scrolling
         )
       }
     })
- 
+    
     output$download_data <- downloadHandler(
       filename = function() {
         if (input$table_data == "map") {

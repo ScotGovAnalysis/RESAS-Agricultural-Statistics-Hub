@@ -57,4 +57,6 @@ server <- function(input, output, session) {
   CostOutServer("module_fbs")
   tiffServer("tiff_module")
   economySummaryServer("economy_summary_module")
+  irrigationmethodsServer("module_irrigation_methods")
+  irrigationfloodServer("module_irrigation_drought_flood_protection")
 }

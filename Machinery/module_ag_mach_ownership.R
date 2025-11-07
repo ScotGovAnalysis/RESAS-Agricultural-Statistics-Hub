@@ -22,10 +22,9 @@ agmachownershipUI <- function(id) {
           tabPanel("Data Table",
                    DTOutput(ns("data_table")),
                    downloadButton(ns("downloadData"), "Download Data"), 
-                   generateCensusTableFooter(),
-                   
                    value = ns("data"))
-        )
+        ),
+        generate2024ModuleTableFooter()
       )
     )
   )
@@ -142,11 +141,11 @@ agmachownershipServer <- function(id) {
     barChartServer(
       id = "bar_chart",
       chart_data = chart_data,
-      title = paste("Ownership status of agriculture machinery in Scotland in", census_year),
+      title = paste("Ownership status of agriculture machinery in Scotland in 2024"),
       yAxisTitle = yAxisTitle,
       xAxisTitle = "Status",
       unit = input$data_type,
-      footer = census_footer,
+      footer = NULL,
       x_col = "Status",
       y_col = y_col,
       tooltip_unit = tooltip_unit,

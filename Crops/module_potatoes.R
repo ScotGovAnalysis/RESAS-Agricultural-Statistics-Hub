@@ -22,8 +22,8 @@ potatoesUI <- function(id) {
           "Select Time Series Variables",
           choices = unique(potatoes_data$`Crop/Land use`),
           selected = c(
-            "Ware potatoes",
-            "Seed potatoes"
+            "Ware Potatoes",
+            "Seed Potatoes"
           )
         )
       ),

@@ -56,6 +56,8 @@ source("Machinery/module_total_number_of_vehicles.R")
 source("Machinery/module_ag_mach_farm_type.R")
 source("Machinery/module_ag_mach_ownership.R")
 source("Machinery/module_ag_mach_fuel.R")
+source("Irrigation/module_irrigation_methods.R")
+source("Irrigation/module_irrigation_drought_flood_protections.R")
 source("Organic Farming/module_organic_summary.R")
 source("Organic Farming/module_organic_land_area.R")
 source("Organic Farming/module_organic_land_use.R")
@@ -126,7 +128,7 @@ ui <- fluidPage(
                        tabPanel("Cereals", value = "cereals_module", cerealsUI("cereals_module")),
                        tabPanel("Oilseed", value = "oilseed_module", oilseedUI("oilseed_module")),
                        tabPanel("Potatoes", value = "potatoes_module", potatoesUI("potatoes_module")),
-                       tabPanel("Beans", value = "beans_module", beansUI("beans_module")),
+                       tabPanel("Peas and Beans", value = "beans_module", beansUI("beans_module")),
                        tabPanel("Stockfeeding", value = "stockfeeding_module", stockfeedingUI("stockfeeding_module")),
                        tabPanel("Vegetables", value = "human_vegetables_module", humanVegetablesUI("human_vegetables_module")),
                        tabPanel("Fruit", value = "fruit_module", fruitUI("fruit_module"))
@@ -137,6 +139,10 @@ ui <- fluidPage(
                        tabPanel("Ownership", value = "ag_mach_ownership_module", agmachownershipUI("ag_mach_ownership_module")),
                        tabPanel("Fuel", value = "ag_mach_fuel_module", agmachfuelUI("ag_mach_fuel_module"))
             ),
+            navbarMenu("Irrigation",
+                       tabPanel("Irrigation methods", value = "module_irrigation_methods", irrigationmethodsUI("module_irrigation_methods")),
+                       tabPanel("Drought and flood protection", value = "module_irrigation_drought_flood_protection", irrigationfloodUI("module_irrigation_drought_flood_protection"))
+                       ),                                                                                                                                        
             navbarMenu("Economy",
                        tabPanel("Summary", value = "economy_summary_module", economySummaryUI("economy_summary_module")),
                        tabPanel("Total income from farming", value = "tiff_module", tiffUI("tiff_module")),

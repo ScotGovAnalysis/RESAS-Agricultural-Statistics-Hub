@@ -26,9 +26,9 @@ poultryUI <- function(id) {
           "Click within the box to select variables",
           choices = unique(number_of_poultry$`Poultry by category`),
           selected = c(
-            "Total fowls for producing eggs",
-            "Total fowls for breeding",
-            "Broilers and other table birds",
+            "Total Fowls For Producing Eggs",
+            "Total Fowls For Breeding",
+            "Broilers And Other Table Birds",
             "Total Poultry"
           ),
           multiple = TRUE,
@@ -112,7 +112,7 @@ poultryServer <- function(id) {
       title = "Number of poultry by category across time",
       yAxisTitle = "Number of poultry (1,000)",
       xAxisTitle = "Year",
-      footer = '<div style="font-size: 16px; font-weight: bold;">* Estimates for 2023 are not comparable to previous years due to methodological improvements.<br/><a href="https://www.gov.scot/publications/results-scottish-agricultural-census-june-2023/documents/">Source: Scottish Agricultural Census: June 2023</a></div>',
+      footer = '<div style="font-size: 16px; font-weight: bold;">* Estimates for 2023 are not comparable to previous years due to methodological improvements.<br/><a href="https://www.gov.scot/publications/results-scottish-agricultural-census-june-2025/documents/">Source: Scottish Agricultural Census: June 2025</a></div>',
       x_col = "year",
       y_col = "value"
     )
@@ -123,7 +123,7 @@ poultryServer <- function(id) {
       title = "Number of poultry by category across time",
       yAxisTitle = "Number of poultry (1,000)",
       xAxisTitle = "Year",
-      footer = '<div style="font-size: 16px; font-weight: bold;">* Estimates for 2023 are not comparable to previous years due to methodological improvements.<br/><a href="https://www.gov.scot/publications/results-scottish-agricultural-census-june-2023/documents/">Source: Scottish Agricultural Census: June 2023</a></div>',
+      footer = '<div style="font-size: 16px; font-weight: bold;">* Estimates for 2023 are not comparable to previous years due to methodological improvements.<br/><a href="https://www.gov.scot/publications/results-scottish-agricultural-census-june-2025/documents/">Source: Scottish Agricultural Census: June 2025</a></div>',
       x_col = "year",
       y_col = "value"
     )
@@ -133,13 +133,16 @@ poultryServer <- function(id) {
       if (input$table_data == "map") {
         req(input$variable)
         poultry_data %>%
-          filter(`Livestock by category` == input$variable) %>%
           pivot_wider(names_from = sub_region, values_from = value)  %>%
           mutate(across(where(is.numeric) & !contains("Year"), comma)) %>%
           datatable(
             options = list(
               scrollX = TRUE,  # Enable horizontal scrolling
-              pageLength = 20  # Show 20 entries by default
+              pageLength = 20,  # Show 20 entries by default
+              autoWidth = TRUE, # Apply column widths
+              columnDefs = list(
+                list(width = '150px', targets = 1)
+              )
             )
           )
       } else {
@@ -150,7 +153,11 @@ poultryServer <- function(id) {
           datatable(
             options = list(
               scrollX = TRUE,  # Enable horizontal scrolling
-              pageLength = 20  # Show 20 entries by default
+              pageLength = 20,  # Show 20 entries by default
+              autoWidth = TRUE, # Apply column widths
+              columnDefs = list(
+                list(width = '150px', targets = 1)
+              )
             )
           )
       }

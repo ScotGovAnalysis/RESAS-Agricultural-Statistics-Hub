@@ -15,7 +15,7 @@ sheepUI <- function(id) {
           choices = c(
             "Total Sheep" = "Total Sheep",
             "Ewes for breeding" = "Ewes for breeding",
-            "Other sheep one year old and over for breeding" = "Other sheep one year old and over for breeding",
+            "Other sheep 1 year and over for breeding" = "Other sheep 1 year and over for breeding",
             "Rams for service" = "Rams for service",
             "Lambs" = "Lambs"
           )
@@ -81,7 +81,7 @@ sheepServer <- function(id) {
     sheep_data <- livestock_subregion %>%
       filter(`Livestock by category` %in%   
         c("Ewes for breeding",
-        "Other sheep one year old and over for breeding",
+        "Other sheep 1 year and over for breeding",
         "Rams for service",
         "Lambs",
         "Total Sheep"))%>%
@@ -138,13 +138,16 @@ sheepServer <- function(id) {
       if (input$table_data == "map") {
         req(input$variable)
         sheep_data %>%
-          filter(`Livestock by category` == input$variable) %>%
           pivot_wider(names_from = sub_region, values_from = value) %>%
           mutate(across(where(is.numeric) & !contains("Year"), comma)) %>% 
           datatable(
             options = list(
               scrollX = TRUE,  # Enable horizontal scrolling
-              pageLength = 20  # Show 20 entries by default
+              pageLength = 20,  # Show 20 entries by default
+              autoWidth = TRUE, # Apply column widths
+              columnDefs = list(
+                list(width = '150px', targets = 1)
+              )
             )
           )
       } else {
@@ -155,7 +158,10 @@ sheepServer <- function(id) {
           datatable(
             options = list(
               scrollX = TRUE,  # Enable horizontal scrolling
-              pageLength = 20  # Show 20 entries by default
+              pageLength = 20,  # Show 20 entries by default
+              autoWidth = TRUE, # Apply column widths
+              columnDefs = list(
+                list(width = '150px', targets = 1))
             )
           )
       }

@@ -18,10 +18,9 @@ totalnumberofvehiclesUI <- function(id) {
           tabPanel("Data Table",
                    DTOutput(ns("data_table")),
                    downloadButton(ns("downloadData"), "Download Data"), 
-                   generateCensusTableFooter(),
-                   
                    value = ns("data"))
-        )
+        ),
+        generate2024ModuleTableFooter()
       )
     )
   )
@@ -131,11 +130,11 @@ totalnumberofvehiclesServer <- function(id) {
     barChartServer(
       id = "bar_chart",
       chart_data = chart_data,
-      title = paste("Total number of agricultural machinery in Scotland in", census_year),
+      title = paste("Total number of agricultural machinery in Scotland in 2024"),
       yAxisTitle = yAxisTitle,
       xAxisTitle = "Agricultural machinery",
       unit = input$tabs,
-      footer = '<div style="font-size: 16px; font-weight: bold;"><a href="https://www.gov.scot/publications/results-from-the-scottish-agricultural-census-june-2024/">Source: Scottish Agricultural Census: June 2024</a></div>',
+      footer = NULL,
       x_col = "Agricultural machinery",
       y_col = y_col,
       tooltip_unit = tooltip_unit,
