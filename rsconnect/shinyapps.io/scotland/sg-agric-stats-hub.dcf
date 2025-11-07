@@ -5,9 +5,6 @@ account: scotland
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 10771217
-bundleId: 10886705
+bundleId: 11145345
 url: https://scotland.shinyapps.io/sg-agric-stats-hub/
 version: 1
-asMultiple: FALSE
-asStatic: FALSE
-ignoredFiles: combined_code.txt|README.html|README.md|Testing/test_fbs_function_line_chart.R|Testing/test_multibarchart_function.R|Training/training module.R|Training/training server.R|Training/training ui.R|training app.R
