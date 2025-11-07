@@ -73,7 +73,7 @@ library(ggthemes)
 #########################################
 
 # Define file path
-file_path <- "//s0177a/datashare/seerad/ags/census/branch1/NewStructure/Surveys/June/Main/June25/June Agricultural Census 2025 Data tables.xlsx"
+file_path <- "Data/June Agricultural Census 2025 Data tables.xlsx"
 
 # Define the simplified table names and corresponding sheet names
 table_names <- c(
