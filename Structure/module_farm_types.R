@@ -67,10 +67,10 @@ farmTypesServer <- function(id) {
     
     yAxisTitle <- reactive({
       switch(input$data_type,
-             "holdings" = "Number of Holdings",
-             "area" = "Area (hectares)",
-             "total" = "Total from Standard Outputs",
-             "average" = "Average Standard Output per Holding")
+             "holdings" = "Number of Holdings (1,000)",
+             "area" = "Area (1,000 hectares)",
+             "total" = "Total from Standard Outputs (1,000)",
+             "average" = "Average Standard Output per Holding (1,000)")
     })
     
     
@@ -96,7 +96,7 @@ farmTypesServer <- function(id) {
       datatable(
         filtered_data_table() %>%
           select(`Main farm type`, y_col()),
-        colnames = c("Main Farm Type", yAxisTitle()),
+        colnames = c("Main Farm Type", y_col()),
         options = list(pageLength = 20, scrollX = TRUE)  # Show 20 entries by default, enable horizontal scrolling
       )
     })
