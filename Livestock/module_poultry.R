@@ -101,6 +101,7 @@ poultryServer <- function(id) {
     chart_data <- reactive({
       req(input$timeseries_variables)
       filtered_data <- number_of_poultry %>%
+        select(-`% Change 2025 to 2024`) %>% 
         filter(`Poultry by category` %in% input$timeseries_variables) %>%
         pivot_longer(cols = -`Poultry by category`, names_to = "year", values_to = "value") %>%
         mutate(value = as.numeric(value))
@@ -147,6 +148,7 @@ poultryServer <- function(id) {
           )
       } else {
         number_of_poultry %>%
+          select(-`% Change 2025 to 2024`) %>% 
           pivot_longer(cols = -`Poultry by category`, names_to = "year", values_to = "value") %>%
           pivot_wider(names_from = year, values_from = value)  %>%
           mutate(across(where(is.numeric) & !contains("Year"), comma)) %>%
