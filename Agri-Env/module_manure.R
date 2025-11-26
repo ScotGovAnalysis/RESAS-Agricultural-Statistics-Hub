@@ -128,10 +128,11 @@ manureServer <- function(id) {
         manure_data_long %>%
           filter(variable == input$variable)
       }),
-      unit = " ",
+      unit = "tonnes",
       footer = '<div style="font-size: 16px; font-weight: bold;"><a href="https://www.gov.scot/publications/results-from-the-scottish-agricultural-census-module-june-2023/" target="_blank">Source: Scottish Agricultural Census: Module June 2023</a></div>',
       variable = reactive(input$variable),
       title = paste("Manure quantity by region in Scotland in 2023"),
+      legend_title = "Tonnes of manure"
     )
     
     output$data_table <- renderDT({

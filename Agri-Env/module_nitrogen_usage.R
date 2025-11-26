@@ -160,10 +160,11 @@ nitrogenServer <- function(id) {
         nitrogen_400_long %>%
           filter(variable == input$variable_400)
       }),
-      unit = " ",
+      unit = "kg",
       footer = '<div style="font-size: 16px; font-weight: bold;"><a href="https://www.gov.scot/publications/results-from-the-scottish-agricultural-census-module-june-2023/" target="_blank">Source: Scottish Agricultural Census: Module June 2023</a></div>',
       variable = reactive(input$variable_400),
       title = paste("Nitrogen usage (400 kg/ha cap) by region in Scotland in 2023"),
+      legend_title = "Kilograms of nitrogen"
         )
     
     mapRegionsServer(
@@ -173,10 +174,11 @@ nitrogenServer <- function(id) {
         nitrogen_250_long %>%
           filter(variable == input$variable_250)
       }),
-      unit = " ",
+      unit = "kg",
       footer = '<div style="font-size: 16px; font-weight: bold;"><a href="https://www.gov.scot/publications/results-from-the-scottish-agricultural-census-module-june-2023/" target="_blank">Source: Scottish Agricultural Census: Module June 2023</a></div>',
       variable = reactive(input$variable_250),
       title = paste("Nitrogen usage (250 kg/ha cap) by region in Scotland in 2023"),
+      legend_title = "Kilograms of nitrogen"
     )
     
     output$data_table <- renderDT({
