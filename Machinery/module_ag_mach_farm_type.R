@@ -70,7 +70,7 @@ agmachfarmtypeServer <- function(id) {
     
     yAxisTitle <- reactive({
       switch(input$data_type,
-             "All tractors" = "Number of tractors",
+             "All tractors" = "Number of tractors (1,000)",
              "Combine harvesters" = "Number of combine harvesters",
              "Self-propelled sprayers" = "Number of self-propelled sprayers",
              "Telescopic material handlers" = "Number of telescopic material handlers",
@@ -105,7 +105,7 @@ agmachfarmtypeServer <- function(id) {
       datatable(
         filtered_data_table() %>%
           select(`Main farm type`, y_col()),
-        colnames = c("Main Farm Type", yAxisTitle()),
+        colnames = c("Main Farm Type", y_col()),
         options = list(pageLength = 20, scrollX = TRUE)  # Show 20 entries by default, enable horizontal scrolling
       )
     })

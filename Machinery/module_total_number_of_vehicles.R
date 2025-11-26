@@ -67,7 +67,7 @@ totalnumberofvehiclesServer <- function(id) {
     #          "All fuel types" = "Total number of vehicles")
     # })
     
-    yAxisTitle <- "Number of vehicles (x1000)"
+    yAxisTitle <- "Number of vehicles (1,000)"
     
     tooltip_unit <- reactive({
       switch(input$tabs,
@@ -88,7 +88,7 @@ totalnumberofvehiclesServer <- function(id) {
       datatable( 
         filtered_data_table() %>% 
           select(`Agricultural machinery`, !!sym(y_col)), 
-        colnames = c("Agricultural machinery", "Number of agricultural machinery"), # Use the string directly 
+        colnames = c("Agricultural machinery", "Number of vehicles"), # Use the string directly 
         options = list(pageLength = 20, scrollX = TRUE) # Show 20 entries by default, enable horizontal scrolling
         ) 
       })
