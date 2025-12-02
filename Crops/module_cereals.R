@@ -113,7 +113,7 @@ cerealsServer <- function(id) {
       legend_title = "Area (hectares)"
     )
     
-    chart_data <- reactive({
+    area_chart_data <- reactive({
       req(input$timeseries_variables)
       filtered_data <- cereals_data %>%
         filter(`Crop/Land use` %in% input$timeseries_variables) %>%
@@ -124,7 +124,7 @@ cerealsServer <- function(id) {
     
     areaChartServer(
       id = "area",
-      chart_data = chart_data,
+      chart_data = area_chart_data,
       title = "Area used to grow cereals over time",
       yAxisTitle = "Area of cereals (1,000 hectares)",
       xAxisTitle = "Year",
@@ -134,9 +134,18 @@ cerealsServer <- function(id) {
       y_col = "value"
     )
     
+    line_chart_data <- reactive({
+      req(input$timeseries_variables)
+      filtered_data <- cereals_data %>%
+        filter(`Crop/Land use` %in% input$timeseries_variables) %>%
+        pivot_longer(cols = -`Crop/Land use`, names_to = "year", values_to = "value") %>%
+        mutate(year = as.numeric(year))  # Ensure year is numeric
+      filtered_data
+    })
+    
     lineChartServer(
       id = "line",
-      chart_data = chart_data,
+      chart_data = line_chart_data,
       title = "Area used to grow cereals over time",
       yAxisTitle = "Area of cereals (1,000 hectares)",
       xAxisTitle = "Year",
