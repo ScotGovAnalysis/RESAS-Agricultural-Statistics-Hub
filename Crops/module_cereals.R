@@ -136,11 +136,10 @@ cerealsServer <- function(id) {
     
     line_chart_data <- reactive({
       req(input$timeseries_variables)
-      filtered_data <- cereals_data %>%
-        filter(`Crop/Land use` %in% input$timeseries_variables) %>%
-        pivot_longer(cols = -`Crop/Land use`, names_to = "year", values_to = "value") %>%
-        mutate(year = as.numeric(year))  # Ensure year is numeric
-      filtered_data
+      
+      filtered_data <- cereals_combined_long %>%
+        filter(`Crop/Land use` %in% input$timeseries_variables)
+        mutate(Year = as.numeric(Year))
     })
     
     lineChartServer(
@@ -151,7 +150,7 @@ cerealsServer <- function(id) {
       xAxisTitle = "Year",
       unit = "hectares",
       footer = census_footer,
-      x_col = "year",
+      x_col = "Year",
       y_col = "value"
     )
     

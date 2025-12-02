@@ -32,7 +32,8 @@ cereals_tiff_data_long <- cereals_tiff_data %>%
                   "S_Barley" = "Spring Barley",
                   "W_Barley" = "Winter Barley",
                   "Barley"  = "Barley Total",
-                  "Oats"  = "Oats Total"
+                  "Oats"  = "Oats Total",
+                  "Cereals" = "Total Cereals"
                   )
   ) %>% 
   filter(`Crop/Land use` != "OSR",
