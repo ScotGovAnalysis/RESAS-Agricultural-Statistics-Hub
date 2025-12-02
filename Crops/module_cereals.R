@@ -15,24 +15,32 @@ cerealsUI <- function(id) {
         )
       ),
       conditionalPanel(
-        condition = "input.tabsetPanel === 'Time Series' || input.tabsetPanel === 'Area Chart'",
+        condition = "input.tabsetPanel === 'Time Series'",
+        ns = ns,
+        radioButtons(
+          ns("measure"),
+          "Select Measure:",
+          choices = unique(cereals_combined_long$Measure),
+          selected = "Area"
+        ),
+        checkboxGroupInput(
+          ns("timeseries_variables"),
+          "Select crops to display:",
+          choices = unique(cereals_combined_long$`Crop/Land use`),
+          selected = c("Wheat", "Barley Total", "Oats Total")
+        )
+      ),
+      
+      conditionalPanel(
+        condition = "input.tabsetPanel === 'Area Chart'",
         ns = ns,
         selectizeInput(
-          ns("timeseries_variables"),
+          ns("area_variables"),
           "Click within the box to select variables",
           choices = unique(cereals_data$`Crop/Land use`),
-          selected = c(
-            "Wheat",
-            #"Triticale",
-            "Barley Total",
-            "Oats Total"
-            #"Rye",
-           # "Mixed grain"
-          ),
+          selected = c("Wheat", "Barley Total", "Oats Total"),
           multiple = TRUE,
-          options = list(
-            plugins = list('remove_button')
-          )
+          options = list(plugins = list('remove_button'))
         )
       ),
       conditionalPanel(
