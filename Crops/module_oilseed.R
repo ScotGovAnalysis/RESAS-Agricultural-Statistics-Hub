@@ -5,6 +5,8 @@ oilseedUI <- function(id) {
   sidebarLayout(
     sidebarPanel(
       width = 3,
+      
+      # ===================== MAP =====================
       conditionalPanel(
         condition = "input.tabsetPanel === 'Map'",
         ns = ns,
@@ -14,20 +16,41 @@ oilseedUI <- function(id) {
           choices = unique(oilseed_subregion$`Land use by category`)
         )
       ),
+      # ===================== TIME SERIES =====================
       conditionalPanel(
-        condition = "input.tabsetPanel === 'Time Series' || input.tabsetPanel === 'Area Chart'",
+        condition = "input.tabsetPanel === 'Time Series'",
         ns = ns,
+        
+        radioButtons(
+          ns("measure"),
+          "Select Measure:",
+          choices = unique(oilseed_combined_long$Measure),
+          selected = "Area"
+        ),
+        
+        # Single checkboxGroupInput for all measures
         checkboxGroupInput(
           ns("timeseries_variables"),
-          "Select Time Series Variables",
-          choices = unique(oilseed_data$`Crop/Land use`),
-          selected = c(
-            "Winter oilseed rape",
-            "Spring oilseed rape",
-            "Linseed"
-          )
+          "Select crops to display:",
+          choices = unique(oilseed_data$`Crop/Land use`),  # default
+          selected = c("Winter Oilseed Rape","Spring Oilseed Rape")
         )
       ),
+      
+      # ===================== AREA CHART =====================
+      conditionalPanel(
+        condition = "input.tabsetPanel === 'Area Chart'",
+        ns = ns,
+        selectizeInput(
+          ns("area_variables"),
+          "Click within the box to select variables",
+          choices = unique(oilseed_data$`Crop/Land use`),
+          selected  = c("Winter Oilseed Rape","Spring Oilseed Rape"),
+          multiple = TRUE,
+          options = list(plugins = list('remove_button'))
+        )
+      ),
+      # ===================== DATA TABLE =====================
       conditionalPanel(
         condition = "input.tabsetPanel === 'Data Table'",
         ns = ns,
@@ -39,6 +62,7 @@ oilseedUI <- function(id) {
         )
       )
     ),
+    # ===================== MAIN PANEL =====================
     mainPanel(
       width = 9,
       tabsetPanel(
@@ -60,7 +84,7 @@ oilseedUI <- function(id) {
 oilseedServer <- function(id) {
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
-    
+    # ===================== MAP =====================
     oilseed_map <- oilseed_subregion %>%
       select(-`Scotland total`) %>%
       mutate(across(everything(), as.character)) %>%
@@ -79,8 +103,8 @@ oilseedServer <- function(id) {
       title = paste("Oilseed distribution by region in Scotland in", census_year),
       legend_title = "Area (hectares)"
     )
-    
-    chart_data <- reactive({
+    # ===================== AREA CHART =====================
+    area_chart_data <- reactive({
       req(input$timeseries_variables)
       filtered_data <- oilseed_data %>%
         filter(`Crop/Land use` %in% input$timeseries_variables) %>%
@@ -91,7 +115,7 @@ oilseedServer <- function(id) {
     
     areaChartServer(
       id = "area",
-      chart_data = chart_data,
+      chart_data = area_chart_data,
       title = "Area used to grow oilseed in Scotland over time",
       yAxisTitle = "Area of oilseed (1,000)",
       xAxisTitle = "Year",
@@ -101,17 +125,105 @@ oilseedServer <- function(id) {
       y_col = "value"
     )
     
-    lineChartServer(
-      id = "line",
-      chart_data = chart_data,
-      title = "Oilseed Area Planted",
-      yAxisTitle = "Area of oilseed (1,000)",
-      xAxisTitle = "Year",
-      unit = "hectares",
-      footer = census_footer,
-      x_col = "year",
-      y_col = "value"
-    )
+    # ===================== TIME SERIES =====================
+    # Update crop selection when measure changes
+    observeEvent(input$measure, {
+      if (input$measure == "Area") {
+        choices <- unique(oilseed_data$`Crop/Land use`)
+        selected <- c("Winter Oilseed Rape", "Spring Oilseed Rape")
+      } else {
+        choices <- unique(oilseed_tiff_data_long$`Crop/Land use`)
+        selected <- c("Oilseed Rape Total")
+      }
+      
+      updateCheckboxGroupInput(
+        session,
+        "timeseries_variables",
+        choices = choices,
+        selected = selected
+      )
+    })
+    
+    # Reactive data for line chart
+    line_chart_data <- reactive({
+      req(input$timeseries_variables, input$measure)
+      
+      if (input$measure == "Area") {
+        df <- oilseed_data %>%
+          filter(`Crop/Land use` %in% input$timeseries_variables) %>%
+          pivot_longer(
+            cols = -`Crop/Land use`,
+            names_to = "Year",
+            values_to = "value"
+          ) %>%
+          mutate(
+            Year = as.numeric(Year),
+            Measure = "Area"
+          )
+      } else {
+        df <- oilseed_tiff_data_long %>%
+          filter(
+            `Crop/Land use` %in% input$timeseries_variables,
+            Measure == input$measure
+          ) %>%
+          rename(value = Value) %>%
+          mutate(Year = as.numeric(Year))
+        
+        # Keep only last 10 years
+        max_year <- max(df$Year, na.rm = TRUE)
+        df <- df %>% filter(Year > max_year - 10)
+      }
+      
+      validate(
+        need(nrow(df) > 0, "No data available for the selected options.")
+      )
+      
+      df
+    })
+    
+    line_chart_settings <- reactive({
+      req(input$measure)
+      
+      switch(input$measure,
+             "Area" = list(
+               title = "Area of Oilseeds Planted",
+               yAxisTitle = "Area of Oilseed (1,000 hectares)",
+               unit = "hectares",
+               footer = census_footer
+             ),
+             "Production" = list(
+               title = "Production of Oilseed Rape",
+               yAxisTitle = "Production of Oilseed Rape (1,000 tonnes)",
+               unit = "tonnes",
+               footer = cereal_oilseed_footer
+             ),
+             "Yield" = list(
+               title = "Yield of Oilseed Rape",
+               yAxisTitle = "Yield of Oilseed Rape (tonnes/hectare)",
+               unit = "tonnes/hectare",
+               footer = cereal_oilseed_footer
+             )
+      )
+    })
+    
+    observeEvent(input$measure, {
+      settings <- line_chart_settings()
+      
+      lineChartServer(
+        id = "line",
+        chart_data = line_chart_data,
+        title = settings$title,
+        yAxisTitle = settings$yAxisTitle,
+        xAxisTitle = "Year",
+        unit = settings$unit,
+        footer = settings$footer,   # use footer from settings
+        x_col = "Year",
+        y_col = "value"
+      )
+    })
+    
+    
+    # ===================== DATA TABLE =====================
     
     output$table <- renderDT({
       req(input$tabsetPanel == "Data Table")
@@ -128,10 +240,19 @@ oilseedServer <- function(id) {
             )
           )
       } else {
-        oilseed_data %>%
-          pivot_longer(cols = -`Crop/Land use`, names_to = "year", values_to = "value") %>%
-          pivot_wider(names_from = year, values_from = value) %>%
-          mutate(across(where(is.numeric) & !contains("Year"), comma)) %>%
+        oilseed_combined_long %>%
+          # pivot_longer(cols = -`Crop/Land use`, names_to = "year", values_to = "value") %>%
+          pivot_wider(
+            id_cols = c(`Crop/Land use`, Measure),  # these stay as rows
+            names_from = Year,                      # years become column names
+            values_from = Value                     # values fill the cells
+          ) %>%
+          select(
+            `Crop/Land use`, Measure,
+            sort(as.numeric(colnames(.)[!(colnames(.) %in% c("Crop/Land use", "Measure"))]), decreasing = TRUE) %>% 
+              as.character()
+          ) %>%
+          # mutate(across(where(is.numeric) & !contains("Year"), comma)) %>%
           datatable(
             options = list(
               scrollX = TRUE,  # Enable horizontal scrolling
