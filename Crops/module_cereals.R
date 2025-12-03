@@ -219,15 +219,24 @@ cerealsServer <- function(id) {
       req(input$measure)
       
       switch(input$measure,
-             "Area" = list(title = "Area used to grow cereals over time",
-                           yAxisTitle = "Area of cereals (1,000 hectares)",
-                           unit = "hectares"),
-             "Production" = list(title = "Production of cereals over time",
-                                 yAxisTitle = "Production of cereals (1,000 tonnes)",
-                                 unit = "tonnes"),
-             "Yield" = list(title = "Yield of cereals over time",
-                            yAxisTitle = "Yield of cereals (tonnes/hectare)",
-                            unit = "tonnes/hectare")
+             "Area" = list(
+               title = "Area used to grow cereals over time",
+               yAxisTitle = "Area of cereals (1,000 hectares)",
+               unit = "hectares",
+               footer = census_footer
+             ),
+             "Production" = list(
+               title = "Production of cereals over time",
+               yAxisTitle = "Production of cereals (1,000 tonnes)",
+               unit = "tonnes",
+               footer = cereal_oilseed_footer
+             ),
+             "Yield" = list(
+               title = "Yield of cereals over time",
+               yAxisTitle = "Yield of cereals (tonnes/hectare)",
+               unit = "tonnes/hectare",
+               footer = cereal_oilseed_footer
+             )
       )
     })
     
@@ -241,7 +250,7 @@ cerealsServer <- function(id) {
         yAxisTitle = settings$yAxisTitle,
         xAxisTitle = "Year",
         unit = settings$unit,
-        footer = census_footer,
+        footer = settings$footer,   # use the footer from settings
         x_col = "Year",
         y_col = "value"
       )
