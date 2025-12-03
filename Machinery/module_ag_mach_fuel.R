@@ -71,7 +71,7 @@ agmachfuelServer <- function(id) {
     
     yAxisTitle <- reactive({
       switch(input$data_type,
-             "All tractors" = "Number of tractors",
+             "All tractors" = "Number of tractors (1,000)",
              "Combine harvesters" = "Number of combine harvesters",
              "Self-propelled sprayers" = "Number of self-propelled sprayers",
              "Telescopic material handlers (such as telehandlers)" = "Number of telescopic material handlers",
@@ -106,7 +106,7 @@ agmachfuelServer <- function(id) {
       datatable(
         filtered_data_table() %>%
           select(`Fuel type`, y_col()),
-        colnames = c("Status", yAxisTitle()),
+        colnames = c("Status", y_col()),
         options = list(pageLength = 20, scrollX = TRUE)  # Show 20 entries by default, enable horizontal scrolling
       )
     })

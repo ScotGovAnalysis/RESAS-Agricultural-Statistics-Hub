@@ -35,6 +35,16 @@ legalResponsibilityServer <- function(id) {
         filter(`Legal responsibility` != "Total")
       data
     })
+
+    filtered_chart_data <- reactive({
+      data <- chart_data() %>%
+        filter(`Legal responsibility` %in% input$selected_variables) %>%
+        mutate(`Legal responsibility` = factor(`Legal responsibility`, levels = c(
+          "Unknown", "One person", "Two or more related", "Two or more not related","An organisation"
+        ))) %>%
+        arrange(`Legal responsibility`)
+      data
+    })
     
     # Table data with formatted values for better readability
     table_data <- reactive({
@@ -78,18 +88,10 @@ legalResponsibilityServer <- function(id) {
         "hectares"
       }
     })
-
+    
     barChartServer(
       id = "bar_chart",
-      chart_data = reactive({
-        data <- chart_data() %>%
-          filter(`Legal responsibility` %in% input$selected_variables) %>%
-          mutate(`Legal responsibility` = factor(`Legal responsibility`, levels = c(
-            "Unknown", "One person", "Two or more related", "Two or more not related","An organisation"
-            ))) %>%
-          arrange(`Legal responsibility`)
-        data
-      }),
+      chart_data = filtered_chart_data,
       title = paste("Legal responsibility of holdings in Scotland", census_year),
       yAxisTitle = yAxisTitle,
       xAxisTitle = "Legal responsibility",

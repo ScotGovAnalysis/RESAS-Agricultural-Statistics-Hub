@@ -428,12 +428,14 @@ number_of_sheep <- number_of_sheep %>%
 number_of_pigs <- number_of_pigs %>%
   select(-`% Change 2025 to 2024`)
 
+number_of_poultry <- number_of_poultry %>% 
+  select(-`% Change 2025 to 2024`)
+
 number_of_other_livestock <- number_of_other_livestock %>%
   select(-`% Change 2025 to 2024`)
 
 # Convert the wide format data into long format using pivot_longer
 number_of_pigs_long <- number_of_pigs %>%
- # select(-`% Change 2025 to 2024`) %>%
   pivot_longer(cols = -`Pigs by category`, names_to = "Year", values_to = "Total") %>%
   filter(`Pigs by category` == "Total Pigs") %>%
   select(Year, `Total Pigs` = Total)
@@ -444,13 +446,11 @@ number_of_poultry_long <- number_of_poultry %>%
   select(Year, `Total Poultry` = Total)
 
 number_of_sheep_long <- number_of_sheep %>%
-#  select(-`% Change 2025 to 2024`) %>%
   pivot_longer(cols = -`Sheep by category`, names_to = "Year", values_to = "Total") %>%
   filter(`Sheep by category` == "Total Sheep") %>%
   select(Year, `Total Sheep` = Total)
 
 number_of_cattle_long <- number_of_cattle %>%
-  #select(-`% Change 2025 to 2024`) %>%
   pivot_longer(cols = -`Cattle by category`, names_to = "Year", values_to = "Total") %>%
   filter(`Cattle by category` == "Total Cattle") %>%
   select(Year, `Total cattle` = Total)

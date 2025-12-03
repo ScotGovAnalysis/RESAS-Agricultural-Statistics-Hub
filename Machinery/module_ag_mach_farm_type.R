@@ -38,21 +38,31 @@ agmachfarmtypeServer <- function(id) {
     filtered_data_chart <- reactive({
       ag_mach_farm_type_data
     })
+
+    # Get filtered data based on selected variables (only for bar chart)
+    chart_data <- reactive({
+      data <- filtered_data_chart()
+      
+      # Keep bars in numeric order but move unknown and unclassified to bottom
+      numeric_order <- data %>% arrange(desc(.data[[y_col()]])) %>% pull(`Main farm type`)
+      numeric_order <- setdiff(numeric_order, c("Unclassified", "Unknown"))
+      final_levels <- c(numeric_order, "Unclassified", "Unknown")
+      
+      data <- data %>%
+        mutate(`Main farm type` = factor(`Main farm type`, levels = final_levels))
+      
+      if (input$tabs == ns("bar") && !is.null(input$variables)) {
+        data <- data %>%
+          filter(`Main farm type` %in% input$variables)
+      }
+      data <- data %>% arrange(`Main farm type`)
+      data
+    })
     
     # Create reactive data for the table with commas added to numeric values
     filtered_data_table <- reactive({
       filtered_data_chart() %>%
         mutate(across(where(is.numeric), comma))
-    })
-    
-    # Get filtered data based on selected variables (only for bar chart)
-    chart_data <- reactive({
-      data <- filtered_data_chart()
-      if (input$tabs == ns("bar") && !is.null(input$variables)) {
-        data <- data %>%
-          filter(`Main farm type` %in% input$variables)
-      }
-      data
     })
     
     # Select the appropriate column based on data_type
@@ -70,7 +80,7 @@ agmachfarmtypeServer <- function(id) {
     
     yAxisTitle <- reactive({
       switch(input$data_type,
-             "All tractors" = "Number of tractors",
+             "All tractors" = "Number of tractors (1,000)",
              "Combine harvesters" = "Number of combine harvesters",
              "Self-propelled sprayers" = "Number of self-propelled sprayers",
              "Telescopic material handlers" = "Number of telescopic material handlers",
@@ -105,7 +115,7 @@ agmachfarmtypeServer <- function(id) {
       datatable(
         filtered_data_table() %>%
           select(`Main farm type`, y_col()),
-        colnames = c("Main Farm Type", yAxisTitle()),
+        colnames = c("Main Farm Type", y_col()),
         options = list(pageLength = 20, scrollX = TRUE)  # Show 20 entries by default, enable horizontal scrolling
       )
     })
@@ -150,7 +160,7 @@ agmachfarmtypeServer <- function(id) {
       y_col = y_col,
       tooltip_unit = tooltip_unit,
       #unit_position = unit_position,
-      maintain_order = FALSE
+      maintain_order = TRUE
     )
   })
 }
