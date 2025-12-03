@@ -30,30 +30,15 @@ cerealsUI <- function(id) {
           selected = "Area"
         ),
         
-        # When Measure = Area → cereals_data
-        conditionalPanel(
-          condition = "input.measure == 'Area'",
-          ns = ns,
-          checkboxGroupInput(
-            ns("timeseries_variables"),
-            "Select crops to display:",
-            choices = unique(cereals_data$`Crop/Land use`),
-            selected = c("Wheat", "Barley Total", "Oats Total")
-          )
-        ),
-        
-        # When Measure != Area → cereals_tiff_data_long
-        conditionalPanel(
-          condition = "input.measure != 'Area'",
-          ns = ns,
-          checkboxGroupInput(
-            ns("timeseries_variables"),
-            "Select crops to display:",
-            choices = unique(cereals_tiff_data_long$`Crop/Land use`),
-            selected = unique(cereals_tiff_data_long$`Crop/Land use`)[1]
-          )
+        # Single checkboxGroupInput for all measures
+        checkboxGroupInput(
+          ns("timeseries_variables"),
+          "Select crops to display:",
+          choices = unique(cereals_data$`Crop/Land use`),  # default
+          selected = c("Wheat", "Barley Total", "Oats Total")
         )
-      ),  
+      ),
+      
       
       # ===================== AREA CHART =====================
       conditionalPanel(
@@ -132,7 +117,7 @@ cerealsUI <- function(id) {
 cerealsServer <- function(id) {
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
-    
+    # ===================== MAP =====================
     cereals_map <- cereals_subregion %>%
       select(-`Scotland total`) %>%
       mutate(across(everything(), as.character)) %>%
@@ -151,7 +136,7 @@ cerealsServer <- function(id) {
       title = paste("Cereals distribution by region in Scotland in", census_year),
       legend_title = "Area (hectares)"
     )
-    
+    # ===================== AREA CHART =====================
     area_chart_data <- reactive({
       req(input$timeseries_variables)
       filtered_data <- cereals_data %>%
@@ -172,12 +157,31 @@ cerealsServer <- function(id) {
       x_col = "year",
       y_col = "value"
     )
+
+    # ===================== TIME SERIES =====================
+    # Update crop selection when measure changes
+    observeEvent(input$measure, {
+      if (input$measure == "Area") {
+        choices <- unique(cereals_data$`Crop/Land use`)
+        selected <- c("Wheat", "Barley Total", "Oats Total")
+      } else {
+        choices <- unique(cereals_tiff_data_long$`Crop/Land use`)
+        selected <- c("Barley Total","Oats Total","Wheat")
+      }
+      
+      updateCheckboxGroupInput(
+        session,
+        "timeseries_variables",
+        choices = choices,
+        selected = selected
+      )
+    })
     
+    # Reactive data for line chart
     line_chart_data <- reactive({
       req(input$timeseries_variables, input$measure)
       
       if (input$measure == "Area") {
-        # ---- WIDE data (requires pivot_longer) ----
         df <- cereals_data %>%
           filter(`Crop/Land use` %in% input$timeseries_variables) %>%
           pivot_longer(
@@ -189,17 +193,16 @@ cerealsServer <- function(id) {
             Year = as.numeric(Year),
             Measure = "Area"
           )
-        
       } else {
-        # ---- LONG data (NO pivot needed) ----
         df <- cereals_tiff_data_long %>%
           filter(
             `Crop/Land use` %in% input$timeseries_variables,
             Measure == input$measure
           ) %>%
-          rename(value = Value) %>%   # adjust only if needed
+          rename(value = Value) %>%
           mutate(Year = as.numeric(Year))
-        # Keep only the most recent 10 years
+        
+        # Keep only last 10 years
         max_year <- max(df$Year, na.rm = TRUE)
         df <- df %>% filter(Year > max_year - 10)
       }
@@ -211,34 +214,26 @@ cerealsServer <- function(id) {
       df
     })
     
+    # Chart settings based on measure
     line_chart_settings <- reactive({
       req(input$measure)
       
-      if (input$measure == "Area") {
-        list(
-          title = "Area used to grow cereals over time",
-          yAxisTitle = "Area of cereals (1,000 hectares)",
-          unit = "hectares"
-        )
-        
-      } else if (input$measure == "Production") {
-        list(
-          title = "Production of cereals over time",
-          yAxisTitle = "Production of cereals (tonnes)",
-          unit = "tonnes"
-        )
-        
-      } else if (input$measure == "Yield") {
-        list(
-          title = "Yield of cereals over time",
-          yAxisTitle = "Yield of cereals (tonnes/hectare)",
-          unit = "tonnes/hectare"
-        )
-      }
+      switch(input$measure,
+             "Area" = list(title = "Area used to grow cereals over time",
+                           yAxisTitle = "Area of cereals (1,000 hectares)",
+                           unit = "hectares"),
+             "Production" = list(title = "Production of cereals over time",
+                                 yAxisTitle = "Production of cereals (1,000 tonnes)",
+                                 unit = "tonnes"),
+             "Yield" = list(title = "Yield of cereals over time",
+                            yAxisTitle = "Yield of cereals (tonnes/hectare)",
+                            unit = "tonnes/hectare")
+      )
     })
     
     observeEvent(input$measure, {
       settings <- line_chart_settings()
+      
       lineChartServer(
         id = "line",
         chart_data = line_chart_data,
@@ -250,10 +245,9 @@ cerealsServer <- function(id) {
         x_col = "Year",
         y_col = "value"
       )
-      
     })
     
-    
+    # ===================== DATA TABLE =====================
     output$table <- renderDT({
       req(input$tabsetPanel == "Data Table")
       if (input$table_data == "map") {
@@ -272,10 +266,19 @@ cerealsServer <- function(id) {
             )
           )
       } else {
-        cereals_data %>%
-          pivot_longer(cols = -`Crop/Land use`, names_to = "year", values_to = "value") %>%
-          pivot_wider(names_from = year, values_from = value) %>%
-          mutate(across(where(is.numeric) & !contains("Year"), comma)) %>%
+        cereals_combined_long %>%
+          # pivot_longer(cols = -`Crop/Land use`, names_to = "year", values_to = "value") %>%
+          pivot_wider(
+            id_cols = c(`Crop/Land use`, Measure),  # these stay as rows
+            names_from = Year,                      # years become column names
+            values_from = Value                     # values fill the cells
+          ) %>%
+          select(
+            `Crop/Land use`, Measure,
+            sort(as.numeric(colnames(.)[!(colnames(.) %in% c("Crop/Land use", "Measure"))]), decreasing = TRUE) %>% 
+              as.character()
+          ) %>%
+          # mutate(across(where(is.numeric) & !contains("Year"), comma)) %>%
           datatable(
             options = list(
               scrollX = TRUE,  # Enable horizontal scrolling

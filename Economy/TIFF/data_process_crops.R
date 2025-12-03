@@ -18,7 +18,8 @@ file_path <- paste0(cereals_tiff_data_path, "CH_data_final.csv")
 cereals_tiff_data <- read.csv(file_path, stringsAsFactors = FALSE)
 
 cereals_tiff_data_long <- cereals_tiff_data %>% 
-  filter(!is.na(Year) & Year != "") %>% 
+  filter(!is.na(Year) & Year != "" & Year != 0) %>% 
+  mutate(Barley_Yield = as.numeric(Barley_Yield)) %>%
   pivot_longer(
     cols = -Year,   # keep Year (or other ID columns) as is
     names_to = c("Crop/Land use", "Measure"),
