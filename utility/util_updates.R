@@ -21,6 +21,9 @@ fbs_year <-2023-24
 
 #some footers need manually updated - e.g. poultry - run print_code and search for 2022 / 2023 to find issues
 census_footer <- '<div style="font-size: 16px; font-weight: bold;"><a href="https://www.gov.scot/publications/results-from-the-scottish-agricultural-census-june-2025/">Source: Scottish Agricultural Census: June 2025</a></div>'
+cereal_oilseed_footer <- '<div style="font-size: 16px; font-weight: bold;"><a href="https://www.gov.scot/collections/scottish-cereal-harvest-estimates/">Source: Scottish cereal harvest: estimates</a></div>'
+
+
 
 emissions_footer <- '<div style="font-size: 16px; font-weight: bold;"> <a href="https://www.gov.scot/collections/scottish-agriculture-greenhouse-gas-emissions-and-nitrogen-use/" target="_blank">Source: Scottish agriculture greenhouse gas emissions and nitrogen use 2023-24</a>, analysis based on results of the <a href="https://www.gov.scot/publications/scottish-greenhouse-gas-statistics-2023/" target="_blank">Scottish Greenhouse Gas Statistics 2023</a>.</div>'
 
