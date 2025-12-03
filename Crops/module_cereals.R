@@ -2,9 +2,12 @@
 
 cerealsUI <- function(id) {
   ns <- NS(id)
+  
   sidebarLayout(
     sidebarPanel(
       width = 3,
+      
+      # ===================== MAP =====================
       conditionalPanel(
         condition = "input.tabsetPanel === 'Map'",
         ns = ns,
@@ -14,23 +17,45 @@ cerealsUI <- function(id) {
           choices = unique(cereals_subregion$`Land use by category`)
         )
       ),
+      
+      # ===================== TIME SERIES =====================
       conditionalPanel(
         condition = "input.tabsetPanel === 'Time Series'",
         ns = ns,
+        
         radioButtons(
           ns("measure"),
           "Select Measure:",
           choices = unique(cereals_combined_long$Measure),
           selected = "Area"
         ),
-        checkboxGroupInput(
-          ns("timeseries_variables"),
-          "Select crops to display:",
-          choices = unique(cereals_combined_long$`Crop/Land use`),
-          selected = c("Wheat", "Barley Total", "Oats Total")
+        
+        # When Measure = Area → cereals_data
+        conditionalPanel(
+          condition = "input.measure == 'Area'",
+          ns = ns,
+          checkboxGroupInput(
+            ns("timeseries_variables"),
+            "Select crops to display:",
+            choices = unique(cereals_data$`Crop/Land use`),
+            selected = c("Wheat", "Barley Total", "Oats Total")
+          )
+        ),
+        
+        # When Measure != Area → cereals_tiff_data_long
+        conditionalPanel(
+          condition = "input.measure != 'Area'",
+          ns = ns,
+          checkboxGroupInput(
+            ns("timeseries_variables"),
+            "Select crops to display:",
+            choices = unique(cereals_tiff_data_long$`Crop/Land use`),
+            selected = unique(cereals_tiff_data_long$`Crop/Land use`)[1]
+          )
         )
-      ),
+      ),  
       
+      # ===================== AREA CHART =====================
       conditionalPanel(
         condition = "input.tabsetPanel === 'Area Chart'",
         ns = ns,
@@ -43,6 +68,8 @@ cerealsUI <- function(id) {
           options = list(plugins = list('remove_button'))
         )
       ),
+      
+      # ===================== DATA TABLE =====================
       conditionalPanel(
         condition = "input.tabsetPanel === 'Data Table'",
         ns = ns,
@@ -53,15 +80,21 @@ cerealsUI <- function(id) {
           selected = "map"
         )
       ),
+      
+      # ===================== SUMMARY =====================
       conditionalPanel(
         condition = "input.tabsetPanel === 'Cereals Summary'",
         ns = ns,
         div("Adjust the sliders to compare data from different years.", 
             style = "font-size: 14px; font-weight: bold; margin-bottom: 10px;"),
-        sliderInput(ns("summary_current_year_cereals"), "Year of interest", min = 2012, max = census_year, value = census_year, step = 1, sep = ""),
-        sliderInput(ns("summary_comparison_year_cereals"), "Comparison year", min = 2012, max = census_year, value = census_year-1, step = 1, sep = "")
+        sliderInput(ns("summary_current_year_cereals"), "Year of interest",
+                    min = 2012, max = census_year, value = census_year, step = 1, sep = ""),
+        sliderInput(ns("summary_comparison_year_cereals"), "Comparison year",
+                    min = 2012, max = census_year, value = census_year-1, step = 1, sep = "")
       )
     ),
+    
+    # ===================== MAIN PANEL =====================
     mainPanel(
       width = 9,
       tabsetPanel(
@@ -73,22 +106,28 @@ cerealsUI <- function(id) {
                  DTOutput(ns("table")),
                  downloadButton(ns("downloadData"), "Download Data"),
                  generateCensusTableFooter()
-
         ),
         tabPanel("Summary",
                  fluidRow(
                    column(width = 6, h3("Cereals summary section")),
-                   column(width = 3, selectInput(ns("summary_variable"), "Select Variable", choices = unique(cereals_data$`Crop/Land use`), selected = "Total cereals"))
+                   column(width = 3,
+                          selectInput(ns("summary_variable"),
+                                      "Select Variable",
+                                      choices = unique(cereals_data$`Crop/Land use`),
+                                      selected = "Total cereals"))
                  ),
                  fluidRow(
                    column(width = 6, p("This content is under development.")),
-                   column(width = 6, valueBoxUI(ns("summaryValueBox")), style = "padding-right: 0; padding-left: 0; padding-bottom: 10px;")
+                   column(width = 6, valueBoxUI(ns("summaryValueBox")),
+                          style = "padding-right: 0; padding-left: 0; padding-bottom: 10px;")
                  )
         )
       )
     )
-  )
+    
+  ) # end sidebarLayout
 }
+
 
 cerealsServer <- function(id) {
   moduleServer(id, function(input, output, session) {
@@ -135,24 +174,85 @@ cerealsServer <- function(id) {
     )
     
     line_chart_data <- reactive({
-      req(input$timeseries_variables)
+      req(input$timeseries_variables, input$measure)
       
-      filtered_data <- cereals_combined_long %>%
-        filter(`Crop/Land use` %in% input$timeseries_variables)
-        mutate(Year = as.numeric(Year))
+      if (input$measure == "Area") {
+        # ---- WIDE data (requires pivot_longer) ----
+        df <- cereals_data %>%
+          filter(`Crop/Land use` %in% input$timeseries_variables) %>%
+          pivot_longer(
+            cols = -`Crop/Land use`,
+            names_to = "Year",
+            values_to = "value"
+          ) %>%
+          mutate(
+            Year = as.numeric(Year),
+            Measure = "Area"
+          )
+        
+      } else {
+        # ---- LONG data (NO pivot needed) ----
+        df <- cereals_tiff_data_long %>%
+          filter(
+            `Crop/Land use` %in% input$timeseries_variables,
+            Measure == input$measure
+          ) %>%
+          rename(value = Value) %>%   # adjust only if needed
+          mutate(Year = as.numeric(Year))
+        # Keep only the most recent 10 years
+        max_year <- max(df$Year, na.rm = TRUE)
+        df <- df %>% filter(Year > max_year - 10)
+      }
+      
+      validate(
+        need(nrow(df) > 0, "No data available for the selected options.")
+      )
+      
+      df
     })
     
-    lineChartServer(
-      id = "line",
-      chart_data = line_chart_data,
-      title = "Area used to grow cereals over time",
-      yAxisTitle = "Area of cereals (1,000 hectares)",
-      xAxisTitle = "Year",
-      unit = "hectares",
-      footer = census_footer,
-      x_col = "Year",
-      y_col = "value"
-    )
+    line_chart_settings <- reactive({
+      req(input$measure)
+      
+      if (input$measure == "Area") {
+        list(
+          title = "Area used to grow cereals over time",
+          yAxisTitle = "Area of cereals (1,000 hectares)",
+          unit = "hectares"
+        )
+        
+      } else if (input$measure == "Production") {
+        list(
+          title = "Production of cereals over time",
+          yAxisTitle = "Production of cereals (tonnes)",
+          unit = "tonnes"
+        )
+        
+      } else if (input$measure == "Yield") {
+        list(
+          title = "Yield of cereals over time",
+          yAxisTitle = "Yield of cereals (tonnes/hectare)",
+          unit = "tonnes/hectare"
+        )
+      }
+    })
+    
+    observeEvent(input$measure, {
+      settings <- line_chart_settings()
+      lineChartServer(
+        id = "line",
+        chart_data = line_chart_data,
+        title = settings$title,
+        yAxisTitle = settings$yAxisTitle,
+        xAxisTitle = "Year",
+        unit = settings$unit,
+        footer = census_footer,
+        x_col = "Year",
+        y_col = "value"
+      )
+      
+    })
+    
     
     output$table <- renderDT({
       req(input$tabsetPanel == "Data Table")
