@@ -1,11 +1,17 @@
 main_cereals <- cereals_data %>%
   filter(`Crop/Land use` %in% c("Wheat", "Barley Total", "Oats Total")) %>%
   summarise(across(-`Crop/Land use`, ~ sum(.x, na.rm = TRUE))) %>%
-  mutate(`Crop/Land use` = "Main Cereals (Barley, Oats and Wheat)")
+  mutate(`Crop/Land use` = "Main Cereals (Barley, Oats and Wheat)") 
+
 
 # Bind back into the wide dataset
-cereals_data <- bind_rows(cereals_data, main_cereals)
-  
+cereals_data <- bind_rows(cereals_data, main_cereals)%>% 
+  distinct(`Crop/Land use`, .keep_all = TRUE)%>%
+  mutate(`Crop/Land use` = recode(`Crop/Land use`,
+                                  "Barley Total" = "Total Barley",
+                                  "Oats Total"   = "Total Oats"
+                                  ))
+
 
 Cereals_census_data_long <- cereals_data %>% 
   pivot_longer(
@@ -53,15 +59,27 @@ cereals_tiff_data_long <- cereals_tiff_data %>%
     `Crop/Land use` = recode(`Crop/Land use`,
                   "S_Barley" = "Spring Barley",
                   "W_Barley" = "Winter Barley",
-                  "Barley"  = "Barley Total",
-                  "Oats"  = "Oats Total",
+                  "Barley"  = "Total Barley",
+                  "Oats"  = "Total Oats",
                   "Cereals" = "Main Cereals (Barley, Oats and Wheat)"
                   )
   ) %>% 
   filter(`Crop/Land use` != "OSR",
          Measure != "Area")
-  
-cereals_combined_long <- bind_rows(Cereals_census_data_long, cereals_tiff_data_long)
+
+# Get the set of years where Area exists in Cereals_census_data_long
+years_with_area <- Cereals_census_data_long %>%
+  filter(Measure == "Area") %>%
+  pull(Year) %>%
+  unique()
+
+# Filter cereals_tiff_data_long to only those years
+cereals_tiff_data_long_filtered <- cereals_tiff_data_long %>%
+  filter(Year %in% years_with_area)
+
+# Combine the two datasets
+cereals_combined_long <- bind_rows(Cereals_census_data_long,
+                                   cereals_tiff_data_long_filtered)
 
 #save to data
 save(cereals_combined_long, file="Data/Cereals_data.Rda")
@@ -80,13 +98,18 @@ oilseed_tiff_data_long <- cereals_tiff_data %>%
     `Crop/Land use` = as.factor(`Crop/Land use`),  
     Measure = as.factor(Measure), 
     `Crop/Land use` = recode(`Crop/Land use`,
-                             "OSR" = "Oilseed Rape Total"
+                             "OSR" = "Oilseed Rape"
     )
   ) %>% 
-  filter(`Crop/Land use` == "Oilseed Rape Total",
+  filter(`Crop/Land use` == "Oilseed Rape",
          Measure != "Area")
 
-oilseed_combined_long <- bind_rows(Oilseed_census_data_long, oilseed_tiff_data_long)
+# Filter cereals_tiff_data_long to only those years
+oilseed_tiff_data_long_filtered <- oilseed_tiff_data_long %>%
+  filter(Year %in% years_with_area)
+
+oilseed_combined_long <- bind_rows(Oilseed_census_data_long, 
+                                   oilseed_tiff_data_long_filtered)
 
 #save to data
 save(oilseed_combined_long, file="Data/Oilseed_data.Rda")

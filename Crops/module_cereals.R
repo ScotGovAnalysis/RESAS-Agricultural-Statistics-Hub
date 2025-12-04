@@ -35,11 +35,11 @@ cerealsUI <- function(id) {
           ns("timeseries_variables"),
           "Select crops to display:",
           choices =  c("Total Cereals", "Main Cereals (Barley, Oats and Wheat)",
-                        "Spring Barley", "Winter Barley", "Barley Total",
+                        "Spring Barley", "Winter Barley", "Total Barley",
                         "Maize",
-                        "Spring Oats", "Winter Oats", "Oats Total", 
+                        "Spring Oats", "Winter Oats", "Total Oats", 
                         "Rye", "Triticale", "Wheat"),
-          selected = c("Wheat", "Barley Total", "Oats Total")
+          selected = c("Wheat", "Total Barley", "Total Oats")
         )
       ),
       
@@ -52,7 +52,7 @@ cerealsUI <- function(id) {
           ns("area_variables"),
           "Click within the box to select variables",
           choices = unique(cereals_data$`Crop/Land use`),
-          selected = c("Wheat", "Barley Total", "Oats Total"),
+          selected = c("Wheat", "Total Barley", "Total Oats"),
           multiple = TRUE,
           options = list(plugins = list('remove_button'))
         )
@@ -167,16 +167,16 @@ cerealsServer <- function(id) {
     observeEvent(input$measure, {
       if (input$measure == "Area") {
         choices <- c("Total Cereals", "Main Cereals (Barley, Oats and Wheat)",
-                   "Spring Barley", "Winter Barley", "Barley Total",
+                   "Spring Barley", "Winter Barley", "Total Barley",
                    "Maize",
-                   "Spring Oats", "Winter Oats", "Oats Total", 
+                   "Spring Oats", "Winter Oats", "Total Oats", 
                    "Rye", "Triticale", "Wheat")
-        selected <- c("Wheat", "Barley Total", "Oats Total")
+        selected <- c("Wheat", "Total Barley", "Total Oats")
       } else {
         choices <- c("Main Cereals (Barley, Oats and Wheat)",
-                     "Spring Barley", "Winter Barley", "Barley Total",
-                     "Oats Total", "Wheat")
-        selected <- c("Barley Total","Oats Total","Wheat")
+                     "Spring Barley", "Winter Barley", "Total Barley",
+                     "Total Oats", "Wheat")
+        selected <- c("Total Barley","Total Oats","Wheat")
       }
       
       updateCheckboxGroupInput(
@@ -286,18 +286,23 @@ cerealsServer <- function(id) {
           )
       } else {
         cereals_combined_long %>%
-          # pivot_longer(cols = -`Crop/Land use`, names_to = "year", values_to = "value") %>%
           pivot_wider(
-            id_cols = c(`Crop/Land use`, Measure),  # these stay as rows
-            names_from = Year,                      # years become column names
-            values_from = Value                     # values fill the cells
+            id_cols = c(`Crop/Land use`, Measure),  
+            names_from = Year,                      
+            values_from = Value                     
           ) %>%
           select(
             `Crop/Land use`, Measure,
             sort(as.numeric(colnames(.)[!(colnames(.) %in% c("Crop/Land use", "Measure"))]), decreasing = TRUE) %>% 
               as.character()
           ) %>%
-          # mutate(across(where(is.numeric) & !contains("Year"), comma)) %>%
+          # Round all numeric columns to 2 decimal places
+          mutate(across(
+            where(is.numeric),
+            ~ case_when(
+              Measure == "Yield" ~ round(.x, 2),   # 2 decimal places for Yield
+              Measure != "Yield"  ~ round(.x, 0)   # 0 decimal places for everything not Area
+            ))) %>%
           datatable(
             options = list(
               scrollX = TRUE,  # Enable horizontal scrolling
