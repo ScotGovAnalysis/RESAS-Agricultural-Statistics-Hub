@@ -32,7 +32,7 @@ oilseedUI <- function(id) {
         checkboxGroupInput(
           ns("timeseries_variables"),
           "Select crops to display:",
-          choices = unique(oilseed_data$`Crop/Land use`),  # default
+          choices = c("Total Oilseeds", "Linseed", "Winter Oilseed Rape","Spring Oilseed Rape"),
           selected = c("Winter Oilseed Rape","Spring Oilseed Rape")
         )
       ),
@@ -129,11 +129,11 @@ oilseedServer <- function(id) {
     # Update crop selection when measure changes
     observeEvent(input$measure, {
       if (input$measure == "Area") {
-        choices <- unique(oilseed_data$`Crop/Land use`)
+        choices <- c("Total Oilseeds", "Linseed", "Winter Oilseed Rape","Spring Oilseed Rape")
         selected <- c("Winter Oilseed Rape", "Spring Oilseed Rape")
       } else {
         choices <- unique(oilseed_tiff_data_long$`Crop/Land use`)
-        selected <- c("Oilseed Rape Total")
+        selected <- c("Oilseed Rape")
       }
       
       updateCheckboxGroupInput(
