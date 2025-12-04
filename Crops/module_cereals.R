@@ -51,7 +51,7 @@ cerealsUI <- function(id) {
         selectizeInput(
           ns("area_variables"),
           "Click within the box to select variables",
-          choices = unique(cereals_data$`Crop/Land use`),
+          choices = unique(cereals_data_census$`Crop/Land use`),
           selected = c("Wheat", "Total Barley", "Total Oats"),
           multiple = TRUE,
           options = list(plugins = list('remove_button'))
@@ -102,7 +102,7 @@ cerealsUI <- function(id) {
                    column(width = 3,
                           selectInput(ns("summary_variable"),
                                       "Select Variable",
-                                      choices = unique(cereals_data$`Crop/Land use`),
+                                      choices = unique(cereals_data_census$`Crop/Land use`),
                                       selected = "Total cereals"))
                  ),
                  fluidRow(
@@ -143,7 +143,7 @@ cerealsServer <- function(id) {
     # ===================== AREA CHART =====================
     area_chart_data <- reactive({
       req(input$timeseries_variables)
-      filtered_data <- cereals_data %>%
+      filtered_data <- cereals_data_census %>%
         filter(`Crop/Land use` %in% input$timeseries_variables) %>%
         pivot_longer(cols = -`Crop/Land use`, names_to = "year", values_to = "value") %>%
         mutate(year = as.numeric(year))  # Ensure year is numeric
@@ -192,7 +192,7 @@ cerealsServer <- function(id) {
       req(input$timeseries_variables, input$measure)
       
       if (input$measure == "Area") {
-        df <- cereals_data %>%
+        df <- cereals_data_census %>%
           filter(`Crop/Land use` %in% input$timeseries_variables) %>%
           pivot_longer(
             cols = -`Crop/Land use`,
@@ -296,13 +296,13 @@ cerealsServer <- function(id) {
             sort(as.numeric(colnames(.)[!(colnames(.) %in% c("Crop/Land use", "Measure"))]), decreasing = TRUE) %>% 
               as.character()
           ) %>%
-          # Round all numeric columns to 2 decimal places
           mutate(across(
             where(is.numeric),
             ~ case_when(
-              Measure == "Yield" ~ round(.x, 2),   # 2 decimal places for Yield
-              Measure != "Yield"  ~ round(.x, 0)   # 0 decimal places for everything not Area
-            ))) %>%
+              Measure == "Yield" ~ comma(round(.x, 2), accuracy = 0.01),  # 2 dp with commas
+              Measure != "Yield" ~ comma(round(.x, 0), accuracy = 1)      # 0 dp with commas
+            )
+          )) %>%
           datatable(
             options = list(
               scrollX = TRUE,  # Enable horizontal scrolling
@@ -326,7 +326,7 @@ cerealsServer <- function(id) {
             filter(`Land use by category` == input$variable) %>%
             pivot_wider(names_from = sub_region, values_from = value)
         } else {
-          cereals_data %>%
+          cereals_data_census %>%
             pivot_longer(cols = -`Crop/Land use`, names_to = "year", values_to = "value") %>%
             pivot_wider(names_from = year, values_from = value)
         }
@@ -336,7 +336,7 @@ cerealsServer <- function(id) {
     
     # Reactive expression for the selected variable and years
     summary_data <- reactive({
-      cereals_data %>%
+      cereals_data_census %>%
         filter(`Crop/Land use` == input$summary_variable) %>%
         pivot_longer(cols = -`Crop/Land use`, names_to = "Year", values_to = "Value") %>%
         mutate(Year = as.numeric(Year))

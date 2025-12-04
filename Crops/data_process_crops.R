@@ -5,15 +5,15 @@ main_cereals <- cereals_data %>%
 
 
 # Bind back into the wide dataset
-cereals_data <- bind_rows(cereals_data, main_cereals)%>% 
+cereals_data_census <- bind_rows(cereals_data, main_cereals)%>% 
   distinct(`Crop/Land use`, .keep_all = TRUE)%>%
   mutate(`Crop/Land use` = recode(`Crop/Land use`,
                                   "Barley Total" = "Total Barley",
                                   "Oats Total"   = "Total Oats"
                                   ))
+save(cereals_data_census, file="Data/cereals_data_census.Rda")
 
-
-Cereals_census_data_long <- cereals_data %>% 
+Cereals_census_data_long <- cereals_data_census %>% 
   pivot_longer(
     cols = -`Crop/Land use`,
     names_to = "Year",

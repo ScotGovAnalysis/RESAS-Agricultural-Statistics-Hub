@@ -252,6 +252,13 @@ oilseedServer <- function(id) {
             sort(as.numeric(colnames(.)[!(colnames(.) %in% c("Crop/Land use", "Measure"))]), decreasing = TRUE) %>% 
               as.character()
           ) %>%
+          mutate(across(
+            where(is.numeric),
+            ~ case_when(
+              Measure == "Yield" ~ comma(round(.x, 2), accuracy = 0.01),  # 2 dp with commas
+              Measure != "Yield" ~ comma(round(.x, 0), accuracy = 1)      # 0 dp with commas
+            )
+          )) %>%
           # mutate(across(where(is.numeric) & !contains("Year"), comma)) %>%
           datatable(
             options = list(
