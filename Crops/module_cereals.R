@@ -34,7 +34,11 @@ cerealsUI <- function(id) {
         checkboxGroupInput(
           ns("timeseries_variables"),
           "Select crops to display:",
-          choices = unique(cereals_data$`Crop/Land use`),  # default
+          choices =  c("Total Cereals", "Main Cereals (Barley, Oats and Wheat)",
+                        "Spring Barley", "Winter Barley", "Barley Total",
+                        "Maize",
+                        "Spring Oats", "Winter Oats", "Oats Total", 
+                        "Rye", "Triticale", "Wheat"),
           selected = c("Wheat", "Barley Total", "Oats Total")
         )
       ),
@@ -162,10 +166,16 @@ cerealsServer <- function(id) {
     # Update crop selection when measure changes
     observeEvent(input$measure, {
       if (input$measure == "Area") {
-        choices <- unique(cereals_data$`Crop/Land use`)
+        choices <- c("Total Cereals", "Main Cereals (Barley, Oats and Wheat)",
+                   "Spring Barley", "Winter Barley", "Barley Total",
+                   "Maize",
+                   "Spring Oats", "Winter Oats", "Oats Total", 
+                   "Rye", "Triticale", "Wheat")
         selected <- c("Wheat", "Barley Total", "Oats Total")
       } else {
-        choices <- unique(cereals_tiff_data_long$`Crop/Land use`)
+        choices <- c("Main Cereals (Barley, Oats and Wheat)",
+                     "Spring Barley", "Winter Barley", "Barley Total",
+                     "Oats Total", "Wheat")
         selected <- c("Barley Total","Oats Total","Wheat")
       }
       
