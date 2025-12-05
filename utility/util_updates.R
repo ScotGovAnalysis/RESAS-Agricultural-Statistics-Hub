@@ -60,6 +60,24 @@ generateCensusTableFooter <- function() {
   )
 }
 
+generateCerealandoilseedTableFooter <- function() {
+  div(
+    style = "background-color: #f0f0f0; padding: 15px; border-radius: 5px; margin-top: 20px;",
+    "Area data is sourced from the ",
+    tags$a(href = "https://www.gov.scot/publications/results-from-the-scottish-agricultural-census-june-2025/",
+           "Scottish Agricultural Census: June 2025"),
+    " which was published on 30 October 2025.",
+    tags$br(),
+    "Where data is unavailable, findings have been suppressed to prevent disclosure of individual holdings.",
+    tags$br(),
+    "Production and Yield data is sourced from the ",
+    tags$a(href = "https://www.gov.scot/collections/scottish-cereal-harvest-estimates/",
+           "Scottish cereal harvest: estimates."),
+    tags$br(),
+    "Full data tables and detailed analysis are available within the full reports."
+  )
+}
+
 generateEmissionsTableFooter <- function() {
   div(
     style = "background-color: #f0f0f0; padding: 15px; border-radius: 5px; margin-top: 20px;",
