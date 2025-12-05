@@ -36,7 +36,6 @@ cerealsUI <- function(id) {
           "Select crops to display:",
           choices =  c("Total Cereals", "Main Cereals (Barley, Oats and Wheat)",
                         "Spring Barley", "Winter Barley", "Total Barley",
-                        "Maize",
                         "Spring Oats", "Winter Oats", "Total Oats", 
                         "Rye", "Triticale", "Wheat"),
           selected = c("Wheat", "Total Barley", "Total Oats")
@@ -94,7 +93,7 @@ cerealsUI <- function(id) {
         tabPanel("Data Table", 
                  DTOutput(ns("table")),
                  downloadButton(ns("downloadData"), "Download Data"),
-                 generateCensusTableFooter()
+                 generateCerealandoilseedTableFooter()
         ),
         tabPanel("Summary",
                  fluidRow(
@@ -168,7 +167,6 @@ cerealsServer <- function(id) {
       if (input$measure == "Area") {
         choices <- c("Total Cereals", "Main Cereals (Barley, Oats and Wheat)",
                    "Spring Barley", "Winter Barley", "Total Barley",
-                   "Maize",
                    "Spring Oats", "Winter Oats", "Total Oats", 
                    "Rye", "Triticale", "Wheat")
         selected <- c("Wheat", "Total Barley", "Total Oats")
@@ -203,6 +201,11 @@ cerealsServer <- function(id) {
             Year = as.numeric(Year),
             Measure = "Area"
           )
+        
+        # Keep only last 10 years
+        max_year <- max(df$Year, na.rm = TRUE)
+        df <- df %>% filter(Year > max_year - 10)
+        
       } else {
         df <- cereals_tiff_data_long %>%
           filter(
@@ -326,9 +329,24 @@ cerealsServer <- function(id) {
             filter(`Land use by category` == input$variable) %>%
             pivot_wider(names_from = sub_region, values_from = value)
         } else {
-          cereals_data_census %>%
-            pivot_longer(cols = -`Crop/Land use`, names_to = "year", values_to = "value") %>%
-            pivot_wider(names_from = year, values_from = value)
+          cereals_combined_long %>%
+            pivot_wider(
+              id_cols = c(`Crop/Land use`, Measure),  
+              names_from = Year,                      
+              values_from = Value                     
+            ) %>%
+            select(
+              `Crop/Land use`, Measure,
+              sort(as.numeric(colnames(.)[!(colnames(.) %in% c("Crop/Land use", "Measure"))]), decreasing = TRUE) %>% 
+                as.character()
+            ) %>%
+            mutate(across(
+              where(is.numeric),
+              ~ case_when(
+                Measure == "Yield" ~ comma(round(.x, 2), accuracy = 0.01),  # 2 dp with commas
+                Measure != "Yield" ~ comma(round(.x, 0), accuracy = 1)      # 0 dp with commas
+              )
+            ))
         }
         write.csv(data, file, row.names = FALSE)
       }

@@ -73,7 +73,7 @@ oilseedUI <- function(id) {
         tabPanel("Data Table", 
                  DTOutput(ns("table")),
                  downloadButton(ns("downloadData"), "Download Data"),
-                 generateCensusTableFooter()
+                 generateCerealandoilseedTableFooter()
 
         )
       )
@@ -160,6 +160,10 @@ oilseedServer <- function(id) {
             Year = as.numeric(Year),
             Measure = "Area"
           )
+        # Keep only last 10 years
+        max_year <- max(df$Year, na.rm = TRUE)
+        df <- df %>% filter(Year > max_year - 10)
+        
       } else {
         df <- oilseed_tiff_data_long %>%
           filter(
@@ -284,10 +288,25 @@ oilseedServer <- function(id) {
             pivot_wider(names_from = sub_region, values_from = value) %>%
             mutate(across(where(is.numeric) & !contains("Year"), comma))
         } else {
-          oilseed_data %>%
-            pivot_longer(cols = -`Crop/Land use`, names_to = "year", values_to = "value") %>%
-            pivot_wider(names_from = year, values_from = value) %>%
-            mutate(across(where(is.numeric) & !contains("Year"), comma))
+          oilseed_combined_long %>%
+            # pivot_longer(cols = -`Crop/Land use`, names_to = "year", values_to = "value") %>%
+            pivot_wider(
+              id_cols = c(`Crop/Land use`, Measure),  # these stay as rows
+              names_from = Year,                      # years become column names
+              values_from = Value                     # values fill the cells
+            ) %>%
+            select(
+              `Crop/Land use`, Measure,
+              sort(as.numeric(colnames(.)[!(colnames(.) %in% c("Crop/Land use", "Measure"))]), decreasing = TRUE) %>% 
+                as.character()
+            ) %>%
+            mutate(across(
+              where(is.numeric),
+              ~ case_when(
+                Measure == "Yield" ~ comma(round(.x, 2), accuracy = 0.01),  # 2 dp with commas
+                Measure != "Yield" ~ comma(round(.x, 0), accuracy = 1)      # 0 dp with commas
+              )
+            )) 
         }
         write.csv(data, file, row.names = FALSE)
       }
