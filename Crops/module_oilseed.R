@@ -244,32 +244,43 @@ oilseedServer <- function(id) {
             )
           )
       } else {
-        oilseed_combined_long %>%
-          # pivot_longer(cols = -`Crop/Land use`, names_to = "year", values_to = "value") %>%
+        
+        ts_data <- oilseed_combined_long %>%
           pivot_wider(
-            id_cols = c(`Crop/Land use`, Measure),  # these stay as rows
-            names_from = Year,                      # years become column names
-            values_from = Value                     # values fill the cells
+            id_cols = c(`Crop/Land use`, Measure),
+            names_from = Year,
+            values_from = Value
           ) %>%
           select(
             `Crop/Land use`, Measure,
-            sort(as.numeric(colnames(.)[!(colnames(.) %in% c("Crop/Land use", "Measure"))]), decreasing = TRUE) %>% 
+            sort(
+              as.numeric(colnames(.)[!(colnames(.) %in% c("Crop/Land use", "Measure"))]),
+              decreasing = TRUE
+            ) %>% 
               as.character()
           ) %>%
           mutate(across(
             where(is.numeric),
             ~ case_when(
-              Measure == "Yield" ~ comma(round(.x, 2), accuracy = 0.01),  # 2 dp with commas
-              Measure != "Yield" ~ comma(round(.x, 0), accuracy = 1)      # 0 dp with commas
+              Measure == "Yield" ~ comma(round(.x, 2), accuracy = 0.01),
+              TRUE               ~ comma(round(.x, 0), accuracy = 1)
             )
-          )) %>%
-          # mutate(across(where(is.numeric) & !contains("Year"), comma)) %>%
-          datatable(
-            options = list(
-              scrollX = TRUE,  # Enable horizontal scrolling
-              pageLength = 20  # Show 20 entries by default
-            )
+          ))
+        
+        # Columns for alignment
+        left_cols  <- c("Crop/Land use", "Measure")
+        right_cols <- setdiff(names(ts_data), left_cols)
+        
+        datatable(
+          ts_data,
+          options = list(
+            scrollX = TRUE,
+            pageLength = 20
           )
+        ) %>%
+          formatStyle(left_cols,  `text-align` = "left") %>%
+          formatStyle(right_cols, `text-align` = "right")
+        
       }
     })
     

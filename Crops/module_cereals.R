@@ -272,6 +272,7 @@ cerealsServer <- function(id) {
     # ===================== DATA TABLE =====================
     output$table <- renderDT({
       req(input$tabsetPanel == "Data Table")
+      
       if (input$table_data == "map") {
         req(input$variable)
         cereals_map %>%
@@ -279,41 +280,51 @@ cerealsServer <- function(id) {
           mutate(across(where(is.numeric) & !contains("Year"), comma)) %>%
           datatable(
             options = list(
-              scrollX = TRUE,  # Enable horizontal scrolling
-              pageLength = 20,  # Show 20 entries by default
-              autoWidth = TRUE, # Apply column widths
+              scrollX = TRUE,
+              pageLength = 20,
+              autoWidth = TRUE,
               columnDefs = list(
                 list(width = '100px', targets = 1)
               )
             )
           )
       } else {
-        cereals_combined_long %>%
+        ts_data <- cereals_combined_long %>%
           pivot_wider(
-            id_cols = c(`Crop/Land use`, Measure),  
-            names_from = Year,                      
-            values_from = Value                     
+            id_cols = c(`Crop/Land use`, Measure),
+            names_from = Year,
+            values_from = Value
           ) %>%
           select(
             `Crop/Land use`, Measure,
-            sort(as.numeric(colnames(.)[!(colnames(.) %in% c("Crop/Land use", "Measure"))]), decreasing = TRUE) %>% 
-              as.character()
+            all_of(sort(setdiff(names(.), c("Crop/Land use", "Measure")), decreasing = TRUE))
           ) %>%
           mutate(across(
             where(is.numeric),
             ~ case_when(
-              Measure == "Yield" ~ comma(round(.x, 2), accuracy = 0.01),  # 2 dp with commas
-              Measure != "Yield" ~ comma(round(.x, 0), accuracy = 1)      # 0 dp with commas
+              Measure == "Yield" ~ comma(round(.x, 2), accuracy = 0.01),
+              TRUE ~ comma(round(.x, 0), accuracy = 1)
             )
-          )) %>%
-          datatable(
-            options = list(
-              scrollX = TRUE,  # Enable horizontal scrolling
-              pageLength = 20  # Show 20 entries by default
-            )
+          ))
+        
+        # Columns for alignment
+        left_cols  <- c("Crop/Land use", "Measure")
+        right_cols <- setdiff(names(ts_data), left_cols)
+        
+        datatable(
+          ts_data,
+          options = list(
+            scrollX = TRUE,
+            pageLength = 20,
+            autoWidth = TRUE
           )
+        ) %>%
+          formatStyle(left_cols,  `text-align` = "left") %>%
+          formatStyle(right_cols, `text-align` = "right")
       }
+      
     })
+    
     
     output$downloadData <- downloadHandler(
       filename = function() {
