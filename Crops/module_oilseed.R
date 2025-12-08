@@ -58,7 +58,7 @@ oilseedUI <- function(id) {
           ns("table_data"),
           "Select Data to Display",
           choices = c("Map Data" = "map", "Time Series Data" = "timeseries"),
-          selected = "map"
+          selected = "timeseries"
         )
       )
     ),
@@ -262,10 +262,11 @@ oilseedServer <- function(id) {
           mutate(across(
             where(is.numeric),
             ~ case_when(
-              Measure == "Yield" ~ comma(round(.x, 2), accuracy = 0.01),
+              Measure == "Yield" ~ comma(round(.x, 1), accuracy = 0.1),
               TRUE               ~ comma(round(.x, 0), accuracy = 1)
             )
-          ))
+          )) %>% 
+          arrange(Measure)
         
         # Columns for alignment
         left_cols  <- c("Crop/Land use", "Measure")
@@ -314,10 +315,11 @@ oilseedServer <- function(id) {
             mutate(across(
               where(is.numeric),
               ~ case_when(
-                Measure == "Yield" ~ comma(round(.x, 2), accuracy = 0.01),  # 2 dp with commas
+                Measure == "Yield" ~ comma(round(.x, 1), accuracy = 0.1),  # 1 dp with commas
                 Measure != "Yield" ~ comma(round(.x, 0), accuracy = 1)      # 0 dp with commas
               )
-            )) 
+            ))  %>% 
+            arrange(Measure)
         }
         write.csv(data, file, row.names = FALSE)
       }
