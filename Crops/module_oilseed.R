@@ -42,7 +42,7 @@ oilseedUI <- function(id) {
         condition = "input.tabsetPanel === 'Area Chart'",
         ns = ns,
         selectizeInput(
-          ns("area_variables"),
+          ns("area_variables"),   
           "Click within the box to select variables",
           choices = unique(oilseed_data$`Crop/Land use`),
           selected  = c("Winter Oilseed Rape","Spring Oilseed Rape"),
@@ -105,19 +105,23 @@ oilseedServer <- function(id) {
     )
     # ===================== AREA CHART =====================
     area_chart_data <- reactive({
-      req(input$timeseries_variables)
-      filtered_data <- oilseed_data %>%
-        filter(`Crop/Land use` %in% input$timeseries_variables) %>%
-        pivot_longer(cols = -`Crop/Land use`, names_to = "year", values_to = "value") %>%
-        mutate(year = as.numeric(year))  # Ensure year is numeric
-      filtered_data
+      req(input$area_variables)   
+      oilseed_data %>%
+        filter(`Crop/Land use` %in% input$area_variables) %>%
+        pivot_longer(
+          cols = -`Crop/Land use`,
+          names_to = "year",
+          values_to = "value"
+        ) %>%
+        mutate(year = as.numeric(year)) %>%   
+        arrange(year)                         
     })
     
     areaChartServer(
       id = "area",
       chart_data = area_chart_data,
       title = "Area used to grow oilseed in Scotland over time",
-      yAxisTitle = "Area of oilseed (1,000)",
+      yAxisTitle = "Area of oilseed (1,000 hectares)",
       xAxisTitle = "Year",
       unit = "hectares",
       footer = census_footer,
@@ -228,7 +232,6 @@ oilseedServer <- function(id) {
     
     
     # ===================== DATA TABLE =====================
-    
     output$table <- renderDT({
       req(input$tabsetPanel == "Data Table")
       if (input$table_data == "map") {
@@ -251,19 +254,28 @@ oilseedServer <- function(id) {
             names_from = Year,
             values_from = Value
           ) %>%
+          # Relabel Measure values with units
+          mutate(
+            Measure = recode(
+              Measure,
+              "Area"       = "Area (hectares)",
+              "Production" = "Production (tonnes)",
+              "Yield"      = "Yield (tonnes per hectare)"
+            )
+          ) %>%
           select(
             `Crop/Land use`, Measure,
             sort(
               as.numeric(colnames(.)[!(colnames(.) %in% c("Crop/Land use", "Measure"))]),
-              decreasing = TRUE
+              decreasing = FALSE
             ) %>% 
               as.character()
           ) %>%
           mutate(across(
             where(is.numeric),
             ~ case_when(
-              Measure == "Yield" ~ comma(round(.x, 1), accuracy = 0.1),
-              TRUE               ~ comma(round(.x, 0), accuracy = 1)
+              Measure == "Yield (tonnes per hectare)" ~ comma(round(.x, 1), accuracy = 0.1),
+              TRUE                                   ~ comma(round(.x, 0), accuracy = 1)
             )
           )) %>% 
           arrange(Measure)
@@ -301,22 +313,30 @@ oilseedServer <- function(id) {
             mutate(across(where(is.numeric) & !contains("Year"), comma))
         } else {
           oilseed_combined_long %>%
-            # pivot_longer(cols = -`Crop/Land use`, names_to = "year", values_to = "value") %>%
             pivot_wider(
-              id_cols = c(`Crop/Land use`, Measure),  # these stay as rows
-              names_from = Year,                      # years become column names
-              values_from = Value                     # values fill the cells
+              id_cols = c(`Crop/Land use`, Measure),
+              names_from = Year,
+              values_from = Value
+            ) %>%
+            # Relabel Measure values with units
+            mutate(
+              Measure = recode(
+                Measure,
+                "Area"       = "Area (hectares)",
+                "Production" = "Production (tonnes)",
+                "Yield"      = "Yield (tonnes per hectare)"
+              )
             ) %>%
             select(
               `Crop/Land use`, Measure,
-              sort(as.numeric(colnames(.)[!(colnames(.) %in% c("Crop/Land use", "Measure"))]), decreasing = TRUE) %>% 
+              sort(as.numeric(colnames(.)[!(colnames(.) %in% c("Crop/Land use", "Measure"))]), decreasing = FALSE) %>% 
                 as.character()
             ) %>%
             mutate(across(
               where(is.numeric),
               ~ case_when(
-                Measure == "Yield" ~ comma(round(.x, 1), accuracy = 0.1),  # 1 dp with commas
-                Measure != "Yield" ~ comma(round(.x, 0), accuracy = 1)      # 0 dp with commas
+                Measure == "Yield (tonnes per hectare)" ~ comma(round(.x, 1), accuracy = 0.1),  # 1 dp with commas
+                TRUE                                   ~ comma(round(.x, 0), accuracy = 1)      # 0 dp with commas
               )
             ))  %>% 
             arrange(Measure)
@@ -326,14 +346,15 @@ oilseedServer <- function(id) {
     )
   })
 }
+    
 
-# Testing module
-oilseed_demo <- function() {
-  ui <- fluidPage(oilseedUI("oilseed_test"))
-  server <- function(input, output, session) {
-    oilseedServer("oilseed_test")
-  }
-  shinyApp(ui, server)
-}
-
-oilseed_demo()
+# # Testing module
+# oilseed_demo <- function() {
+#   ui <- fluidPage(oilseedUI("oilseed_test"))
+#   server <- function(input, output, session) {
+#     oilseedServer("oilseed_test")
+#   }
+#   shinyApp(ui, server)
+# }
+# 
+# oilseed_demo()

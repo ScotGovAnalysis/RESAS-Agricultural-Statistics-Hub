@@ -48,7 +48,7 @@ cerealsUI <- function(id) {
         condition = "input.tabsetPanel === 'Area Chart'",
         ns = ns,
         selectizeInput(
-          ns("area_variables"),
+          ns("area_variables"),   
           "Click within the box to select variables",
           choices = unique(cereals_data_census$`Crop/Land use`),
           selected = c("Wheat", "Total Barley", "Total Oats"),
@@ -141,16 +141,20 @@ cerealsServer <- function(id) {
     )
     # ===================== AREA CHART =====================
     area_chart_data <- reactive({
-      req(input$timeseries_variables)
-      filtered_data <- cereals_data_census %>%
-        filter(`Crop/Land use` %in% input$timeseries_variables) %>%
-        pivot_longer(cols = -`Crop/Land use`, names_to = "year", values_to = "value") %>%
-        mutate(year = as.numeric(year))  # Ensure year is numeric
-      filtered_data
+      req(input$area_variables)  
+      cereals_data_census %>%
+        filter(`Crop/Land use` %in% input$area_variables) %>%
+        pivot_longer(
+          cols = -`Crop/Land use`,
+          names_to = "year",
+          values_to = "value"
+        ) %>%
+        mutate(year = as.numeric(year)) %>%
+        arrange(year)
     })
     
     areaChartServer(
-      id = "area",
+      id = "area",                
       chart_data = area_chart_data,
       title = "Area used to grow cereals over time",
       yAxisTitle = "Area of cereals (1,000 hectares)",
@@ -295,14 +299,23 @@ cerealsServer <- function(id) {
             names_from = Year,
             values_from = Value
           ) %>%
+          # Relabel Measure values with units
+          mutate(
+            Measure = recode(
+              Measure,
+              "Area"      = "Area (hectares)",
+              "Production"= "Production (tonnes)",
+              "Yield"     = "Yield (tonnes per hectare)"
+            )
+          ) %>%
           select(
             `Crop/Land use`, Measure,
-            all_of(sort(setdiff(names(.), c("Crop/Land use", "Measure")), decreasing = TRUE))
+            all_of(sort(setdiff(names(.), c("Crop/Land use", "Measure")), decreasing = FALSE))
           ) %>%
           mutate(across(
             where(is.numeric),
             ~ case_when(
-              Measure == "Yield" ~ comma(round(.x, 1), accuracy = 0.1),
+              Measure == "Yield (tonnes per hectare)" ~ comma(round(.x, 1), accuracy = 0.1),
               TRUE ~ comma(round(.x, 0), accuracy = 1)
             )
           )) %>% 
@@ -323,7 +336,6 @@ cerealsServer <- function(id) {
           formatStyle(left_cols,  `text-align` = "left") %>%
           formatStyle(right_cols, `text-align` = "right")
       }
-      
     })
     
     
@@ -347,16 +359,25 @@ cerealsServer <- function(id) {
               names_from = Year,                      
               values_from = Value                     
             ) %>%
+            # Relabel Measure values with units
+            mutate(
+              Measure = recode(
+                Measure,
+                "Area"       = "Area (hectares)",
+                "Production" = "Production (tonnes)",
+                "Yield"      = "Yield (tonnes per hectare)"
+              )
+            ) %>%
             select(
               `Crop/Land use`, Measure,
-              sort(as.numeric(colnames(.)[!(colnames(.) %in% c("Crop/Land use", "Measure"))]), decreasing = TRUE) %>% 
+              sort(as.numeric(colnames(.)[!(colnames(.) %in% c("Crop/Land use", "Measure"))]), decreasing = FALSE) %>% 
                 as.character()
             ) %>%
             mutate(across(
               where(is.numeric),
               ~ case_when(
-                Measure == "Yield" ~ comma(round(.x, 1), accuracy = 0.1),  # 1 dp with commas
-                Measure != "Yield" ~ comma(round(.x, 0), accuracy = 1)      # 0 dp with commas
+                Measure == "Yield (tonnes per hectare)" ~ comma(round(.x, 1), accuracy = 0.1),  # 1 dp with commas
+                TRUE                                   ~ comma(round(.x, 0), accuracy = 1)      # 0 dp with commas
               )
             )) %>% 
             arrange(Measure)
@@ -364,6 +385,7 @@ cerealsServer <- function(id) {
         write.csv(data, file, row.names = FALSE)
       }
     )
+    
     
     # Reactive expression for the selected variable and years
     summary_data <- reactive({
@@ -381,14 +403,14 @@ cerealsServer <- function(id) {
   })
 }
 
-# Testing module
-cereals_demo <- function() {
-  ui <- fluidPage(cerealsUI("cereals_test"))
-  server <- function(input, output, session) {
-    cerealsServer("cereals_test")
-  }
-  shinyApp(ui, server)
-}
-
-cereals_demo()
+# # Testing module
+# cereals_demo <- function() {
+#   ui <- fluidPage(cerealsUI("cereals_test"))
+#   server <- function(input, output, session) {
+#     cerealsServer("cereals_test")
+#   }
+#   shinyApp(ui, server)
+# }
+# 
+# cereals_demo()
 
