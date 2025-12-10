@@ -70,6 +70,9 @@ cereals_tiff_data_long <- cereals_tiff_data %>%
          Measure != "Area") %>% 
   distinct(`Crop/Land use`, Year, Measure, .keep_all = TRUE)
 
+save(cereals_tiff_data_long, file="Data/cereals_tiff_data_long.RData")
+
+
 # Get the set of years where Area exists in Cereals_census_data_long
 years_with_area <- Cereals_census_data_long %>%
   filter(Measure == "Area") %>%
