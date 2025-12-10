@@ -30,6 +30,9 @@ load(here("Data", "FBS_data.Rda"))
 load(here("Data", "TIFF_data.Rda"))
 load(here("Data", "irrigation_2025.RData"))
 #load(here("Data", "census_data_2025.RData"))
+load(here("Data", "cereals_combined_long.RData"))
+load(here("Data", "oilseed_combined_long.RData"))
+load(here("Data", "oilseed_tiff_data_long.RData"))
 
 # Load FBS options
 source(here("Economy/FBS", "fbs_utility.R"))
