@@ -70,7 +70,14 @@ homeUI <- function(id) {
           tags$li(actionLink(ns("nav_ag_mach_ownership_module"), "Ownership")),
           tags$li(actionLink(ns("nav_ag_mach_fuel_module"), "Fuel"))
         ),
-          
+        tags$div(
+          style = "margin-top: 20px; font-size: 20px; font-weight: bold;",
+          "Irrigation"
+        ),
+        tags$ul(
+          tags$li(actionLink(ns("nav_module_irrigation_methods"), "Irrigation methods")),
+          tags$li(actionLink(ns("nav_module_irrigation_drought_flood_protections"), "Irrigation, drought and flood protections"))
+        ),
         tags$div(
           style = "margin-top: 20px; font-size: 20px; font-weight: bold;",
           "Economy"
@@ -199,7 +206,9 @@ homeServer <- function(id) {
       ag_mach_fuel_module = "ag_mach_fuel_module",
       economy = "economy_summary_module",
       module_fbs = "module_fbs",
-      tiff_module = "tiff_module"
+      tiff_module = "tiff_module",
+      module_irrigation_methods = "module_irrigation_methods",
+      module_irrigation_drought_flood_protections = "module_irrigation_drought_flood_protections"
     )
     
     # Set up observeEvent for each page
