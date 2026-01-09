@@ -3,15 +3,30 @@ landUseSummaryUI <- function(id) {
   sidebarLayout(
     sidebarPanel(
       width = 3,
+      
+      # Region variable selector (only when Map tab active)
       conditionalPanel(
-        condition = "input.tabsetPanel === 'Map'",
+        condition = sprintf("input['%s'] === 'Map'", ns("tabsetPanel")),
         ns = ns,
         radioButtons(
-          ns("variable"), 
-          "Select Variable", 
+          ns("variable"),
+          "Select Variable (Regions)",
           choices = unique(land_use_subregion$`Land use by category`)
         )
-      ), 
+      ),
+      
+      # Constituency variable selector (also under Map tab)
+      conditionalPanel(
+        condition = sprintf("input['%s'] === 'Map'", ns("tabsetPanel")),
+        ns = ns,
+        radioButtons(
+          ns("variable_constituency"),
+          "Select Variable (Constituencies)",
+          choices = unique(land_use_constituency$`land use`)
+        )
+      ),
+      
+      
       conditionalPanel(
         condition = "input.tabsetPanel === 'Summary'",
         ns = ns,
@@ -55,17 +70,19 @@ landUseSummaryUI <- function(id) {
         radioButtons(
           ns("table_data"),
           "Select Data to Display",
-          choices = c("Map Data" = "map", "Time Series Data" = "timeseries"),
+          choices = c("Map Data" = "map", "Time Series Data" = "timeseries", "Constituency data" = "Constituency Map"),
           selected = "map"
         )
       )
     ),
+    
     mainPanel(
       id = ns("mainpanel"),
       width = 9,
       tabsetPanel(
         id = ns("tabsetPanel"),
         tabPanel("Map", mapUI(ns("map"))),
+        tabPanel("Map - Constituencies", mapConstituenciesUI(ns("map"))),
         tabPanel("Bar Chart", barChartUI(ns("bar_chart"))),
         tabPanel("Time Series", lineChartUI(ns("line"))),
         tabPanel("Data Table", 
@@ -95,6 +112,14 @@ landUseSummaryServer <- function(id) {
         mutate(value = as.numeric(value))
     })
     
+    #new reactive for second map (example: different dataset or filter)
+    land_use_map_constituency <- reactive({
+      land_use_constituency %>%
+        mutate(across(everything(), as.character)) %>%
+        pivot_longer(cols = -`land use`, names_to = "constituency", values_to = "value") %>%
+        mutate(value = as.numeric(value))
+    })
+    
     # Table data with formatted values for better readability
     table_data <- reactive({
       if (input$table_data == "map") {
@@ -118,6 +143,21 @@ landUseSummaryServer <- function(id) {
       title = paste("Land use by region in Scotland in", census_year),
       legend_title = "Area (hectares)"
     )
+    
+    
+    mapConstituenciesServer(
+      id = "Constituency Map",
+      data = reactive({
+        req(input$variable)
+        land_use_constituency() %>% filter(`land use` == input$variable)
+      }),
+      unit = "hectares",
+      footer = census_footer,
+      variable = reactive(input$variable),
+      title = paste("Land use by 2026 Constituency", census_year),
+      legend_title = "Area (hectares)"
+    )
+    
     
     chart_data <- reactive({
       agricultural_area_hectares %>%
@@ -193,3 +233,4 @@ land_use_demo <- function() {
 }
 
 land_use_demo()
+
