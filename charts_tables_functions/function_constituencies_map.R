@@ -1,9 +1,3 @@
-# File: module_regions_map.R
-
-library(shiny)
-library(highcharter)
-library(geojsonio)
-library(dplyr)
 
 # Load the GeoJSON file
 constituency_geojson_data <- geojson_read("utility/constituencies_simplified.geojson", what = "sp")
@@ -17,13 +11,14 @@ mapConstituenciesUI <- function(id) {
     mainPanel(
       width = 12,  # Ensures the main panel uses full width
       htmlOutput(ns("title")),
-      highchartOutput(ns("map"), height = "75vh", width = "100%"),  # Set width to 100% for full utilization
+      highchartOutput(ns("map_con"), height = "75vh", width = "100%"),  # Set width to 100% for full utilization
       htmlOutput(ns("footer")),
       div(
         class = "note",
         style = "margin-top: 20px; padding: 10px; border-top: 1px solid #ddd;",
         HTML(
           "<strong>Note:</strong><ul>
+          <li>Where areas are shaded in grey, the data has been suppressed to prevent disclosure of individual holdings.</li>
             <li>To change the data shown, select a variable from the radio buttons within the sidebar.</li>
             <li>You can see data values for each variable by hovering your mouse over the region.</li>
             <li>To change the zoom level, use the + and - to the left of the graph, or scroll using your mouse wheel.</li>
@@ -51,14 +46,12 @@ mapConstituenciesServer <- function(id, data, variable, unit = "", title, footer
       req(variable())
       req(data())
       
-      filtered <- data() %>%
-        select(constituency, value) %>%
-        mutate(constituency = as.character(constituency))
-      
-      filtered
+      first_col_name <- names(data())[1]  # Get the name of the first column dynamically
+      data() %>%
+        filter(!!sym(first_col_name) == variable())
     })
     
-    output$map <- renderHighchart({
+    output$map_con <- renderHighchart({
       data <- filtered_data()
       
       hc_data <- data %>% 
@@ -69,7 +62,7 @@ mapConstituenciesServer <- function(id, data, variable, unit = "", title, footer
       highchart(type = "map") %>%
         hc_add_series(
           mapData = constituency_geojson_list, 
-          joinBy = c("constituency", "constituency"),
+          joinBy = c("NAME", "constituency"),
           data = hc_data,
           borderColor = "#FFFFFF",
           borderWidth = 0.5,
