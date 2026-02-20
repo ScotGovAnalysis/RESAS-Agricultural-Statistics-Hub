@@ -738,7 +738,7 @@ land_use_constituency <- constituency_crops_area %>%
 workforce_constituency <- constituency_workforce_numbers %>%
   select(Constituency, `Regular Full-Time Staff Total (Number)`,
          `Regular Part-Time Staff Total (Number)`, `Total Casual And Seasonal Staff (Number)`,
-         `Total Agricultural Workforce (Number)`) %>%
+         `Total Workforce (including occupiers) (Number)`) %>%
   pivot_longer(cols = -Constituency, names_to = "workforce", values_to = "value") %>%
   pivot_wider(names_from  = Constituency, values_from = value)
 

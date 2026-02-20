@@ -55,6 +55,8 @@ mapConstituenciesServer <- function(id, data, variable, unit = "", title, footer
       data <- filtered_data()
       
       hc_data <- data %>% 
+        mutate(constituency = as.character(constituency)) %>%
+        select(constituency, value) %>%
         list_parse()
       
       variable_name <- variable()
@@ -85,9 +87,11 @@ mapConstituenciesServer <- function(id, data, variable, unit = "", title, footer
               } else {
                 formattedValue = value.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 2});
               }
-              return '<b>' + this.region + '</b><br/>' +
-                     '%s: ' + formattedValue + ' %s';
-            }", variable_name, unit))
+
+      return '%s: ' + formattedValue + ' %s';
+    }
+  ", variable_name, unit))
+            
           ),
           nullColor = '#E0E0E0'  # Color for regions with no data
         ) %>%

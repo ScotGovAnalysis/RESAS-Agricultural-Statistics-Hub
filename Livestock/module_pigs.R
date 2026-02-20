@@ -9,12 +9,24 @@ pigsUI <- function(id) {
         condition = "input.tabsetPanel === 'Map'",
         ns = ns,
         radioButtons(
-          ns("variable"), 
+          ns("variable_region"), 
           "Select Variable", 
           choices = c(
             "Total Pigs" = "Total Pigs",
             "Female pigs breeding herd" = "Female pigs breeding herd",
             "All other non-breeding pigs" = "All other non-breeding pigs"
+          ))
+      ),
+      conditionalPanel(
+        condition = "input.tabsetPanel === 'Constituency Map'",
+        ns = ns,
+        radioButtons(
+          ns("variable_con"), 
+          "Select Variable", 
+          choices = c(
+            "Total Pigs" = "Total Pigs (Number)",
+            "Female pigs breeding herd" = "Female pigs breeding herd (Number)",
+            "All other non-breeding pigs" = "All other non-breeding pigs (Number)"
           ))
       ),
       conditionalPanel(
@@ -52,6 +64,7 @@ pigsUI <- function(id) {
       tabsetPanel(
         id = ns("tabsetPanel"),
         tabPanel("Map", mapUI(ns("map"))),
+        tabPanel("Constituency Map", mapConstituenciesUI(ns("map_con"))),
         tabPanel("Time Series", lineChartUI(ns("line"), note_type = 2)),
         tabPanel("Area Chart", areaChartUI(ns("area"), note_type = 2)),
         tabPanel("Data Table", 
@@ -83,13 +96,39 @@ pigsServer <- function(id) {
     mapServer(
       id = "map",
       data = reactive({
-        req(input$variable)
-        pigs_data %>% filter(`Livestock by category` == input$variable)
+        req(input$variable_region)
+        pigs_data %>% filter(`Livestock by category` == input$variable_region)
       }),
       footer = census_footer,
-      variable = reactive(input$variable),
+      variable = reactive(input$variable_region),
       title = paste("Pig distribution by region in Scotland in", census_year),
       legend_title = "Number of pigs"
+    )
+    
+    pig_const_map <- reactive({
+      pigs_constituency %>%         # <— your constituency land use table
+        mutate(across(everything(), as.character)) %>%
+        pivot_longer(
+          cols = -`livestock`,
+          names_to = "constituency",
+          values_to = "value"
+        ) %>% 
+        mutate(
+          value = if_else(is.na(value), NA_integer_, as.integer(value))
+        )
+    })
+    
+    mapConstituenciesServer(
+      id = "map_con",
+      data = reactive({
+        req(input$variable_con)
+        pig_const_map() %>% filter(`livestock` == input$variable_con)
+      }),
+      unit = "number",
+      footer = census_footer,
+      variable = reactive(input$variable_con),
+      title = paste("Pigs by constituency in Scotland in", census_year),
+      legend_title = "Pigs (number)"
     )
     
     chart_data <- reactive({
