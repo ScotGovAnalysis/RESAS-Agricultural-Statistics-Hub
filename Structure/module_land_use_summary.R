@@ -67,7 +67,7 @@ landUseSummaryUI <- function(id) {
         radioButtons(
           ns("table_data"),
           "Select Data to Display",
-          choices = c("Map Data" = "map", "Time Series Data" = "timeseries", "Constituency data" = "map_con"),
+          choices = c("Map Data" = "map", "Time Series Data" = "timeseries"),
                         #"Constituency Map"),
           selected = "map"
         )
