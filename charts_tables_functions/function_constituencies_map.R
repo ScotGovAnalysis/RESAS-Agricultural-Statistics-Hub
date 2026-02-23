@@ -22,6 +22,7 @@ mapConstituenciesUI <- function(id) {
             <li>To change the data shown, select a variable from the radio buttons within the sidebar.</li>
             <li>You can see data values for each variable by hovering your mouse over the region.</li>
             <li>To change the zoom level, use the + and - to the left of the graph, or scroll using your mouse wheel.</li>
+            <li>The 2026 Scottish Parliamentary Constituencies are used.</li>
           </ul>"
         )
       )

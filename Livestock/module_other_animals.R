@@ -6,7 +6,7 @@ otherAnimalsUI <- function(id) {
     sidebarPanel(
       width = 3,
       conditionalPanel(
-        condition = "input.tabsetPanel === 'Map'",
+        condition = "input.tabsetPanel === 'Agricultural Region Map'",
         ns = ns,
         radioButtons(
           ns("variable_region"), 
@@ -76,7 +76,7 @@ otherAnimalsUI <- function(id) {
       width = 9,
       tabsetPanel(
         id = ns("tabsetPanel"),
-        tabPanel("Map", mapUI(ns("map"))),
+        tabPanel("Agricultural Region Map", mapUI(ns("map"))),
         tabPanel("Constituency Map", mapConstituenciesUI(ns("map_con"))),
         tabPanel("Time Series", lineChartUI(ns("line"))),
         tabPanel("Data Table", 
@@ -143,7 +143,7 @@ otherAnimalsServer <- function(id) {
       unit = "number",
       footer = census_footer,
       variable = reactive(input$variable_con),
-      title = paste("Other animals by constituency in Scotland in", census_year),
+      title = paste("Other animals distribution by Scottish Parliamentary Constituency in", census_year),
       legend_title = "Animals (number)"
     )
     

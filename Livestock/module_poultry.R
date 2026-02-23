@@ -5,7 +5,7 @@ poultryUI <- function(id) {
     sidebarPanel(
       width = 3,
       conditionalPanel(
-        condition = "input.tabsetPanel === 'Map'",
+        condition = "input.tabsetPanel === 'Agricultural Region Map'",
         ns = ns,
         radioButtons(
           ns("variable_region"), 
@@ -66,7 +66,7 @@ poultryUI <- function(id) {
       width = 9,
       tabsetPanel(
         id = ns("tabsetPanel"),
-        tabPanel("Map", mapUI(ns("map"))),
+        tabPanel("Agricultural Region Map", mapUI(ns("map"))),
         tabPanel("Constituency Map", mapConstituenciesUI(ns("map_con"))),
         tabPanel("Time Series", lineChartUI(ns("line"), note_type = 2)),
         tabPanel("Area Chart", areaChartUI(ns("area"), note_type = 2)),
@@ -135,7 +135,7 @@ poultryServer <- function(id) {
       unit = "number",
       footer = census_footer,
       variable = reactive(input$variable_con),
-      title = paste("Poultry by constituency in Scotland in", census_year),
+      title = paste("Poultry distribution by Scottish Parliamentary Constituency in", census_year),
       legend_title = "Poultry (number)"
     )
     

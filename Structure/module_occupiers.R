@@ -9,7 +9,7 @@ occupiersUI <- function(id) {
       width = 9,
       tabsetPanel(
         id = ns("tabs"),
-        tabPanel("Map", mapUI(ns("map")), value = "map"),
+        tabPanel("Agricultural Region Map", mapUI(ns("map")), value = "map"),
         tabPanel("Constituency Map", mapConstituenciesUI(ns("map_con")), value = "map_con"),
         tabPanel("Population Pyramid", 
                  div(
@@ -225,7 +225,7 @@ occupiersServer <- function(id) {
       unit = "occupiers",
       footer = census_footer,
       variable = reactive(input$variable_con),
-      title = paste("Workforce by constituency in Scotland in", census_year),
+      title = paste("Occupiers by Scottish Parliamentary Constituency in", census_year),
       legend_title = "Occupiers (Number)"
     )
     

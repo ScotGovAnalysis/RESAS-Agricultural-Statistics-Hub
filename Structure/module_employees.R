@@ -34,7 +34,7 @@ employeesMapUI <- function(id) {
       width = 9,
       tabsetPanel(
         id = ns("tabs"),
-        tabPanel("Map", mapUI(ns("map")), value = "map"),
+        tabPanel("Agricultural Region Map", mapUI(ns("map")), value = "map"),
         tabPanel("Constituency Map", mapConstituenciesUI(ns("map_con")), value = "map_con"),
         tabPanel("Time Series", 
                  lineChartUI(ns("line_chart"), note_type = 2),  # Use note_type = 2 for the second note
@@ -160,7 +160,7 @@ employeesMapServer <- function(id) {
       unit = "employees",
       footer = census_footer,
       variable = reactive(input$variable_con),
-      title = paste("Workforce by constituency in Scotland in", census_year),
+      title = paste("Agricultural employees by Scottish Parliamentary Constituency in", census_year),
       legend_title = "Employees (Number)"
     )
     
