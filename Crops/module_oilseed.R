@@ -11,11 +11,25 @@ oilseedUI <- function(id) {
         condition = "input.tabsetPanel === 'Map'",
         ns = ns,
         radioButtons(
-          ns("variable"), 
+          ns("variable_region"), 
           "Select Variable", 
           choices = unique(oilseed_subregion$`Land use by category`)
         )
       ),
+      
+      
+      # ===================== CONSTITUENCY MAP =====================
+      conditionalPanel(
+        condition = "input.tabsetPanel === 'Constituency Map'",
+        ns = ns,
+        radioButtons(
+          ns("variable_con"), 
+          "Select Variable", 
+          choices = unique(oilseeds_constituency$crop)
+        )
+      ),
+      
+      
       # ===================== TIME SERIES =====================
       conditionalPanel(
         condition = "input.tabsetPanel === 'Time Series'",
@@ -68,6 +82,7 @@ oilseedUI <- function(id) {
       tabsetPanel(
         id = ns("tabsetPanel"),
         tabPanel("Map", mapUI(ns("map"))),
+        tabPanel("Constituency Map", mapConstituenciesUI(ns("map_con"))),
         tabPanel("Time Series", lineChartUI(ns("line"))),
         tabPanel("Area Chart", areaChartUI(ns("area"))),
         tabPanel("Data Table", 
@@ -94,15 +109,43 @@ oilseedServer <- function(id) {
     mapServer(
       id = "map",
       data = reactive({
-        req(input$variable)
-        oilseed_map %>% filter(`Land use by category` == input$variable)
+        req(input$variable_region)
+        oilseed_map %>% filter(`Land use by category` == input$variable_region)
       }),
       unit = "hectares",
       footer = census_footer,
-      variable = reactive(input$variable),
+      variable = reactive(input$variable_region),
       title = paste("Oilseed distribution by region in Scotland in", census_year),
       legend_title = "Area (hectares)"
     )
+    
+    # ===================== CONSTITUENCY MAP =====================
+    oilseed_const_map <- reactive({
+      oilseeds_constituency %>%         # <— your constituency land use table
+        mutate(across(everything(), as.character)) %>%
+        pivot_longer(
+          cols = -`crop`,
+          names_to = "constituency",
+          values_to = "value"
+        ) %>% 
+        mutate(
+          value = if_else(is.na(value), NA_integer_, as.integer(value))
+        )
+    })
+    
+    mapConstituenciesServer(
+      id = "map_con",
+      data = reactive({
+        req(input$variable_con)
+        oilseed_const_map() %>% filter(`crop` == input$variable_con)
+      }),
+      unit = "hectares",
+      footer = census_footer,
+      variable = reactive(input$variable_con),
+      title = paste("Cereals distribution by constituency in Scotland in", census_year),
+      legend_title = "Area (hectares)"
+    )
+    
     # ===================== AREA CHART =====================
     area_chart_data <- reactive({
       req(input$area_variables)   

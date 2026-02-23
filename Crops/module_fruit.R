@@ -9,11 +9,22 @@ fruitUI <- function(id) {
         condition = "input.tabsetPanel === 'Map'",
         ns = ns,
         radioButtons(
-          ns("variable"), 
+          ns("variable_region"), 
           "Select Variable", 
           choices = unique(fruit_subregion$`Land use by category`)
         )
-      ),     
+      ),
+      
+      conditionalPanel(
+        condition = "input.tabsetPanel === 'Constituency Map'",
+        ns = ns,
+        radioButtons(
+          ns("variable_con"), 
+          "Select Variable", 
+          choices = unique(fruit_constituency$crop)
+        )
+      ),    
+      
       conditionalPanel(
         condition = "input.tabsetPanel === 'Time Series' || input.tabsetPanel === 'Area Chart'",
         ns = ns,
@@ -51,6 +62,7 @@ fruitUI <- function(id) {
       tabsetPanel(
         id = ns("tabsetPanel"),
         tabPanel("Map", mapUI(ns("map"))),
+        tabPanel("Constituency Map", mapConstituenciesUI(ns("map_con"))),
         tabPanel("Time Series", lineChartUI(ns("line"), note_type = 2)),
         tabPanel("Area Chart", areaChartUI(ns("area"), note_type = 2)),
         tabPanel("Data Table", 
@@ -77,13 +89,41 @@ fruitServer <- function(id) {
     mapServer(
       id = "map",
       data = reactive({
-        req(input$variable)
-        fruit_map %>% filter(`Land use by category` == input$variable)
+        req(input$variable_region)
+        fruit_map %>% filter(`Land use by category` == input$variable_region)
       }),
       unit = "hectares",
       footer = census_footer,
-      variable = reactive(input$variable),
+      variable = reactive(input$variable_region),
       title = paste("Fruit distribution by region in Scotland in", census_year),
+      legend_title = "Area (hectares)"
+    )
+    
+    
+    # ===================== CONSTITUENCY MAP =====================
+    fruit_const_map <- reactive({
+      fruit_constituency %>%         # <— your constituency land use table
+        mutate(across(everything(), as.character)) %>%
+        pivot_longer(
+          cols = -`crop`,
+          names_to = "constituency",
+          values_to = "value"
+        ) %>% 
+        mutate(
+          value = if_else(is.na(value), NA_integer_, as.integer(value))
+        )
+    })
+    
+    mapConstituenciesServer(
+      id = "map_con",
+      data = reactive({
+        req(input$variable_con)
+        fruit_const_map() %>% filter(`crop` == input$variable_con)
+      }),
+      unit = "hectares",
+      footer = census_footer,
+      variable = reactive(input$variable_con),
+      title = paste("Fruit crops distribution by constituency in Scotland in", census_year),
       legend_title = "Area (hectares)"
     )
     
