@@ -8,7 +8,7 @@ oilseedUI <- function(id) {
       
       # ===================== MAP =====================
       conditionalPanel(
-        condition = "input.tabsetPanel === 'Map'",
+        condition = "input.tabsetPanel === 'Agricultural Region Map'",
         ns = ns,
         radioButtons(
           ns("variable_region"), 
@@ -81,7 +81,7 @@ oilseedUI <- function(id) {
       width = 9,
       tabsetPanel(
         id = ns("tabsetPanel"),
-        tabPanel("Map", mapUI(ns("map"))),
+        tabPanel("Agricultural Region Map", mapUI(ns("map"))),
         tabPanel("Constituency Map", mapConstituenciesUI(ns("map_con"))),
         tabPanel("Time Series", lineChartUI(ns("line"))),
         tabPanel("Area Chart", areaChartUI(ns("area"))),
@@ -142,7 +142,7 @@ oilseedServer <- function(id) {
       unit = "hectares",
       footer = census_footer,
       variable = reactive(input$variable_con),
-      title = paste("Cereals distribution by constituency in Scotland in", census_year),
+      title = paste("Oilseed distribution by Scottish Parliamentary Constituency in", census_year),
       legend_title = "Area (hectares)"
     )
     
