@@ -119,7 +119,7 @@ landUseSummaryServer <- function(id) {
           values_to = "value"
         ) %>% 
         mutate(
-          value = if_else(is.na(value), NA_integer_, as.integer(value))
+          value = if_else(is.na(value), NA_real_, as.numeric(value))
         )
     })
 
