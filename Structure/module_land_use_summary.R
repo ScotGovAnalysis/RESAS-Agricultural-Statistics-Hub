@@ -157,7 +157,7 @@ landUseSummaryServer <- function(id) {
       unit = "hectares",
       footer = census_footer,
       variable = reactive(input$variable_con),
-      title = paste("Land use by Scottish Parliamentry Constituency in", census_year),
+      title = paste("Land use by 2026 Scottish Parliamentry Constituency"),
       legend_title = "Area (hectares)"
     )
 

@@ -127,7 +127,7 @@ pigsServer <- function(id) {
       unit = "number",
       footer = census_footer,
       variable = reactive(input$variable_con),
-      title = paste("Pig distribution by Scottish Parliamentary Constituency in", census_year),
+      title = paste("Pig distribution by 2026 Scottish Parliamentary Constituency"),
       legend_title = "Pigs (number)"
     )
     

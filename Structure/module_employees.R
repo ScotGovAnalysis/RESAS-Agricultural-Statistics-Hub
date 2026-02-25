@@ -160,7 +160,7 @@ employeesMapServer <- function(id) {
       unit = "employees",
       footer = census_footer,
       variable = reactive(input$variable_con),
-      title = paste("Agricultural employees by Scottish Parliamentary Constituency in", census_year),
+      title = paste("Agricultural employees by 2026 Scottish Parliamentary Constituency"),
       legend_title = "Employees (Number)"
     )
     

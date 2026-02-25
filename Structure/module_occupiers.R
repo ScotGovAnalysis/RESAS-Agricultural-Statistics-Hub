@@ -225,7 +225,7 @@ occupiersServer <- function(id) {
       unit = "occupiers",
       footer = census_footer,
       variable = reactive(input$variable_con),
-      title = paste("Occupiers by Scottish Parliamentary Constituency in", census_year),
+      title = paste("Occupiers by 2026 Scottish Parliamentary Constituency"),
       legend_title = "Occupiers (Number)"
     )
     

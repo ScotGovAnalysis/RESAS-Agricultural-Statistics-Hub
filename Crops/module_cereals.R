@@ -178,7 +178,7 @@ cerealsServer <- function(id) {
       unit = "hectares",
       footer = census_footer,
       variable = reactive(input$variable_con),
-      title = paste("Cereals distribution by Scottish Parliamentary Constituency in", census_year),
+      title = paste("Cereals distribution by 2026 Scottish Parliamentary Constituency"),
       legend_title = "Area (hectares)"
     )
     # ===================== AREA CHART =====================

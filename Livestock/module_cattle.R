@@ -136,7 +136,7 @@ cattleServer <- function(id) {
       unit = "number",
       footer = census_footer,
       variable = reactive(input$variable_con),
-      title = paste("Cattle distribution by Scottish Parliamentary Constituency in", census_year),
+      title = paste("Cattle distribution by 2026 Scottish Parliamentary Constituency"),
       legend_title = "Cattle (number)"
     )
     # Processing data for Area Chart and Time Series

@@ -123,7 +123,7 @@ fruitServer <- function(id) {
       unit = "hectares",
       footer = census_footer,
       variable = reactive(input$variable_con),
-      title = paste("Fruit crops distribution by Scottish Parliamentary Constituency in", census_year),
+      title = paste("Fruit crops distribution by 2026 Scottish Parliamentary Constituency"),
       legend_title = "Area (hectares)"
     )
     
