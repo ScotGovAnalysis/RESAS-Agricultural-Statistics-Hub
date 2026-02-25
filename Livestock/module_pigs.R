@@ -63,7 +63,7 @@ pigsUI <- function(id) {
       width = 9,
       tabsetPanel(
         id = ns("tabsetPanel"),
-        tabPanel("Map", mapUI(ns("map"))),
+        tabPanel("Agricultural Region Map", mapUI(ns("map"))),
         tabPanel("Constituency Map", mapConstituenciesUI(ns("map_con"))),
         tabPanel("Time Series", lineChartUI(ns("line"), note_type = 2)),
         tabPanel("Area Chart", areaChartUI(ns("area"), note_type = 2)),
