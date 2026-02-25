@@ -178,7 +178,7 @@ sheepServer <- function(id) {
     output$table <- renderDT({
       req(input$tabsetPanel == "Data Table")
       if (input$table_data == "map") {
-        req(input$variable)
+        req(input$variable_region)
         sheep_data %>%
           pivot_wider(names_from = sub_region, values_from = value) %>%
           mutate(across(where(is.numeric) & !contains("Year"), comma)) %>% 

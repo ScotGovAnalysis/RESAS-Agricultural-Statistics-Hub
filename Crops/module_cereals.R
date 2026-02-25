@@ -320,7 +320,7 @@ cerealsServer <- function(id) {
       req(input$tabsetPanel == "Data Table")
       
       if (input$table_data == "map") {
-        req(input$variable)
+        req(input$variable_region)
         cereals_map %>%
           pivot_wider(names_from = sub_region, values_from = value) %>%
           mutate(across(where(is.numeric) & !contains("Year"), comma)) %>%
