@@ -75,6 +75,9 @@ library(ggthemes)
 # Define file path
 file_path <- "Data/June Agricultural Census 2025 Data tables.xlsx"
 
+
+
+
 # Define the simplified table names and corresponding sheet names
 table_names <- c(
   "agricultural_area_hectares" = "Table_1",
@@ -702,3 +705,132 @@ save(
 
 
 
+#### Constituency ####
+
+library(readxl)
+library(purrr)
+
+xlsx_path <- "Data/constituency_data.xlsx"
+
+# Get sheet names
+sheets <- excel_sheets(xlsx_path)
+
+# Read each sheet into a named list of tibbles
+wb_list <- map(sheets, ~ read_excel(xlsx_path, sheet = .x))
+names(wb_list) <- sheets
+
+safe_names <- make.names(names(wb_list))              # base R safe names
+safe_names <- str_replace_all(safe_names, "\\.", "_") # turn dots into underscores
+
+# 2) Assign to the current environment (or specify .GlobalEnv)
+list2env(setNames(wb_list, safe_names), envir = .GlobalEnv)
+
+
+# subsetting
+
+land_use_constituency <- constituency_crops_area %>%
+  select(Constituency, `Total Crops, Fallow, And Set-Aside (Hectares)`, `Total Grass and Rough Grazing (Hectares)`,
+         `Other Land (including woodland) (Hectares)`) %>%
+  pivot_longer(cols = -Constituency, names_to = "land use", values_to = "value") %>%
+  pivot_wider(names_from  = Constituency, values_from = value)
+
+
+workforce_constituency <- constituency_workforce_numbers %>%
+  select(Constituency, `Regular Full-Time Staff Total (Number)`,
+         `Regular Part-Time Staff Total (Number)`, `Total Casual And Seasonal Staff (Number)`,
+         `Total Workforce (including occupiers) (Number)`) %>%
+  pivot_longer(cols = -Constituency, names_to = "workforce", values_to = "value") %>%
+  pivot_wider(names_from  = Constituency, values_from = value)
+
+occupiers_constituency <- constituency_workforce_numbers %>%
+  select(Constituency, `Total Working Occupiers (Number)`, `Occupiers Not Working On The Holding (Number)`) %>%
+  pivot_longer(cols = -Constituency, names_to = "occupier", values_to = "value") %>%
+  pivot_wider(names_from  = Constituency, values_from = value)
+
+cattle_constituency <- constituency_livestock_numbers %>%
+  select(Constituency, `Total Cattle (Number)`, `Total Female Dairy Cattle (Number)`,
+         `Total Female Beef Cattle (Number)`, `Total Male Cattle (Number)`,
+         `Total Calves (Number)`) %>%
+  pivot_longer(cols = -Constituency, names_to = "livestock", values_to = "value") %>%
+  pivot_wider(names_from  = Constituency, values_from = value)
+
+sheep_constituency <- constituency_livestock_numbers %>%
+  select(Constituency, `Total Sheep (Number)`, `Ewes for breeding (Number)`,
+         `Other sheep 1 year and over for breeding (Number)`, `Rams for service (Number)`,
+         `Lambs (Number)`) %>%
+  pivot_longer(cols = -Constituency, names_to = "livestock", values_to = "value") %>%
+  pivot_wider(names_from  = Constituency, values_from = value)
+
+pigs_constituency <- constituency_livestock_numbers %>%
+  select(Constituency, `Total Pigs (Number)`, `Female pigs breeding herd (Number)`,
+         `All other non-breeding pigs (Number)`) %>%
+  pivot_longer(cols = -Constituency, names_to = "livestock", values_to = "value") %>%
+  pivot_wider(names_from  = Constituency, values_from = value)
+
+poultry_constituency <- constituency_livestock_numbers %>%
+  select(Constituency, `Total Poultry (Number)`, `Fowls for producing eggs (Number)`,
+         `Fowls for breeding (Number)`, `Broilers and other table fowls and other poultry (Number)`) %>%
+  pivot_longer(cols = -Constituency, names_to = "livestock", values_to = "value") %>%
+  pivot_wider(names_from  = Constituency, values_from = value)
+
+other_animals_constituency <- constituency_livestock_numbers %>%
+  select(Constituency, `Goats and kids (Number)`, `Deer (Number)`, `Horses (Number)`,
+         `Donkeys (Number)`, `Camelids (Number)`, `Beehives (Number)`) %>%
+  pivot_longer(cols = -Constituency, names_to = "livestock", values_to = "value") %>%
+  pivot_wider(names_from  = Constituency, values_from = value)
+
+cereals_constituency <- constituency_crops_area %>%
+  select(Constituency, `Wheat (Hectares)`, `Winter Barley (Hectares)`, 
+         `Spring Barley (Hectares)`, `Oats and mixed grain (Hectares)`) %>%
+  pivot_longer(cols = -Constituency, names_to = "crop", values_to = "value") %>%
+  pivot_wider(names_from  = Constituency, values_from = value)
+
+oilseeds_constituency <- constituency_crops_area %>%
+  select(Constituency, `Oilseeds (Including Linseed) (Hectares)`) %>%
+  pivot_longer(cols = -Constituency, names_to = "crop", values_to = "value") %>%
+  pivot_wider(names_from  = Constituency, values_from = value)
+
+potatoes_constituency <- constituency_crops_area %>%
+  select(Constituency, `Potatoes (Hectares)`) %>%
+  pivot_longer(cols = -Constituency, names_to = "crop", values_to = "value") %>%
+  pivot_wider(names_from  = Constituency, values_from = value)
+
+peas_beans_constituency <- constituency_crops_area %>%
+  select(Constituency, `Peas and Beans for Combining (Hectares)`) %>%
+  pivot_longer(cols = -Constituency, names_to = "crop", values_to = "value") %>%
+  pivot_wider(names_from  = Constituency, values_from = value)
+
+stockfeeding_constituency <- constituency_crops_area %>%
+  select(Constituency, `Stockfeeding Crops (Hectares)`) %>%
+  pivot_longer(cols = -Constituency, names_to = "crop", values_to = "value") %>%
+  pivot_wider(names_from  = Constituency, values_from = value)
+
+vegetables_constituency <- constituency_crops_area %>%
+  select(Constituency, `Vegetables For Human Consumption (Hectares)`) %>%
+  pivot_longer(cols = -Constituency, names_to = "crop", values_to = "value") %>%
+  pivot_wider(names_from  = Constituency, values_from = value)
+
+fruit_constituency <- constituency_crops_area %>%
+  select(Constituency, `Orchard and soft fruit (Hectares)`) %>%
+  pivot_longer(cols = -Constituency, names_to = "crop", values_to = "value") %>%
+  pivot_wider(names_from  = Constituency, values_from = value)
+
+save(
+  land_use_constituency,
+  workforce_constituency,
+  occupiers_constituency,
+  cattle_constituency,
+  sheep_constituency,
+  pigs_constituency,
+  poultry_constituency,
+  other_animals_constituency,
+  cereals_constituency,
+  oilseeds_constituency,
+  potatoes_constituency,
+  peas_beans_constituency,
+  stockfeeding_constituency,
+  vegetables_constituency,
+  fruit_constituency,
+  
+  file = "Data/constituency_data.RData"
+)

@@ -9,7 +9,8 @@ occupiersUI <- function(id) {
       width = 9,
       tabsetPanel(
         id = ns("tabs"),
-        tabPanel("Map", mapUI(ns("map")), value = "map"),
+        tabPanel("Agricultural Region Map", mapUI(ns("map")), value = "map"),
+        tabPanel("Constituency Map", mapConstituenciesUI(ns("map_con")), value = "map_con"),
         tabPanel("Population Pyramid", 
                  div(
                    htmlOutput(ns("pyramid_title")),
@@ -44,6 +45,19 @@ occupiersServer <- function(id) {
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
     
+    occupier_const_map <- reactive({
+      occupiers_constituency %>%         # <— your constituency land use table
+        mutate(across(everything(), as.character)) %>%
+        pivot_longer(
+          cols = -`occupier`,
+          names_to = "constituency",
+          values_to = "value"
+        ) %>% 
+        mutate(
+          value = if_else(is.na(value), NA_integer_, as.integer(value))
+        )
+    })
+    
     # Data Processing for Bar Chart
     chart_data <- reactive({
       occupiers_age_gender %>%
@@ -68,6 +82,23 @@ occupiersServer <- function(id) {
         ))
     })
     
+    # Data Processing for Constituency Map
+    con_data <- reactive({
+      occupiers_constituency %>%
+        mutate(across(everything(), as.character)) %>%
+        pivot_longer(
+          cols = -`occupiers`,
+          names_to = "constituency",
+          values_to = "value"
+        ) %>% 
+        mutate(
+          value = if_else(is.na(value), NA_integer_, as.integer(value))) %>%
+        filter(`workforce` %in% c(
+              "Total Working Occupiers (Number)", 
+              "Occupiers Not Working On The Holding (Number)"
+            ))
+    })
+    
     # Data Processing for Timeseries
     occupiers_employees <- occupiers_employees %>%
       mutate(across(starts_with("20"), as.numeric))
@@ -83,9 +114,14 @@ occupiersServer <- function(id) {
     output$sidebar_ui <- renderUI({
       req(input$tabs)
       if (input$tabs == "map") {
-        radioButtons(ns("variable"), "Select Variable", choices = c(
+        radioButtons(ns("variable_region"), "Select Variable", choices = c(
           "Total Working Occupiers", 
           "Occupiers Not Working On The Holding"
+        ))
+      } else if (input$tabs == "map_con") {
+        radioButtons(ns("variable_con"), "Select Variable", choices = c(
+          "Total Working Occupiers (Number)",
+          "Occupiers Not Working On The Holding (Number)"
         ))
       } else if (input$tabs == "data_table") {
         radioButtons(ns("data_source"), "Choose data to show:", choices = c("Map Data", "Population Pyramid Data",  "Time Series Data"))
@@ -174,11 +210,24 @@ occupiersServer <- function(id) {
     mapServer(
       id = "map",
       data = regions_data,
-      variable = reactive(input$variable),
+      variable = reactive(input$variable_region),
       footer = census_footer,
       title = paste("Occupiers by region in Scotland in", census_year),
       legend_title = "Number of occupiers"   
       )
+    
+    mapConstituenciesServer(
+      id = "map_con",
+      data = reactive({
+        req(input$variable_con)
+        occupier_const_map() %>% filter(`occupier` == input$variable_con)
+      }),
+      unit = "occupiers",
+      footer = census_footer,
+      variable = reactive(input$variable_con),
+      title = paste("Occupiers by 2026 Scottish Parliamentary Constituency"),
+      legend_title = "Occupiers (Number)"
+    )
     
     # Pivoting Chart Data Wider for Data Table View
     pivoted_chart_data <- reactive({

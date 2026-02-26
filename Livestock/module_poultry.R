@@ -5,16 +5,30 @@ poultryUI <- function(id) {
     sidebarPanel(
       width = 3,
       conditionalPanel(
-        condition = "input.tabsetPanel === 'Map'",
+        condition = "input.tabsetPanel === 'Agricultural Region Map'",
         ns = ns,
         radioButtons(
-          ns("variable"), 
+          ns("variable_region"), 
           "Select Variable", 
           choices = c(           
             "Total Poultry" = "Total Poultry",
             "Fowls for producing eggs" = "Fowls for producing eggs",
             "Fowls for breeding" = "Fowls for breeding",
             "Broilers and other table fowls and other poultry" = "Broilers and other table fowls and other poultry"
+          )
+        )
+      ),
+      conditionalPanel(
+        condition = "input.tabsetPanel === 'Constituency Map'",
+        ns = ns,
+        radioButtons(
+          ns("variable_con"), 
+          "Select Variable", 
+          choices = c(           
+            "Total Poultry" = "Total Poultry (Number)",
+            "Fowls for producing eggs" = "Fowls for producing eggs (Number)",
+            "Fowls for breeding" = "Fowls for breeding (Number)",
+            "Broilers and other table fowls and other poultry" = "Broilers and other table fowls and other poultry (Number)"
           )
         )
       ),
@@ -52,7 +66,8 @@ poultryUI <- function(id) {
       width = 9,
       tabsetPanel(
         id = ns("tabsetPanel"),
-        tabPanel("Map", mapUI(ns("map"))),
+        tabPanel("Agricultural Region Map", mapUI(ns("map"))),
+        tabPanel("Constituency Map", mapConstituenciesUI(ns("map_con"))),
         tabPanel("Time Series", lineChartUI(ns("line"), note_type = 2)),
         tabPanel("Area Chart", areaChartUI(ns("area"), note_type = 2)),
         tabPanel("Data Table", 
@@ -89,13 +104,39 @@ poultryServer <- function(id) {
     mapServer(
       id = "map",
       data = reactive({
-        req(input$variable)
-        poultry_data %>% filter(`Livestock by category` == input$variable)
+        req(input$variable_region)
+        poultry_data %>% filter(`Livestock by category` == input$variable_region)
       }),
       footer = census_footer,
-      variable = reactive(input$variable),
+      variable = reactive(input$variable_region),
       title = paste("Poultry distribution by region in Scotland in", census_year),
       legend_title = "Number of poultry"
+    )
+    
+    poultry_const_map <- reactive({
+      poultry_constituency %>%         # <— your constituency land use table
+        mutate(across(everything(), as.character)) %>%
+        pivot_longer(
+          cols = -`livestock`,
+          names_to = "constituency",
+          values_to = "value"
+        ) %>% 
+        mutate(
+          value = if_else(is.na(value), NA_integer_, as.integer(value))
+        )
+    })
+    
+    mapConstituenciesServer(
+      id = "map_con",
+      data = reactive({
+        req(input$variable_con)
+        poultry_const_map() %>% filter(`livestock` == input$variable_con)
+      }),
+      unit = "number",
+      footer = census_footer,
+      variable = reactive(input$variable_con),
+      title = paste("Poultry distribution by 2026 Scottish Parliamentary Constituency"),
+      legend_title = "Poultry (number)"
     )
     
     chart_data <- reactive({
@@ -132,7 +173,7 @@ poultryServer <- function(id) {
     output$table <- renderDT({
       req(input$tabsetPanel == "Data Table")
       if (input$table_data == "map") {
-        req(input$variable)
+        req(input$variable_region)
         poultry_data %>%
           pivot_wider(names_from = sub_region, values_from = value)  %>%
           mutate(across(where(is.numeric) & !contains("Year"), comma)) %>%

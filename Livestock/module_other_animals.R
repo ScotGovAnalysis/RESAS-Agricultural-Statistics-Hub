@@ -6,10 +6,10 @@ otherAnimalsUI <- function(id) {
     sidebarPanel(
       width = 3,
       conditionalPanel(
-        condition = "input.tabsetPanel === 'Map'",
+        condition = "input.tabsetPanel === 'Agricultural Region Map'",
         ns = ns,
         radioButtons(
-          ns("variable"), 
+          ns("variable_region"), 
           "Select Variable", 
           choices = c(
             "Goats and kids" = "Goats and kids",
@@ -18,6 +18,22 @@ otherAnimalsUI <- function(id) {
             "Donkeys" = "Donkeys",
             "Camelids" = "Camelids",
             "Beehives" = "Beehives"
+          )
+        )
+      ),
+      conditionalPanel(
+        condition = "input.tabsetPanel === 'Constituency Map'",
+        ns = ns,
+        radioButtons(
+          ns("variable_con"), 
+          "Select Variable", 
+          choices = c(
+            "Goats and kids" = "Goats and kids (Number)",
+            "Deer" = "Deer (Number)",
+            "Horses" = "Horses (Number)",
+            "Donkeys" = "Donkeys (Number)",
+            "Camelids" = "Camelids (Number)",
+            "Beehives" = "Beehives (Number)"
           )
         )
       ),
@@ -60,7 +76,8 @@ otherAnimalsUI <- function(id) {
       width = 9,
       tabsetPanel(
         id = ns("tabsetPanel"),
-        tabPanel("Map", mapUI(ns("map"))),
+        tabPanel("Agricultural Region Map", mapUI(ns("map"))),
+        tabPanel("Constituency Map", mapConstituenciesUI(ns("map_con"))),
         tabPanel("Time Series", lineChartUI(ns("line"))),
         tabPanel("Data Table", 
                  DTOutput(ns("table")),
@@ -95,13 +112,39 @@ otherAnimalsServer <- function(id) {
     mapServer(
       id = "map",
       data = reactive({
-        req(input$variable)
-        other_animals_data %>% filter(`Livestock by category` == input$variable)
+        req(input$variable_region)
+        other_animals_data %>% filter(`Livestock by category` == input$variable_region)
       }),
       footer = census_footer,
-      variable = reactive(input$variable),
+      variable = reactive(input$variable_region),
       title = paste("Other animals distribution by region in Scotland in", census_year),
       legend_title = "Number of animals"
+    )
+    
+    other_const_map <- reactive({
+      other_animals_constituency %>%         # <— your constituency land use table
+        mutate(across(everything(), as.character)) %>%
+        pivot_longer(
+          cols = -`livestock`,
+          names_to = "constituency",
+          values_to = "value"
+        ) %>% 
+        mutate(
+          value = if_else(is.na(value), NA_integer_, as.integer(value))
+        )
+    })
+    
+    mapConstituenciesServer(
+      id = "map_con",
+      data = reactive({
+        req(input$variable_con)
+        other_const_map() %>% filter(`livestock` == input$variable_con)
+      }),
+      unit = "number",
+      footer = census_footer,
+      variable = reactive(input$variable_con),
+      title = paste("Other animals distribution by 2026 Scottish Parliamentary Constituency"),
+      legend_title = "Animals (number)"
     )
     
     chart_data <- reactive({
@@ -129,7 +172,7 @@ otherAnimalsServer <- function(id) {
     output$table <- renderDT({
       req(input$tabsetPanel == "Data Table")
       if (input$table_data == "map") {
-        req(input$variable)
+        req(input$variable_region)
         other_animals_data %>%
           pivot_wider(names_from = sub_region, values_from = value)  %>%
           mutate(across(where(is.numeric) & !contains("Year"), comma)) %>%

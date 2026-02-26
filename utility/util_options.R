@@ -35,6 +35,7 @@ load(here("Data", "cereals_tiff_data_long.RData"))
 load(here("Data", "cereals_combined_long.RData"))
 load(here("Data", "oilseed_combined_long.RData"))
 load(here("Data", "oilseed_tiff_data_long.RData"))
+load(here("Data", "constituency_data.RData"))
 
 # Load FBS options
 source(here("Economy/FBS", "fbs_utility.R"))

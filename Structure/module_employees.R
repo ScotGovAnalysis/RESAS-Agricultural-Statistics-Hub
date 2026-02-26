@@ -15,6 +15,11 @@ categories <- c("Regular Full-Time Staff Total",
                 "Total Casual And Seasonal Staff", 
                 "Total Workforce (including occupiers)")
 
+categories_con <- c("Regular Full-Time Staff Total (Number)", 
+                    "Regular Part-Time Staff Total (Number)", 
+                    "Total Casual And Seasonal Staff (Number)", 
+                    "Total Workforce (including occupiers) (Number)")
+
 filtered_regions_data <- regions_data %>%
   filter(`Occupiers and employees by category` %in% categories)
 
@@ -29,7 +34,8 @@ employeesMapUI <- function(id) {
       width = 9,
       tabsetPanel(
         id = ns("tabs"),
-        tabPanel("Map", mapUI(ns("map")), value = "map"),
+        tabPanel("Agricultural Region Map", mapUI(ns("map")), value = "map"),
+        tabPanel("Constituency Map", mapConstituenciesUI(ns("map_con")), value = "map_con"),
         tabPanel("Time Series", 
                  lineChartUI(ns("line_chart"), note_type = 2),  # Use note_type = 2 for the second note
                  value = "timeseries"),
@@ -53,9 +59,23 @@ employeesMapServer <- function(id) {
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
     
+    employee_const_map <- reactive({
+      workforce_constituency %>%         # <— your constituency land use table
+        mutate(across(everything(), as.character)) %>%
+        pivot_longer(
+          cols = -`workforce`,
+          names_to = "constituency",
+          values_to = "value"
+        ) %>% 
+        mutate(
+          value = if_else(is.na(value), NA_integer_, as.integer(value))
+        )
+    })
+    
     # Data Processing for Timeseries
     occupiers_employees <- occupiers_employees %>%
       mutate(across(starts_with("20"), as.numeric))
+    
     
     # Reactive data for the time series chart
     chart_data <- reactive({
@@ -68,7 +88,9 @@ employeesMapServer <- function(id) {
     output$sidebar_ui <- renderUI({
       req(input$tabs)
       if (input$tabs == "map") {
-        radioButtons(ns("variable"), "Select Variable", choices = categories)
+        radioButtons(ns("variable_region"), "Select Variable", choices = categories)
+      } else if (input$tabs == "map_con") {
+        radioButtons(ns("variable_con"), "Select Variable", choices = categories_con)
       } else if (input$tabs == "data_table") {
         radioButtons(ns("data_source"), "Choose data to show:", choices = c("Chart Data", "Map Data"))
       } else if (input$tabs == "timeseries") {
@@ -118,16 +140,29 @@ employeesMapServer <- function(id) {
     mapServer(
       id = "map",
       data = reactive({
-        req(input$variable)
+        req(input$variable_region)
         filtered_regions_data %>%
-          filter(`Occupiers and employees by category` == input$variable)
+          filter(`Occupiers and employees by category` == input$variable_region)
       }),
       unit = "employees",
       footer = '<div style="font-size: 16px; font-weight: bold;"><a href="https://www.gov.scot/publications/results-from-the-scottish-agricultural-census-june-2025/">Source: Scottish Agricultural Census: June 2025</a></div>',
-      variable = reactive(input$variable),
+      variable = reactive(input$variable_region),
       title = paste("Agricultural employees by region in Scotland in", census_year),
       legend_title = "Number of employees"
     )  
+    
+    mapConstituenciesServer(
+      id = "map_con",
+      data = reactive({
+        req(input$variable_con)
+        employee_const_map() %>% filter(`workforce` == input$variable_con)
+      }),
+      unit = "employees",
+      footer = census_footer,
+      variable = reactive(input$variable_con),
+      title = paste("Agricultural employees by 2026 Scottish Parliamentary Constituency"),
+      legend_title = "Employees (Number)"
+    )
     
     # Render the data table with scrollable options for both chart and map data
     output$data_table <- renderDT({
@@ -142,6 +177,14 @@ employeesMapServer <- function(id) {
           scrollX = TRUE,
           pageLength = 10  # You can adjust this if needed for the map data
         ))
+        
+      } else if (input$data_source == "Constituency Data") {
+        datatable(workforce_constituency(), options = list(
+            scrollX = TRUE,
+            pageLength = 20           # Adjust as needed
+          )
+        )
+        
       }
     })
     

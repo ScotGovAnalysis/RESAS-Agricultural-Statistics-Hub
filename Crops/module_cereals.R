@@ -9,12 +9,27 @@ cerealsUI <- function(id) {
       
       # ===================== MAP =====================
       conditionalPanel(
-        condition = "input.tabsetPanel === 'Map'",
+        condition = "input.tabsetPanel === 'Agricultural Region Map'",
         ns = ns,
         radioButtons(
-          ns("variable"), 
+          ns("variable_region"), 
           "Select Variable", 
           choices = unique(cereals_subregion$`Land use by category`)
+        )
+      ),
+      # ===================== CONSTITUENCY MAP =====================
+      conditionalPanel(
+        condition = "input.tabsetPanel === 'Constituency Map'",
+        ns = ns,
+        radioButtons(
+          ns("variable_con"), 
+          "Select Variable", 
+          choices = c(
+            "Wheat" = "Wheat (Hectares)",
+            "Winter Barley" = "Winter Barley (Hectares)",
+            "Spring Barley" = "Spring Barley (Hectares)",
+            "Oats and Mixed Grain" = "Oats and mixed grain (Hectares)"
+          )
         )
       ),
       
@@ -87,7 +102,8 @@ cerealsUI <- function(id) {
       width = 9,
       tabsetPanel(
         id = ns("tabsetPanel"),
-        tabPanel("Map", mapUI(ns("map"))),
+        tabPanel("Agricultural Region Map", mapUI(ns("map"))),
+        tabPanel("Constituency Map", mapConstituenciesUI(ns("map_con"))),
         tabPanel("Time Series", lineChartUI(ns("line"), note_type = 2)),
         tabPanel("Area Chart", areaChartUI(ns("area"), note_type = 2)),
         tabPanel("Data Table", 
@@ -130,13 +146,39 @@ cerealsServer <- function(id) {
     mapServer(
       id = "map",
       data = reactive({
-        req(input$variable)
-        cereals_map %>% filter(`Land use by category` == input$variable)
+        req(input$variable_region)
+        cereals_map %>% filter(`Land use by category` == input$variable_region)
       }),
       unit = "hectares",
       footer = census_footer,
-      variable = reactive(input$variable),
+      variable = reactive(input$variable_region),
       title = paste("Cereals distribution by region in Scotland in", census_year),
+      legend_title = "Area (hectares)"
+    )
+    # ===================== CONSTITUENCY MAP =====================
+    cereal_const_map <- reactive({
+      cereals_constituency %>%         # <— your constituency land use table
+        mutate(across(everything(), as.character)) %>%
+        pivot_longer(
+          cols = -`crop`,
+          names_to = "constituency",
+          values_to = "value"
+        ) %>% 
+        mutate(
+          value = if_else(is.na(value), NA_real_, as.numeric(value))
+        )
+    })
+    
+    mapConstituenciesServer(
+      id = "map_con",
+      data = reactive({
+        req(input$variable_con)
+        cereal_const_map() %>% filter(`crop` == input$variable_con)
+      }),
+      unit = "hectares",
+      footer = census_footer,
+      variable = reactive(input$variable_con),
+      title = paste("Cereals distribution by 2026 Scottish Parliamentary Constituency"),
       legend_title = "Area (hectares)"
     )
     # ===================== AREA CHART =====================
@@ -278,7 +320,7 @@ cerealsServer <- function(id) {
       req(input$tabsetPanel == "Data Table")
       
       if (input$table_data == "map") {
-        req(input$variable)
+        req(input$variable_region)
         cereals_map %>%
           pivot_wider(names_from = sub_region, values_from = value) %>%
           mutate(across(where(is.numeric) & !contains("Year"), comma)) %>%
