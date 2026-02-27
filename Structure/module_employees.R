@@ -36,6 +36,7 @@ employeesMapUI <- function(id) {
         id = ns("tabs"),
         tabPanel("Agricultural Region Map", mapUI(ns("map")), value = "map"),
         tabPanel("Constituency Map", mapConstituenciesUI(ns("map_con")), value = "map_con"),
+        tabPanel("Local Authority Map", mapUI(ns("map")), value = "map_uni"),
         tabPanel("Time Series", 
                  lineChartUI(ns("line_chart"), note_type = 2),  # Use note_type = 2 for the second note
                  value = "timeseries"),
@@ -72,6 +73,19 @@ employeesMapServer <- function(id) {
         )
     })
     
+    employee_unitary_map <- reactive({
+      workforce_unitauth %>%        
+        mutate(across(everything(), as.character)) %>%
+        pivot_longer(
+          cols = -`workforce`,
+          names_to = "unitauth",
+          values_to = "value"
+        ) %>% 
+        mutate(
+          value = if_else(is.na(value), NA_integer_, as.integer(value))
+        )
+    })
+    
     # Data Processing for Timeseries
     occupiers_employees <- occupiers_employees %>%
       mutate(across(starts_with("20"), as.numeric))
@@ -91,6 +105,8 @@ employeesMapServer <- function(id) {
         radioButtons(ns("variable_region"), "Select Variable", choices = categories)
       } else if (input$tabs == "map_con") {
         radioButtons(ns("variable_con"), "Select Variable", choices = categories_con)
+      } else if (input$tabs == "map_uni") {
+        radioButtons(ns("variable_uni"), "Select Variable", choices = categories_con)
       } else if (input$tabs == "data_table") {
         radioButtons(ns("data_source"), "Choose data to show:", choices = c("Chart Data", "Map Data"))
       } else if (input$tabs == "timeseries") {
@@ -163,6 +179,20 @@ employeesMapServer <- function(id) {
       title = paste("Agricultural employees by 2026 Scottish Parliamentary Constituency"),
       legend_title = "Employees (Number)"
     )
+    
+    mapUnitaryServer(
+      id = "map_uni",
+      data = reactive({
+        req(input$variable_uni)
+        employee_unitary_map() %>% filter(`workforce` == input$variable_uni)
+      }),
+      unit = "employees",
+      footer = census_footer,
+      variable = reactive(input$variable_uni),
+      title = paste("Agricultural employees by local authority in", census_year),
+      legend_title = "Employees (Number)"
+    )
+    
     
     # Render the data table with scrollable options for both chart and map data
     output$data_table <- renderDT({
