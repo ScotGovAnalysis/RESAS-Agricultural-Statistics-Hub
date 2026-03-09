@@ -4,6 +4,16 @@ unitary_authorities_geojson_data <- geojson_read("utility/unitary_authorities_si
 # Convert GeoJSON to a Highcharts-compatible format
 unitary_authorities_geojson_list <- geojson_list(unitary_authorities_geojson_data)
 
+
+unitary_authorities_geojson_list$features <- lapply(
+  unitary_authorities_geojson_list$features,
+  function(f) {
+    f$properties$name <- f$properties$local_auth
+    f
+  }
+)
+
+
 mapUnitaryUI <- function(id) {
   ns <- NS(id)
   tagList(

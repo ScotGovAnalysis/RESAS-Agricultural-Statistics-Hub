@@ -38,6 +38,22 @@ otherAnimalsUI <- function(id) {
         )
       ),
       conditionalPanel(
+        condition = "input.tabsetPanel === 'Local Authority Map'",
+        ns = ns,
+        radioButtons(
+          ns("variable_uni"), 
+          "Select Variable", 
+          choices = c(
+            "Goats and kids" = "Goats and kids (Number)",
+            "Deer" = "Deer (Number)",
+            "Horses" = "Horses (Number)",
+            "Donkeys" = "Donkeys (Number)",
+            "Camelids" = "Camelids (Number)",
+            "Beehives" = "Beehives (Number)"
+          )
+        )
+      ),
+      conditionalPanel(
         condition = "input.tabsetPanel === 'Time Series'",
         ns = ns,
         checkboxGroupInput(
@@ -78,6 +94,7 @@ otherAnimalsUI <- function(id) {
         id = ns("tabsetPanel"),
         tabPanel("Agricultural Region Map", mapUI(ns("map"))),
         tabPanel("Constituency Map", mapConstituenciesUI(ns("map_con"))),
+        tabPanel("Local Authority Map", mapUnitaryUI(ns("map_uni"))),
         tabPanel("Time Series", lineChartUI(ns("line"))),
         tabPanel("Data Table", 
                  DTOutput(ns("table")),
@@ -144,6 +161,43 @@ otherAnimalsServer <- function(id) {
       footer = census_footer,
       variable = reactive(input$variable_con),
       title = paste("Other animals distribution by 2026 Scottish Parliamentary Constituency"),
+      legend_title = "Animals (number)"
+    )
+    
+    chart_data <- reactive({
+      req(input$timeseries_variables)
+      filtered_data <- number_of_other_livestock %>%
+        mutate(across(-`Livestock by category`, as.numeric)) %>% 
+        select(-last_col()) %>% 
+        filter(`Livestock by category` %in% input$timeseries_variables) %>%
+        pivot_longer(cols = -`Livestock by category`, names_to = "year", values_to = "value") %>%
+        mutate(year = as.numeric(year))  # Ensure year is numeric
+      filtered_data
+    })
+    
+    other_uni_map <- reactive({
+      other_animals_unitauth %>%         
+        mutate(across(everything(), as.character)) %>%
+        pivot_longer(
+          cols = -`livestock`,
+          names_to = "unitauth",
+          values_to = "value"
+        ) %>% 
+        mutate(
+          value = if_else(is.na(value), NA_integer_, as.integer(value))
+        )
+    })
+    
+    mapUnitaryServer(
+      id = "map_uni",
+      data = reactive({
+        req(input$variable_uni)
+        other_uni_map() %>% filter(`livestock` == input$variable_uni)
+      }),
+      unit = "number",
+      footer = census_footer,
+      variable = reactive(input$variable_uni),
+      title = paste("Other animals distribution by local authority in", census_year),
       legend_title = "Animals (number)"
     )
     

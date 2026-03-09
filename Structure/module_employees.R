@@ -36,7 +36,7 @@ employeesMapUI <- function(id) {
         id = ns("tabs"),
         tabPanel("Agricultural Region Map", mapUI(ns("map")), value = "map"),
         tabPanel("Constituency Map", mapConstituenciesUI(ns("map_con")), value = "map_con"),
-        tabPanel("Local Authority Map", mapUI(ns("map")), value = "map_uni"),
+        tabPanel("Local Authority Map", mapUnitaryUI(ns("map_uni")), value = "map_uni"),
         tabPanel("Time Series", 
                  lineChartUI(ns("line_chart"), note_type = 2),  # Use note_type = 2 for the second note
                  value = "timeseries"),

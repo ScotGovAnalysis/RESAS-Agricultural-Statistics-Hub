@@ -35,6 +35,21 @@ cattleUI <- function(id) {
         )
       ),
       conditionalPanel(
+        condition = "input.tabsetPanel === 'Local Authority Map'",
+        ns = ns,
+        radioButtons(
+          ns("variable_uni"), 
+          "Select Variable", 
+          choices = c(
+            "Total Cattle" = "Total Cattle (Number)",
+            "Total Female Dairy Cattle" = "Total Female Dairy Cattle (Number)",
+            "Total Female Beef Cattle" = "Total Female Beef Cattle (Number)",
+            "Total Male Cattle" = "Total Male Cattle (Number)",
+            "Total Calves" = "Total Calves (Number)"
+          )
+        )
+      ),
+      conditionalPanel(
         condition = "input.tabsetPanel === 'Time Series' || input.tabsetPanel === 'Area Chart'",
         ns = ns,
         selectizeInput(
@@ -70,6 +85,7 @@ cattleUI <- function(id) {
         id = ns("tabsetPanel"),
         tabPanel("Agricultural Region Map", mapUI(ns("map"))),
         tabPanel("Constituency Map", mapConstituenciesUI(ns("map_con"))),
+        tabPanel("Local Authority Map", mapUnitaryUI(ns("map_uni"))),
         tabPanel("Time Series", lineChartUI(ns("line"), note_type = 2)),
         tabPanel("Area Chart", areaChartUI(ns("area"), note_type = 2)),
         tabPanel("Data Table", 
@@ -137,6 +153,32 @@ cattleServer <- function(id) {
       footer = census_footer,
       variable = reactive(input$variable_con),
       title = paste("Cattle distribution by 2026 Scottish Parliamentary Constituency"),
+      legend_title = "Cattle (number)"
+    )
+    
+    cattle_uni_map <- reactive({
+      cattle_unitauth %>% 
+        mutate(across(everything(), as.character)) %>%
+        pivot_longer(
+          cols = -`livestock`,
+          names_to = "unitauth",
+          values_to = "value"
+        ) %>% 
+        mutate(
+          value = if_else(is.na(value), NA_integer_, as.integer(value))
+        )
+    })
+    
+    mapUnitaryServer(
+      id = "map_uni",
+      data = reactive({
+        req(input$variable_uni)
+        cattle_uni_map() %>% filter(`livestock` == input$variable_uni)
+      }),
+      unit = "number",
+      footer = census_footer,
+      variable = reactive(input$variable_uni),
+      title = paste("Cattle distribution by local authority in", census_year),
       legend_title = "Cattle (number)"
     )
     # Processing data for Area Chart and Time Series

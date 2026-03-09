@@ -33,6 +33,20 @@ poultryUI <- function(id) {
         )
       ),
       conditionalPanel(
+        condition = "input.tabsetPanel === 'Local Authority Map'",
+        ns = ns,
+        radioButtons(
+          ns("variable_uni"), 
+          "Select Variable", 
+          choices = c(           
+            "Total Poultry" = "Total Poultry (Number)",
+            "Fowls for producing eggs" = "Fowls for producing eggs (Number)",
+            "Fowls for breeding" = "Fowls for breeding (Number)",
+            "Broilers and other table fowls and other poultry" = "Broilers and other table fowls and other poultry (Number)"
+          )
+        )
+      ),
+      conditionalPanel(
         condition = "input.tabsetPanel === 'Time Series' || input.tabsetPanel === 'Area Chart'",
         ns = ns,
         selectizeInput(
@@ -68,6 +82,7 @@ poultryUI <- function(id) {
         id = ns("tabsetPanel"),
         tabPanel("Agricultural Region Map", mapUI(ns("map"))),
         tabPanel("Constituency Map", mapConstituenciesUI(ns("map_con"))),
+        tabPanel("Local Authority Map", mapUnitaryUI(ns("map_uni"))),
         tabPanel("Time Series", lineChartUI(ns("line"), note_type = 2)),
         tabPanel("Area Chart", areaChartUI(ns("area"), note_type = 2)),
         tabPanel("Data Table", 
@@ -136,6 +151,32 @@ poultryServer <- function(id) {
       footer = census_footer,
       variable = reactive(input$variable_con),
       title = paste("Poultry distribution by 2026 Scottish Parliamentary Constituency"),
+      legend_title = "Poultry (number)"
+    )
+    
+    poultry_uni_map <- reactive({
+      poultry_unitauth %>%    
+        mutate(across(everything(), as.character)) %>%
+        pivot_longer(
+          cols = -`livestock`,
+          names_to = "unitauth",
+          values_to = "value"
+        ) %>% 
+        mutate(
+          value = if_else(is.na(value), NA_integer_, as.integer(value))
+        )
+    })
+    
+    mapUnitaryServer(
+      id = "map_uni",
+      data = reactive({
+        req(input$variable_uni)
+        poultry_uni_map() %>% filter(`livestock` == input$variable_uni)
+      }),
+      unit = "number",
+      footer = census_footer,
+      variable = reactive(input$variable_uni),
+      title = paste("Poultry distribution by Local authority in", census_year),
       legend_title = "Poultry (number)"
     )
     
