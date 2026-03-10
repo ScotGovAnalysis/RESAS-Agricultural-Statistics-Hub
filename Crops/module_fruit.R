@@ -26,6 +26,16 @@ fruitUI <- function(id) {
       ),    
       
       conditionalPanel(
+        condition = "input.tabsetPanel === 'Local Authority Map'",
+        ns = ns,
+        radioButtons(
+          ns("variable_uni"), 
+          "Select Variable", 
+          choices = unique(fruit_constituency$crop)
+        )
+      ),   
+      
+      conditionalPanel(
         condition = "input.tabsetPanel === 'Time Series' || input.tabsetPanel === 'Area Chart'",
         ns = ns,
         selectizeInput(
@@ -63,6 +73,7 @@ fruitUI <- function(id) {
         id = ns("tabsetPanel"),
         tabPanel("Agricultural Region Map", mapUI(ns("map"))),
         tabPanel("Constituency Map", mapConstituenciesUI(ns("map_con"))),
+        tabPanel("Local Authority Map", mapUnitaryUI(ns("map_uni"))),
         tabPanel("Time Series", lineChartUI(ns("line"), note_type = 2)),
         tabPanel("Area Chart", areaChartUI(ns("area"), note_type = 2)),
         tabPanel("Data Table", 
@@ -127,6 +138,34 @@ fruitServer <- function(id) {
       legend_title = "Area (hectares)"
     )
     
+    # ===================== LOCAL AUTHORITY MAP =====================
+    fruit_uni_map <- reactive({
+      fruit_unitauth %>%         # <— your constituency land use table
+        mutate(across(everything(), as.character)) %>%
+        pivot_longer(
+          cols = -`crop`,
+          names_to = "unitauth",
+          values_to = "value"
+        ) %>% 
+        mutate(
+          value = if_else(is.na(value), NA_real_, as.numeric(value))
+        )
+    })
+    
+    mapUnitaryServer(
+      id = "map_uni",
+      data = reactive({
+        req(input$variable_uni)
+        fruit_uni_map() %>% filter(`crop` == input$variable_uni)
+      }),
+      unit = "hectares",
+      footer = census_footer,
+      variable = reactive(input$variable_uni),
+      title = paste("Fruit crops distribution by local authority in", census_year),
+      legend_title = "Area (hectares)"
+    )
+    
+    # ===================== AREA CHART =====================
     chart_data <- reactive({
       req(input$timeseries_variables)
       filtered_data <- fruit_data %>%
@@ -148,6 +187,8 @@ fruitServer <- function(id) {
       y_col = "value"
     )
     
+    # ===================== LINE CHART =====================
+    
     lineChartServer(
       id = "line",
       chart_data = chart_data,
@@ -159,6 +200,8 @@ fruitServer <- function(id) {
       x_col = "year",
       y_col = "value"
     )
+    
+    # ===================== DATA TABLE =====================
     
     output$table <- renderDT({
       req(input$tabsetPanel == "Data Table")

@@ -26,6 +26,18 @@ beansUI <- function(id) {
         )
       ),
       
+      # ===================== LOCAL AUTHORITY MAP =====================
+      conditionalPanel(
+        condition = "input.tabsetPanel === 'Local Authority Map'",
+        ns = ns,
+        radioButtons(
+          ns("variable_uni"), 
+          "Select Variable", 
+          choices = unique(peas_beans_constituency$crop)
+        )
+      ),
+      
+      # ===================== TIME SERIES =====================
       
       conditionalPanel(
         condition = "input.tabsetPanel === 'Time Series' || input.tabsetPanel === 'Area Chart'",
@@ -40,6 +52,8 @@ beansUI <- function(id) {
           )
         )
       ),
+      
+      # ===================== DATA TABLE =====================
       conditionalPanel(
         condition = "input.tabsetPanel === 'Data Table'",
         ns = ns,
@@ -51,12 +65,15 @@ beansUI <- function(id) {
         )
       )
     ),
+    
+    # ===================== MAIN PANEL =====================
     mainPanel(
       width = 9,
       tabsetPanel(
         id = ns("tabsetPanel"),
         tabPanel("Agricultural Region Map", mapUI(ns("map"))),
         tabPanel("Constituency Map", mapConstituenciesUI(ns("map_con"))),
+        tabPanel("Local Authority Map", mapUnitaryUI(ns("map_uni"))),
         tabPanel("Time Series", lineChartUI(ns("line"))),
         tabPanel("Area Chart", areaChartUI(ns("area"))),
         tabPanel("Data Table", 
@@ -117,6 +134,33 @@ beansServer <- function(id) {
       footer = census_footer,
       variable = reactive(input$variable_con),
       title = paste("Beans distribution by 2026 Scottish Parliamentary Constituency"),
+      legend_title = "Area (hectares)"
+    )
+    
+    # ===================== LOCAL AUTHORITY MAP =====================
+    peas_uni_map <- reactive({
+      peas_beans_unitauth %>%        
+        mutate(across(everything(), as.character)) %>%
+        pivot_longer(
+          cols = -`crop`,
+          names_to = "unitauth",
+          values_to = "value"
+        ) %>% 
+        mutate(
+          value = if_else(is.na(value), NA_real_, as.numeric(value))
+        )
+    })
+    
+    mapUnitaryServer(
+      id = "map_uni",
+      data = reactive({
+        req(input$variable_uni)
+        peas_uni_map() %>% filter(`crop` == input$variable_uni)
+      }),
+      unit = "hectares",
+      footer = census_footer,
+      variable = reactive(input$variable_uni),
+      title = paste("Beans distribution by local authority in", census_year),
       legend_title = "Area (hectares)"
     )
     

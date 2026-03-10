@@ -25,6 +25,17 @@ stockfeedingUI <- function(id) {
         )
       ),     
       
+      
+      conditionalPanel(
+        condition = "input.tabsetPanel === 'Local Authority Map'",
+        ns = ns,
+        radioButtons(
+          ns("variable_uni"), 
+          "Select Variable", 
+          choices = unique(stockfeeding_unitauth$crop)
+        )
+      ),     
+      
       conditionalPanel(
         condition = "input.tabsetPanel === 'Time Series' || input.tabsetPanel === 'Area Chart'",
         ns = ns,
@@ -59,6 +70,7 @@ stockfeedingUI <- function(id) {
         id = ns("tabsetPanel"),
         tabPanel("Agricultural Region Map", mapUI(ns("map"))),
         tabPanel("Constituency Map", mapConstituenciesUI(ns("map_con"))),
+        tabPanel("Local Authority Map", mapUnitaryUI(ns("map_uni"))),
         tabPanel("Time Series", lineChartUI(ns("line"))),
         tabPanel("Area Chart", areaChartUI(ns("area"))),
         tabPanel("Data Table", 
@@ -119,6 +131,33 @@ stockfeedingServer <- function(id) {
       footer = census_footer,
       variable = reactive(input$variable_con),
       title = paste("Stockfeeding crops distribution by 2026 Scottish Parliamentary Constituency"),
+      legend_title = "Area (hectares)"
+    )
+    
+    # ===================== LOCAL AUTHORITY MAP =====================
+    stock_uni_map <- reactive({
+      stockfeeding_unitauth %>% 
+        mutate(across(everything(), as.character)) %>%
+        pivot_longer(
+          cols = -`crop`,
+          names_to = "unitauth",
+          values_to = "value"
+        ) %>% 
+        mutate(
+          value = if_else(is.na(value), NA_real_, as.numeric(value))
+        )
+    })
+    
+    mapUnitaryServer(
+      id = "map_uni",
+      data = reactive({
+        req(input$variable_uni)
+        stock_uni_map() %>% filter(`crop` == input$variable_uni)
+      }),
+      unit = "hectares",
+      footer = census_footer,
+      variable = reactive(input$variable_uni),
+      title = paste("Stockfeeding crops distribution by local authority in", census_year),
       legend_title = "Area (hectares)"
     )
     
