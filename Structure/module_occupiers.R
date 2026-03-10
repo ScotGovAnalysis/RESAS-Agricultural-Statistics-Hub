@@ -11,6 +11,7 @@ occupiersUI <- function(id) {
         id = ns("tabs"),
         tabPanel("Agricultural Region Map", mapUI(ns("map")), value = "map"),
         tabPanel("Constituency Map", mapConstituenciesUI(ns("map_con")), value = "map_con"),
+        tabPanel("Local Authority Map", mapUnitaryUI(ns("map_uni")), value = "map_uni"),
         tabPanel("Population Pyramid", 
                  div(
                    htmlOutput(ns("pyramid_title")),
@@ -58,6 +59,19 @@ occupiersServer <- function(id) {
         )
     })
     
+    occupier_uni_map <- reactive({
+      occupiers_unitauth %>%        
+        mutate(across(everything(), as.character)) %>%
+        pivot_longer(
+          cols = -`occupier`,
+          names_to = "unitauth",
+          values_to = "value"
+        ) %>% 
+        mutate(
+          value = if_else(is.na(value), NA_integer_, as.integer(value))
+        )
+    })
+    
     # Data Processing for Bar Chart
     chart_data <- reactive({
       occupiers_age_gender %>%
@@ -87,16 +101,33 @@ occupiersServer <- function(id) {
       occupiers_constituency %>%
         mutate(across(everything(), as.character)) %>%
         pivot_longer(
-          cols = -`occupiers`,
+          cols = -`occupier`,
           names_to = "constituency",
           values_to = "value"
         ) %>% 
         mutate(
           value = if_else(is.na(value), NA_integer_, as.integer(value))) %>%
-        filter(`workforce` %in% c(
+        filter(`occupier` %in% c(
               "Total Working Occupiers (Number)", 
               "Occupiers Not Working On The Holding (Number)"
             ))
+    })
+    
+    # Data Processing for Local Authority Map
+    uni_data <- reactive({
+      occupiers_unitauth %>%
+        mutate(across(everything(), as.character)) %>%
+        pivot_longer(
+          cols = -`occupier`,
+          names_to = "unitauth",
+          values_to = "value"
+        ) %>% 
+        mutate(
+          value = if_else(is.na(value), NA_integer_, as.integer(value))) %>%
+        filter(`occupier` %in% c(
+          "Total Working Occupiers (Number)", 
+          "Occupiers Not Working On The Holding (Number)"
+        ))
     })
     
     # Data Processing for Timeseries
@@ -120,6 +151,11 @@ occupiersServer <- function(id) {
         ))
       } else if (input$tabs == "map_con") {
         radioButtons(ns("variable_con"), "Select Variable", choices = c(
+          "Total Working Occupiers (Number)",
+          "Occupiers Not Working On The Holding (Number)"
+        ))
+      } else if (input$tabs == "map_uni") {
+        radioButtons(ns("variable_uni"), "Select Variable", choices = c(
           "Total Working Occupiers (Number)",
           "Occupiers Not Working On The Holding (Number)"
         ))
@@ -225,6 +261,19 @@ occupiersServer <- function(id) {
       unit = "occupiers",
       footer = census_footer,
       variable = reactive(input$variable_con),
+      title = paste("Occupiers by 2026 Scottish Parliamentary Constituency"),
+      legend_title = "Occupiers (Number)"
+    )
+    
+    mapUnitaryServer(
+      id = "map_uni",
+      data = reactive({
+        req(input$variable_uni)
+        occupier_uni_map() %>% filter(`occupier` == input$variable_uni)
+      }),
+      unit = "occupiers",
+      footer = census_footer,
+      variable = reactive(input$variable_uni),
       title = paste("Occupiers by 2026 Scottish Parliamentary Constituency"),
       legend_title = "Occupiers (Number)"
     )

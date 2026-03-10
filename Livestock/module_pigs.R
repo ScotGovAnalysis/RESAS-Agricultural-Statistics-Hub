@@ -30,6 +30,18 @@ pigsUI <- function(id) {
           ))
       ),
       conditionalPanel(
+        condition = "input.tabsetPanel === 'Local Authority Map'",
+        ns = ns,
+        radioButtons(
+          ns("variable_uni"), 
+          "Select Variable", 
+          choices = c(
+            "Total Pigs" = "Total Pigs (Number)",
+            "Female pigs breeding herd" = "Female pigs breeding herd (Number)",
+            "All other non-breeding pigs" = "All other non-breeding pigs (Number)"
+          ))
+      ),
+      conditionalPanel(
         condition = "input.tabsetPanel === 'Time Series' || input.tabsetPanel === 'Area Chart'",
         ns = ns,
         selectizeInput(
@@ -65,6 +77,7 @@ pigsUI <- function(id) {
         id = ns("tabsetPanel"),
         tabPanel("Agricultural Region Map", mapUI(ns("map"))),
         tabPanel("Constituency Map", mapConstituenciesUI(ns("map_con"))),
+        tabPanel("Local Authority Map", mapUnitaryUI(ns("map_uni"))),
         tabPanel("Time Series", lineChartUI(ns("line"), note_type = 2)),
         tabPanel("Area Chart", areaChartUI(ns("area"), note_type = 2)),
         tabPanel("Data Table", 
@@ -128,6 +141,32 @@ pigsServer <- function(id) {
       footer = census_footer,
       variable = reactive(input$variable_con),
       title = paste("Pig distribution by 2026 Scottish Parliamentary Constituency"),
+      legend_title = "Pigs (number)"
+    )
+    
+    pig_uni_map <- reactive({
+      pigs_unitauth %>%
+        mutate(across(everything(), as.character)) %>%
+        pivot_longer(
+          cols = -`livestock`,
+          names_to = "unitauth",
+          values_to = "value"
+        ) %>% 
+        mutate(
+          value = if_else(is.na(value), NA_integer_, as.integer(value))
+        )
+    })
+    
+    mapUnitaryServer(
+      id = "map_uni",
+      data = reactive({
+        req(input$variable_uni)
+        pig_uni_map() %>% filter(`livestock` == input$variable_uni)
+      }),
+      unit = "number",
+      footer = census_footer,
+      variable = reactive(input$variable_uni),
+      title = paste("Pig distribution by Local Authority in", census_year),
       legend_title = "Pigs (number)"
     )
     

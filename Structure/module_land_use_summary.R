@@ -23,6 +23,17 @@ landUseSummaryUI <- function(id) {
           choices = unique(land_use_constituency$`land use`)
         )
       ),
+      
+      # Unitary Authority Map tab
+      conditionalPanel(
+        condition = "input.tabsetPanel === 'Local Authority Map'",
+        ns = ns,
+        radioButtons(
+          ns("variable_uni"),
+          "Select Variable",
+          choices = unique(land_use_unitauth$`land use`)
+        )
+      ),
     
       conditionalPanel(
         condition = "input.tabsetPanel === 'Summary'",
@@ -81,6 +92,7 @@ landUseSummaryUI <- function(id) {
         id = ns("tabsetPanel"),
         tabPanel("Agricultural Region Map", mapUI(ns("map"))),
         tabPanel("Constituency Map", mapConstituenciesUI(ns("map_con"))),
+        tabPanel("Local Authority Map", mapUnitaryUI(ns("map_uni"))),
         tabPanel("Bar Chart", barChartUI(ns("bar_chart"))),
         tabPanel("Time Series", lineChartUI(ns("line"))),
         tabPanel("Data Table", 
@@ -122,7 +134,21 @@ landUseSummaryServer <- function(id) {
           value = if_else(is.na(value), NA_real_, as.numeric(value))
         )
     })
-
+    
+    # Unitary Authority Map
+    
+    land_use_unitauth_map <- reactive({
+      land_use_unitauth %>%        
+        mutate(across(everything(), as.character)) %>%
+        pivot_longer(
+          cols = -`land use`,
+          names_to = "unitauth",
+          values_to = "value"
+        ) %>% 
+        mutate(
+          value = if_else(is.na(value), NA_real_, as.numeric(value))
+        )
+    })
     
     # Table data with formatted values for better readability
     table_data <- reactive({
@@ -160,6 +186,20 @@ landUseSummaryServer <- function(id) {
       title = paste("Land use by 2026 Scottish Parliamentry Constituency"),
       legend_title = "Area (hectares)"
     )
+    
+    mapUnitaryServer(
+      id = "map_uni",
+      data = reactive({
+        req(input$variable_uni)
+        land_use_unitauth_map() %>% filter(`land use` == input$variable_uni)
+      }),
+      unit = "hectares",
+      footer = census_footer,
+      variable = reactive(input$variable_uni),
+      title = paste("Land use by local authority in", census_year),
+      legend_title = "Area (hectares)"
+    )
+    
 
     chart_data <- reactive({
       agricultural_area_hectares %>%

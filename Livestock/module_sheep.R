@@ -38,6 +38,22 @@ sheepUI <- function(id) {
       )
       ,
       conditionalPanel(
+        condition = "input.tabsetPanel === 'Local Authority Map'",
+        ns = ns,
+        radioButtons(
+          ns("variable_uni"), 
+          "Select Variable", 
+          choices = c(
+            "Total Sheep" = "Total Sheep (Number)",
+            "Ewes for breeding" = "Ewes for breeding (Number)",
+            "Other sheep 1 year and over for breeding" = "Other sheep 1 year and over for breeding (Number)",
+            "Rams for service" = "Rams for service (Number)",
+            "Lambs" = "Lambs (Number)"
+          )
+        )
+      )
+      ,
+      conditionalPanel(
         condition = "input.tabsetPanel === 'Time Series' || input.tabsetPanel === 'Area Chart'",
         ns = ns,
         checkboxGroupInput(
@@ -77,6 +93,7 @@ sheepUI <- function(id) {
         id = ns("tabsetPanel"),
         tabPanel("Agricultural Region Map", mapUI(ns("map"))),
         tabPanel("Constituency Map", mapConstituenciesUI(ns("map_con"))),
+        tabPanel("Local Authority Map", mapUnitaryUI(ns("map_uni"))),
         tabPanel("Time Series", lineChartUI(ns("line"))),
         tabPanel("Area Chart", areaChartUI(ns("area"))),
         tabPanel("Data Table", 
@@ -141,6 +158,32 @@ sheepServer <- function(id) {
       footer = census_footer,
       variable = reactive(input$variable_con),
       title = paste("Sheep distribution by 2026 Scottish Parliamentary Constituency"),
+      legend_title = "Sheep (number)"
+    )
+    
+    sheep_uni_map <- reactive({
+      sheep_unitauth %>%        
+        mutate(across(everything(), as.character)) %>%
+        pivot_longer(
+          cols = -`livestock`,
+          names_to = "unitauth",
+          values_to = "value"
+        ) %>% 
+        mutate(
+          value = if_else(is.na(value), NA_integer_, as.integer(value))
+        )
+    })
+    
+    mapUnitaryServer(
+      id = "map_uni",
+      data = reactive({
+        req(input$variable_uni)
+        sheep_uni_map() %>% filter(`livestock` == input$variable_uni)
+      }),
+      unit = "number",
+      footer = census_footer,
+      variable = reactive(input$variable_uni),
+      title = paste("Sheep distribution by local authority", census_year),
       legend_title = "Sheep (number)"
     )
     
