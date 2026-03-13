@@ -21,18 +21,36 @@
   overflow: auto !important;  /* Enable scrolling for main content */
   height: calc(100vh - 65px) !important;  /* Adjust for header and reduced margin */
 }
-.header-logo {
+/*.header-logo {
   position: absolute !important;
   top: 0px !important;
   right: 0px !important;
   height: 60px !important;
-}
+}*/
 
 .box {
     border: 1px solid #e3e3e3;
   background-color: white;
   margin: 0;
   padding: 10px;
+}
+
+
+/* Resize logo so it matches navbar height */
+.header-logo {
+  height: 50px;        /* Adjust to match navbar height */
+  width: auto;
+  display: inline-block;
+  vertical-align: middle; 
+}
+
+
+/* Navbar brand/logo alignment */
+.navbar-brand {
+  padding-top: 5px !important;
+  padding-bottom: 5px !important;
+  display: flex;
+  align-items: center;           /* vertically center the logo in Bootstrap 5 */
 }
 
 

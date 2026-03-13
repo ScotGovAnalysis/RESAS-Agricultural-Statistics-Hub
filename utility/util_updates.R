@@ -15,7 +15,9 @@ census_year <- 2025
 
 emissions_year <- 2023
 
-fbs_year <-2023-24 
+fbs_year <-2024-25 
+
+last_update <- "26 March 2026"
 
 #emissions_year 
 
@@ -27,19 +29,28 @@ cereal_oilseed_footer <- '<div style="font-size: 16px; font-weight: bold;"><a hr
 
 emissions_footer <- '<div style="font-size: 16px; font-weight: bold;"> <a href="https://www.gov.scot/collections/scottish-agriculture-greenhouse-gas-emissions-and-nitrogen-use/" target="_blank">Source: Scottish agriculture greenhouse gas emissions and nitrogen use 2023-24</a>, analysis based on results of the <a href="https://www.gov.scot/publications/scottish-greenhouse-gas-statistics-2023/" target="_blank">Scottish Greenhouse Gas Statistics 2023</a>.</div>'
 
+
+
 fbs_footer <- HTML(
-  '<div style="font-size: 16px;">
-    <strong>Real (constant) prices</strong>: figures are adjusted for inflation using 
-    <a href="https://www.gov.uk/government/statistics/gdp-deflators-at-market-prices-and-money-gdp-december-2024-quarterly-national-accounts" target="_blank">
-      GDP deflators published 23 December 2024
-    </a>
-  </div>
-  <div style="font-size: 16px; font-weight: bold; margin-top: 8px;">
-    <a href="https://www.gov.scot/collections/scottish-farm-business-income-fbi-annual-estimates/" target="_blank">
-      Source: Scottish farm business income: annual estimates 2023–24
-    </a>
-  </div>'
+  paste0(
+    '<div style="font-size: 16px;">
+       <strong>Real (constant) prices</strong>: figures are adjusted for inflation using 
+       <a href="', 
+    fbs_gdp_url,
+    '" target="_blank">
+         GDP deflators published ', gdp_pub_date, '
+       </a>
+     </div>
+     <div style="font-size: 16px; font-weight: bold; margin-top: 8px;">
+       <a href="',
+    paste0("https://www.gov.scot/collections/scottish-farm-business-income-fbi-annual-estimates/", fbs_current_year),
+    '" target="_blank">
+         Source: Scottish farm business income: annual estimates ', fbs_current_year, '
+       </a>
+     </div>'
+  )
 )
+
 
 
 tiff_footer <- '<div style="font-size: 16px; font-weight: bold;"> <a href="https://www.gov.scot/publications/total-income-from-farming-estimates-2018-2024/">Source: Total income from farming estimates: 2018-2024</a></div>'
@@ -151,9 +162,16 @@ generateFBSTableFooter <- function() {
   div(
     style = "background-color: #f0f0f0; padding: 15px; border-radius: 5px; margin-top: 20px;",
     "This data is sourced from ",
-    tags$a(href = "https://www.gov.scot/collections/scottish-farm-business-income-fbi-annual-estimates/",
-           "Scottish farm business income: annual estimates 2023-24"),
-    " which was published on 3 April 2025.",
+    tags$a(
+      href = "https://www.gov.scot/collections/scottish-farm-business-income-fbi-annual-estimates/",
+      paste0(
+        "Scottish farm business income: annual estimates ", 
+        fbs_current_year,
+        " which was published on ", 
+        fbs_pub_date, 
+        "."
+      )
+    ),
     tags$br(),
     "Full data tables and detailed analysis are available within the full report."
   )

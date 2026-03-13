@@ -1,6 +1,7 @@
-source("utility/util_updates.R")
+
 source("utility/util_functions.R")
-source("utility/util_options.R") # data load
+source("utility/util_options.R") # this scripts loads all data and utilities for sub pages
+source("utility/util_updates.R")
 source("utility/hc_theme.R")
 
 ### Load scripts with functions used to create charts in module scripts
@@ -71,18 +72,25 @@ create_footer <- function() {
   div(
     class = "footer",
     span(style = "font-weight: bold;", "Content in development "),
-    span("\n | Last updated: 11/12/2025"),
+    span(paste("\n | Last updated:", last_update)),
     img(src = "sg.png", alt = "SG Logo", style = "height: 30px; margin-left: 10px;")
   )
 }
 
-
-# Integrate the home module into the main UI
 ui <- fluidPage(
-  useShinyjs(),  # Initialize shinyjs
-  theme = shinytheme("flatly"),
+  useShinyjs(),
+  
+  # Bootstrap 5 modern mobile theme
+  theme = bslib::bs_theme(version = 5, bootswatch = "flatly"),
+  
   tags$head(
+    # Mobile scaling
+    tags$meta(name = "viewport", content = "width=device-width, initial-scale=1"),
+    
+    # CSS
     tags$link(rel = "stylesheet", type = "text/css", href = "styles.css"),
+    
+    # Analytics
     includeHTML("utility/google-analytics.html"),
     tags$script(HTML("
       $(document).on('click', 'a[data-value=\"home\"]', function() {
@@ -90,12 +98,28 @@ ui <- fluidPage(
       });
     "))
   ),
+  
+
+# Integrate the home module into the main UI
+# ui <- fluidPage(
+#   useShinyjs(),  # Initialize shinyjs
+#   theme = shinytheme("flatly"),
+#   tags$head(
+#     tags$link(rel = "stylesheet", type = "text/css", href = "styles.css"),
+#     includeHTML("utility/google-analytics.html"),
+#     tags$script(HTML("
+#       $(document).on('click', 'a[data-value=\"home\"]', function() {
+#         history.pushState(null, '', '/AgStatsHub');
+#       });
+#     "))
+#   ),
   div(class = "container-fluid full-height",
       div(class = "content",
           navbarPage(
-            title = div(
-              tags$li(class = "nav-item", img(src = "RESAS Logo.png", class = "header-logo"))
-            ),
+            # title = div(
+            #   tags$li(class = "nav-item", img(src = "RESAS Logo.png", class = "header-logo"))
+            # ),
+            title = tags$img(src = "RESAS Logo.png", class = "header-logo"),
             id = "navbar",
             windowTitle = "RESAS Agricultural Statistics Hub",  # Set the name for the browser tab
             tabPanel("Home", value = "home", homeUI("home")),  # Set this tabPanel as the default page

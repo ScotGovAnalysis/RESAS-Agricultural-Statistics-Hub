@@ -4,12 +4,16 @@
 
 ###############################
 ####
-#### FBS 2023-24 data
+#### FBS 2024-25 data
 ####
-#### This data comes from the 2023-24 FBS publication (COST CENTRES)
+#### This data comes from the 2024-25 FBS publication (COST CENTRES)
 ####
-#### https://www.gov.scot/publications/scottish-farm-business-income-annual-estimates-2023-2024/
-##### need to run cost centre code in FBS 2023-24 project to save data to ADM source (script = costs_outputs_changes.R)
+#### https://www.gov.scot/publications/scottish-farm-business-income-annual-estimates-2024-2025/
+##### need to run:
+######scripts in latest FBS project to save data to ADM source folder (fbs_data path)  
+######(script = costs_outputs_changes - ~Publication/Publication cost centre/costs_outputs_changes.R
+########## script = income timeseries fbi_nfi summary ~/R/FBS_2024_25/Publication/Publication farm income workbook
+####script = GDP process - ~/R/FBS_2024_25/Publication/Publication GDP/GDP process.R
 
 
 
@@ -22,18 +26,35 @@ library(readxl)
 library(stringr)
 library(tidyverse)
 source(here("Economy/FBS", "fbs_utility.R"))
+library(RtoSQLServer)
+
+
+
+
 #data pre-load ------
 #LOAD FBS data - run this once to save processed fbs data to data folder (uncomment and edit parameters for new year )
-#### parameters ----
-fbs_current_year <- "2023-24"
-fbs_prev_year <- "2022-23"
-fbs_data_path <- "//s0196a/ADM-Rural and Environmental Science-Farming Statistics/Agriculture/Source/FBS/FBS 2023-24/"
+#### parameters - find and update in fbs_utility.R ----
 
-fbs_data <- load(paste0(fbs_data_path, "FBS2023-24_CC.rda"))
+fbs_data_path <- paste("//s0196a/ADM-Rural and Environmental Science-Farming Statistics/Agriculture/Source/FBS/FBS", fbs_current_year)
+# load cost centre data
+fbs_data <- load(paste0(fbs_data_path, "/FBS ", fbs_current_year, "_CC.rda"))
+
+#load income timeseries data 
+load(paste0(fbs_data_path, "/income_timeseries_", fbs_current_year, ".rda"))
+
+# load FBI no supp - taken 
+fbi_no_supp <-  read_table_from_db(server=server, 
+                                   database=database, 
+                                   schema=schema, 
+                                   table_name="tox1timeseries")
+
+# load inflation data
+load(paste0(fbs_data_path,"/inflation rates for data year 20", (substr(fbs_current_year, 6,7)), ".RData")) 
+
 
 # ###Data pre-process ------
-# #remove unwanted columns and flatten into one dataframe
-# #
+#remove unwanted columns and flatten into one dataframe
+#
 fbs_data <- map(Outputs_Costs, ~ .x %>%
                   select(Measure,
                          !!sym(fbs_current_year),
@@ -42,10 +63,10 @@ fbs_data <- map(Outputs_Costs, ~ .x %>%
                          input_output_type,
                          main_category, sub_category_1)) %>% bind_rows(.)
 # ####save data  ------
-save(fbs_data, file="Data/FBS_data.Rda" )
-#
-# # load data -----
-load("Data/FBS_data.Rda")
+# save(fbs_data, file="Data/FBS_data.Rda" )
+# 
+# # # load data -----
+# load("Data/FBS_data.Rda")
 
 # change farm types to sentence case
 snake_to_sentence <- function(snake_str) {
@@ -69,138 +90,6 @@ fbs_data$farm_type <- gsub("Lowland", "Lowland cattle and sheep", fbs_data$farm_
 
 # categories
 
-#totals
-out_totals <- c("Output from agriculture", # outputs
-            "Output from agri-environment activities and other payments",
-            "Output from contracting",
-            "Output from diversification out of agriculture",
-            "Payment schemes in total",
-            "Other payment schemes in total")
-
-cost_totals <- c(
-            "Agricultural costs",# costs
-            "Costs of contracting",
-            "Costs of agri-environment activities and other payments",
-            "Costs of diversification out of agriculture",
-            "Costs of payment schemes")
-
-out_sub_totals <- c("Crop output",
-                "Livestock output",
-                "Support  payments to agriculture (severe weather payments)",
-                "Miscellaneous output (including agricultural work done on other farms)",
-                "Agri-environmental schemes",
-                "Project based schemes",
-                "Other grants and support payments",
-                "Output from contracting",
-                "Food processing and retailing",
-                "Tourism",
-                "Recreation",
-                "Rental income",
-                "Other diversified output",
-                "Basic Payment Scheme",
-                "Scottish Suckler Beef Support Scheme",
-                "Scottish Upland Sheep Scheme",
-                "PILLAR 2 Payments",
-                "ESA Grants",
-                "Support Advisory",
-                "Other miscellaneous grants")
-
-out_items <- c("Wheat",
-               "Barley",
-               "Oats",
-               "Other cereals",
-               "Oilseed rape",
-               "Peas and beans",
-               "Potatoes",
-               "Other crops",
-               "By-products, forage and cultivations (excluding set-aside)",
-               "Disposal of previous crops",
-               "Milk and milk products",
-               "Cattle",
-               "Sheep and wool",
-               "Pigs",
-               "Eggs",
-               "Other livestock (including horses)",
-               "Support  payments to agriculture (severe weather payments)",
-               "Miscellaneous output (including agricultural work done on other farms)",
-               "Ownership income",
-               "Agri-environmental schemes",
-               "Project based schemes",
-               "Other grants and support payments",
-               "Output from contracting",
-               "Food processing and retailing",
-               "Tourism",
-               "Recreation",
-               "Rental income",
-               "Other diversified output",
-               "Basic Payment Scheme",
-               "Scottish Suckler Beef Support Scheme",
-               "Scottish Upland Sheep Scheme",
-               "PILLAR 2 Payments",
-               "ESA Grants",
-               "Support Advisory",
-               "Other miscellaneous grants"
-
-               )
-
-cost_sub_totals <- c(
-                "Variable agricultural costs", #costs
-                "Fixed agricultural costs",
-                "Fixed contract costs",
-                "Variable contract costs",
-                "Variable agri-environment costs",
-                "Fixed agri-environment costs",
-                "Crop specific costs",
-                "Livestock specific costs",
-                "All feed and fodder",
-                "Casual labour",
-                "Miscellaneous variable costs (including for work done on other farms)",
-                "Regular labour",
-                "Machinery costs",
-                "General farming costs",
-                "Land and property costs",
-                "Variable diversification costs",
-                "Fixed diversification costs",
-                "Variable payment schemes costs",
-                "Fixed payment schemes costs"
-
-                )
-
-cost_items <- c("Casual labour",
-                "Miscellaneous variable costs (including for work done on other farms)",
-                "Seed",
-                "Fertilisers",
-                "Crop protection",
-                "Other crop costs",
-                "Purchased feed & fodder",
-                "Home grown feed & fodder",
-                "Veterinary fees & medicines",
-                "Other livestock costs",
-                "Machinery running costs",
-                "Machinery depreciation",
-                "Regular labour",
-                "Bank charges & professional fees",
-                "Electricity",
-                "Water",
-                "Farm taxes",
-                "Share of net interest payments",
-                "Other general farm costs",
-                "Agri-environment labour costs",
-                "Agri-environment machinery costs",
-                "Agri-environment general farming costs (including share of interest)",
-                "Agri-environment land and property costs",
-                "Diversification labour costs",
-                "Diversification machinery costs",
-                "Diversification general farming costs (including share of interest)",
-                "Diversification land and property costs",
-                "Payment schemes labour costs",
-                "Payment schemes machinery costs",
-                "Payment schemes general farming costs (including share of interest)",
-                "Payment schemes land and property costs",
-                "Variable payment schemes costs",
-                "Variable diversification costs",
-                "Variable agri-environment costs"
-                )
    # add identifiers to data for charts
  fbs_data <- fbs_data %>% mutate(#total_value = case_when(Measure %in% totals~value,
                                                     #.default = NA_integer_),
@@ -235,16 +124,42 @@ fbs_cost_centre <- fbs_data %>%
 
 
 
-# add income timeseries data
-load(paste0(fbs_data_path, "income_timeseries_2023-24.Rda"))
+  
 
 # load fbi no support payment data  - reformat and add cols before binding 
-fbi_no_supp <- read_excel(paste0(fbs_data_path, "fbi_no_supp.xlsx")) |> 
-  pivot_longer(-(farmtype), names_to = "year", values_to = "value") |> 
+# calculate weighted fbi without supp payments and add 
+fbi_no_supp <- fbi_no_supp |> group_by(type, year) |>  reframe(no_supp = weighted.mean(fbinosubs, fbswt))
+fbi_no_supp <- fbi_no_supp |> mutate(
+  `Farm type` = case_when(type == 1 ~ farm_types[[2]],
+                          type == 2 ~ farm_types[[3]],
+                          type == 3 ~ farm_types [[4]],
+                          type == 4 ~ farm_types [[5]],
+                          type == 5 ~ farm_types [[6]],
+                          type == 6 ~ farm_types [[7]],
+                          type == 7 ~ farm_types[[8]],
+                          type == 8 ~ farm_types [[9]],
+                          type == 9 ~ farm_types[[1]],
+                          .default = NA_character_
+                            )
+) |>
+  select(`Farm type`, value = no_supp, year)
+
+
+
+fbi_no_supp <- fbi_no_supp |> 
   mutate(Measure = "FBI without support payments",
-         value = round(value, 0)) |> # round to nearest pound
-  rename(`Farm type` = farmtype)  
+         value = round(value, 0))  # round to nearest pound
+# inflate
+
+#inflation function
+# change gdp year to match datayear
+gdp$year <- gdp$year+1
   
+fbi_no_supp <- inflate_with_lookup(fbi_no_supp, gdp)
+
+# change year to time_periods
+fbi_no_supp <- fbi_no_supp |> mutate(fbs_year = paste0("20", (substr(year-1,3, 4)), "-",(substr(year,3, 4) ))) |> 
+                                       select(Measure, `Farm type`, year = fbs_year, value)
 
 # filter income for real prices and reformat
 fbs_income <- ag_hub$income |> filter (Prices == "Real") |> 
