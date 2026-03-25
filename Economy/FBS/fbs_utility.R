@@ -64,8 +64,7 @@ out_totals <- c("Output from agriculture", # outputs
                 "Output from agri-environment activities and other payments",
                 "Output from contracting",
                 "Output from diversification out of agriculture",
-                "Payment schemes in total",
-                "Other payment schemes in total")
+                "Payment schemes in total")
 
 cost_totals <- c(
   "Agricultural costs",# costs
