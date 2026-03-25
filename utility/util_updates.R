@@ -43,7 +43,7 @@ fbs_footer <- HTML(
      </div>
      <div style="font-size: 16px; font-weight: bold; margin-top: 8px;">
        <a href="',
-    paste0("https://www.gov.scot/collections/scottish-farm-business-income-fbi-annual-estimates/", fbs_current_year),
+   "https://www.gov.scot/collections/scottish-farm-business-income-fbi-annual-estimates/",
     '" target="_blank">
          Source: Scottish farm business income: annual estimates ', fbs_current_year, '
        </a>
