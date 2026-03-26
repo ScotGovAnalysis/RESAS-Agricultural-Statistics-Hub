@@ -87,8 +87,12 @@ ui <- fluidPage(
     # Mobile scaling
     tags$meta(name = "viewport", content = "width=device-width, initial-scale=1"),
     
+ 
+    tags$link(rel = "stylesheet", type = "text/css", href = "styles.css?v=2"), 
+    
+    
     # CSS
-    tags$link(rel = "stylesheet", type = "text/css", href = "styles.css"),
+   # tags$link(rel = "stylesheet", type = "text/css", href = "styles.css"),
     
     # Analytics
     includeHTML("utility/google-analytics.html"),
@@ -119,7 +123,8 @@ ui <- fluidPage(
             # title = div(
             #   tags$li(class = "nav-item", img(src = "RESAS Logo.png", class = "header-logo"))
             # ),
-            title = tags$img(src = "RESAS Logo.png", class = "header-logo"),
+           #title = tags$img(src = "RESAS Logo.png", class = "header-logo"),
+            title = span(""), 
             id = "navbar",
             windowTitle = "RESAS Agricultural Statistics Hub",  # Set the name for the browser tab
             tabPanel("Home", value = "home", homeUI("home")),  # Set this tabPanel as the default page
@@ -182,6 +187,15 @@ ui <- fluidPage(
             #            tabPanel("Regional variation", value = "module_regional_variation", organicregionalvariationUI("module_regional_variation")))
             # )
           ),
+          tags$script(HTML("
+  $(document).ready(function() {
+    // Only add logo once
+    if ($('.navbar .navbar-logo').length === 0) {
+      $('.navbar').append('<img src=\"RESAS Logo.png\" class=\"navbar-logo\">');
+    }
+  });
+"))
+          ,
           create_footer()
       )
   )

@@ -1,10 +1,12 @@
 name: sg-agric-stats-hub
-title: RESAS-Agricultural-Statistics-Hub
 username: scotland
 account: scotland
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 10771217
-bundleId: 11145345
+bundleId: 11763409
 url: https://scotland.shinyapps.io/sg-agric-stats-hub/
 version: 1
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: Ag Stats Hub user guide.pdf|combined_code.txt|Data processing/fbs_data_process.R|Home/module_home_old.R|module_home_new.R|README.html|README.md|Testing/test_fbs_function_line_chart.R|Testing/test_multibarchart_function.R|Training/training module.R|Training/training server.R|Training/training ui.R|training app.R|ui-old.R
