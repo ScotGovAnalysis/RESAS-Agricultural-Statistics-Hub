@@ -74,7 +74,10 @@ cattleUI <- function(id) {
         radioButtons(
           ns("table_data"),
           "Select Data to Display",
-          choices = c("Map Data" = "map", "Time Series Data" = "timeseries"),
+          choices = c("Map Data" = "map",
+                      "Time Series Data" = "timeseries",
+                      "Constituency Data" = "map_con",
+                      "Local Authority Data" = "map_uni"),
           selected = "map"
         )
       )
@@ -216,28 +219,76 @@ cattleServer <- function(id) {
     )
     
     # Data Table output
+    
+    # Data Table output
     output$table <- renderDT({
       req(input$tabsetPanel == "Data Table")
-      data <- if (input$table_data == "map") {
-        cattle_data %>%
-          pivot_wider(names_from = sub_region, values_from = value) %>%
-          mutate(across(where(is.numeric) & !contains("Year"), comma)) # Pivot wider for map data
-      } else {
-        number_of_cattle %>%
-          pivot_longer(cols = -`Cattle by category`, names_to = "year", values_to = "value") %>%
-          pivot_wider(names_from = year, values_from = value) %>%
-          mutate(across(where(is.numeric) & !contains("Year"), comma)) # Pivot wider for time series data
-      }
+      
+      # -------------------------
+      # Select which dataset to show
+      # -------------------------
+      data <- switch(input$table_data,
+                     
+                     # -------------------
+                     # 1. MAP data (existing)
+                     # -------------------
+                     "map" = {
+                       cattle_data %>%
+                         pivot_wider(names_from = sub_region, values_from = value) %>%
+                         mutate(across(where(is.numeric) & !contains("Year"), comma))
+                     },
+                     
+                     # -------------------
+                     # 2. TIME-SERIES data (existing)
+                     # -------------------
+                     "timeseries" = {
+                       number_of_cattle %>%
+                         pivot_longer(cols = -`Cattle by category`,
+                                      names_to = "year",
+                                      values_to = "value") %>%
+                         pivot_wider(names_from = year, values_from = value) %>%
+                         mutate(across(where(is.numeric) & !contains("Year"), comma))
+                     },
+                     
+                     # -------------------
+                     # 3. Constituency Table
+                     # -------------------
+                     
+                     "map_con" = {
+                       cattle_constituency %>%
+                         rename(`Cattle by category` = `livestock`) %>%
+                         mutate(across(
+                           where(is.character),
+                           ~ ifelse(grepl("^\\d+$", .x), comma(as.numeric(.x)), .x)
+                         ))
+                     },
+                     
+                     
+                     # -------------------
+                     # 4. Local authority table
+                     # -------------------
+                     "map_uni" = {
+                       cattle_unitauth %>% 
+                         rename(`Cattle by category` = `livestock`) %>%
+                         mutate(across(
+                           where(is.character),
+                           ~ ifelse(grepl("^\\d+$", .x), comma(as.numeric(.x)), .x)
+                         ))                     }
+      )
+      
+      # -------------------------
+      # Render the chosen table
+      # -------------------------
       datatable(
         data,
         options = list(
-          scrollX = TRUE,  # Enable horizontal scrolling
-          autoWidth = TRUE, # Apply column widths
-          pageLength = 20,  # Show 20 entries by default
+          scrollX = TRUE,
+          autoWidth = TRUE,
+          pageLength = 20,
           columnDefs = list(
             list(width = '200px', targets = 1)
+          )
         )
-      )
       )
     })
     

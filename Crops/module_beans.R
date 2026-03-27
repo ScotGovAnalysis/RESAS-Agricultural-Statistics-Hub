@@ -60,7 +60,10 @@ beansUI <- function(id) {
         radioButtons(
           ns("table_data"),
           "Select Data to Display",
-          choices = c("Map Data" = "map", "Time Series Data" = "timeseries"),
+          choices = c("Map Data" = "map", 
+                      "Time Series Data" = "timeseries",
+                      "Constituency Data" = "map_con",
+                      "Local Authority Data" = "map_uni"),
           selected = "map"
         )
       )
@@ -201,50 +204,182 @@ beansServer <- function(id) {
       y_col = "value"
     )
     
+    
+    # Data Table output
     output$table <- renderDT({
       req(input$tabsetPanel == "Data Table")
-      if (input$table_data == "map") {
-        req(input$variable_region)
-        datatable(
-          beans_map %>%
-            filter(`Land use by category` == input$variable_region) %>%
-            pivot_wider(names_from = sub_region, values_from = value) %>%
-            mutate(across(where(is.numeric), comma)), # Apply comma formatting to numeric columns
-          options = list(scrollX = TRUE) # Enable horizontal scrolling
+      
+      # -------------------------
+      # Select which dataset to show
+      # -------------------------
+      data <- switch(input$table_data,
+                     
+                     # -------------------
+                     # 1. Agricultural Region data
+                     # -------------------
+                     "map" = {
+                       beans_map %>%
+                         pivot_wider(names_from = sub_region, values_from = value) %>%
+                         mutate(across(where(is.numeric) & !contains("Year"), comma))
+                     },
+                     
+                     # -------------------
+                     # 2. Timeseries data
+                     # -------------------
+                     "timeseries" = {
+                       beans_data %>%
+                         pivot_longer(cols = -`Crop/Land use`,
+                                      names_to = "year",
+                                      values_to = "value") %>%
+                         pivot_wider(names_from = year, values_from = value) %>%
+                         mutate(across(where(is.numeric) & !contains("Year"), comma))
+                     },
+                     
+                     # -------------------
+                     # 3. Constituency Table
+                     # -------------------
+                     
+                     "map_con" = {
+                       peas_beans_constituency %>%
+                         rename(`Crop/Land use` = `crop`) %>%
+                         mutate(across(
+                           where(is.character),
+                           ~ ifelse(grepl("^\\d+$", .x), scales::comma(as.numeric(.x)), .x)
+                         )) %>%
+                         
+                         mutate(
+                           across(
+                             where(is.numeric),
+                             ~ round(.x, 0)
+                           )
+                         ) %>%
+                         
+                         
+                         mutate(
+                           across(
+                             where(is.character),
+                             ~ ifelse(
+                               grepl("^\\d+(\\.\\d+)?$", .x),   # matches integers or decimals
+                               as.character(round(as.numeric(.x), 0)),
+                               .x
+                             )
+                           )
+                         )
+                       
+                     },
+                     
+                     
+                     # -------------------
+                     # 4. Local authority table
+                     # -------------------
+                     "map_uni" = {
+                       peas_beans_unitauth %>%
+                         rename(`Crop/Land use` = `crop`) %>%
+                         mutate(across(
+                           where(is.character),
+                           ~ ifelse(grepl("^\\d+$", .x), scales::comma(as.numeric(.x)), .x)
+                         )) %>%
+                         
+                         mutate(
+                           across(
+                             where(is.numeric),
+                             ~ round(.x, 0)
+                           )
+                         ) %>%
+                         
+                         
+                         mutate(
+                           across(
+                             where(is.character),
+                             ~ ifelse(
+                               grepl("^\\d+(\\.\\d+)?$", .x),   # matches integers or decimals
+                               as.character(round(as.numeric(.x), 0)),
+                               .x
+                             )
+                           )
+                         )
+                       
+                     },
+      )
+      
+      # -------------------------
+      # Render the chosen table
+      # -------------------------
+      datatable(
+        data,
+        options = list(
+          scrollX = TRUE,
+          autoWidth = TRUE,
+          pageLength = 20,
+          columnDefs = list(
+            list(width = '200px', targets = 1)
+          )
         )
-      } else {
-        datatable(
-          beans_data %>%
-           # pivot_wider(names_from = year, values_from = value) %>%
-            mutate(across(where(is.numeric) & !contains("Year"), comma)), # Apply comma formatting to numeric columns except 'Year'
-          options = list(scrollX = TRUE) # Enable horizontal scrolling
-        )
-      }
+      )
     })
     
-    output$download_data <- downloadHandler(
+    # Data Download Handler
+    output$downloadData <- downloadHandler(
+      
+      # ---- Dynamic filename depending on selected table ----
       filename = function() {
-        if (input$table_data == "map") {
-          paste("Beans_Subregion_Data_", Sys.Date(), ".csv", sep = "")
-        } else {
-          paste("Beans_Timeseries_Data_", Sys.Date(), ".csv", sep = "")
-        }
+        
+        switch(input$table_data,
+               
+               "map" = paste0("Peas_Beans_Map_Data_", Sys.Date(), ".csv"),
+               
+               "timeseries" = paste0("Peas_Beans_Timeseries_Data_", Sys.Date(), ".csv"),
+               
+               "map_con" = paste0("Constituency_Data_", Sys.Date(), ".csv"),
+               
+               "map_uni" = paste0("Local_Authority_Data_", Sys.Date(), ".csv"),
+               
+               # fallback
+               paste0("Downloaded_Data_", Sys.Date(), ".csv")
+        )
       },
+      
+      # ---- Write selected dataset to disk ----
       content = function(file) {
-        data <- if (input$table_data == "map") {
-          beans_map %>%
-            filter(`Land use by category` == input$variable) %>%
-            pivot_wider(names_from = sub_region, values_from = value)
-        } else {
-          beans_data %>%
-            pivot_longer(cols = -`Crop/Land use`, names_to = "year", values_to = "value") %>%
-            pivot_wider(names_from = year, values_from = value)
-        }
+        
+        data <- switch(input$table_data,
+                       
+                       # ---- Agricultural region map ----
+                       "map" = {
+                         beans_data %>%
+                           filter(`Crop/Land use` == input$variable_region) %>%
+                           pivot_wider(names_from = sub_region, values_from = value)
+                       },
+                       
+                       # ---- Timeseries ----
+                       "timeseries" = {
+                         beans_data %>%
+                           pivot_longer(
+                             cols = -`Livestock by category`,
+                             names_to = "year",
+                             values_to = "value"
+                           ) %>%
+                           pivot_wider(names_from = year, values_from = value)
+                       },
+                       
+                       # ---- Constituency ----
+                       "map_con" = {
+                         peas_beans_constituency
+                       },
+                       
+                       # ---- Local authority ----
+                       "map_uni" = {
+                         peas_beans_unitauth
+                       }
+        )
+        
         write.csv(data, file, row.names = FALSE)
       }
     )
-  })
+  }
+  )
 }
+
 
 beans_demo <- function() {
   ui <- fluidPage(beansUI("beans_test"))

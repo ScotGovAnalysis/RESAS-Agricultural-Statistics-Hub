@@ -62,7 +62,10 @@ fruitUI <- function(id) {
         radioButtons(
           ns("table_data"),
           "Select Data to Display",
-          choices = c("Map Data" = "map", "Time Series Data" = "timeseries"),
+          choices = c("Map Data" = "map",
+                      "Time Series Data" = "timeseries",
+                      "Constituency Table" = "map_con",
+                      "Local Authority Table" = "map_uni"),
           selected = "map"
         )
       )
@@ -205,54 +208,176 @@ fruitServer <- function(id) {
     
     output$table <- renderDT({
       req(input$tabsetPanel == "Data Table")
-      if (input$table_data == "map") {
-        req(input$variable_region)
-        fruit_map %>%
-          filter(`Land use by category` == input$variable_region) %>%
-          pivot_wider(names_from = sub_region, values_from = value) %>%
-          mutate(across(where(is.numeric) & !contains("Year"), comma)) %>%
-          datatable(
-            options = list(
-              scrollX = TRUE,  # Enable horizontal scrolling
-              pageLength = 20  # Show 20 entries by default
-            )
+      
+      # -------------------------
+      # Select which dataset to show
+      # -------------------------
+      data <- switch(input$table_data,
+                     
+                     # -------------------
+                     # 1. Agricultural Region data
+                     # -------------------
+                     "map" = {
+                       fruit_map %>%
+                         pivot_wider(names_from = sub_region, values_from = value) %>%
+                         mutate(across(where(is.numeric) & !contains("Year"), comma))
+                     },
+                     
+                     # -------------------
+                     # 2. Timeseries data
+                     # -------------------
+                     "timeseries" = {
+                       fruit_data %>%
+                         pivot_longer(cols = -`Vegetables and fruits for human consumption`,
+                                      names_to = "year",
+                                      values_to = "value") %>%
+                         pivot_wider(names_from = year, values_from = value) %>%
+                         mutate(across(where(is.numeric) & !contains("Year"), comma))
+                     },
+                     
+                     # -------------------
+                     # 3. Constituency Table
+                     # -------------------
+                     
+                     "map_con" = {
+                       fruit_constituency %>%
+                         rename(`Land use by category` = `crop`) %>%
+                         mutate(across(
+                           where(is.character),
+                           ~ ifelse(grepl("^\\d+$", .x), scales::comma(as.numeric(.x)), .x)
+                         )) %>%
+                  
+                         mutate(
+                           across(
+                             where(is.numeric),
+                             ~ round(.x, 0)
+                           )
+                         ) %>%
+                         
+                         
+                         mutate(
+                           across(
+                             where(is.character),
+                             ~ ifelse(
+                               grepl("^\\d+(\\.\\d+)?$", .x),   # matches integers or decimals
+                               as.character(round(as.numeric(.x), 0)),
+                               .x
+                             )
+                           )
+                         )
+                       
+                     },
+                     
+                     
+                     # -------------------
+                     # 4. Local authority table
+                     # -------------------
+                     "map_uni" = {
+                       fruit_unitauth %>%
+                         rename(`Land use by category` = `crop`) %>%
+                         mutate(across(
+                           where(is.character),
+                           ~ ifelse(grepl("^\\d+$", .x), scales::comma(as.numeric(.x)), .x)
+                         )) %>%
+                         
+                         mutate(
+                           across(
+                             where(is.numeric),
+                             ~ round(.x, 0)
+                           )
+                         ) %>%
+                         
+                         
+                         mutate(
+                           across(
+                             where(is.character),
+                             ~ ifelse(
+                               grepl("^\\d+(\\.\\d+)?$", .x),   # matches integers or decimals
+                               as.character(round(as.numeric(.x), 0)),
+                               .x
+                             )
+                           )
+                         )
+                       
+                     },
+      )
+      
+      # -------------------------
+      # Render the chosen table
+      # -------------------------
+      datatable(
+        data,
+        options = list(
+          scrollX = TRUE,
+          autoWidth = TRUE,
+          pageLength = 20,
+          columnDefs = list(
+            list(width = '200px', targets = 1)
           )
-      } else {
-        fruit_data %>%
-          pivot_longer(cols = -`Vegetables and fruits for human consumption`, names_to = "year", values_to = "value") %>%
-          pivot_wider(names_from = year, values_from = value) %>%
-          mutate(across(where(is.numeric) & !contains("Year"), comma)) %>%
-          datatable(
-            options = list(
-              scrollX = TRUE,  # Enable horizontal scrolling
-              pageLength = 20  # Show 20 entries by default
-            )
-          )
-      }
+        )
+      )
     })
     
-    output$download_data <- downloadHandler(
+    # Data Download Handler
+    output$downloadData <- downloadHandler(
+      
+      # ---- Dynamic filename depending on selected table ----
       filename = function() {
-        if (input$table_data == "map") {
-          paste("Fruit_Subregion_Data_", Sys.Date(), ".csv", sep = "")
-        } else {
-          paste("Fruit_Timeseries_Data_", Sys.Date(), ".csv", sep = "")
-        }
+        
+        switch(input$table_data,
+               
+               "map" = paste0("Fruit_Map_Data_", Sys.Date(), ".csv"),
+               
+               "timeseries" = paste0("Fruit_Timeseries_Data_", Sys.Date(), ".csv"),
+               
+               "map_con" = paste0("Constituency_Data_", Sys.Date(), ".csv"),
+               
+               "map_uni" = paste0("Local_Authority_Data_", Sys.Date(), ".csv"),
+               
+               # fallback
+               paste0("Downloaded_Data_", Sys.Date(), ".csv")
+        )
       },
+      
+      # ---- Write selected dataset to disk ----
       content = function(file) {
-        data <- if (input$table_data == "map") {
-          fruit_map %>%
-            filter(`Land use by category` == input$variable) %>%
-            pivot_wider(names_from = sub_region, values_from = value)
-        } else {
-          fruit_data %>%
-            pivot_longer(cols = -`Vegetables and fruits for human consumption`, names_to = "year", values_to = "value") %>%
-            pivot_wider(names_from = year, values_from = value)
-        }
+        
+        data <- switch(input$table_data,
+                       
+                       # ---- Agricultural region map ----
+                       "map" = {
+                         fruit_subregion %>%
+                           filter(`Land use by category` == input$variable_region) %>%
+                           pivot_wider(names_from = sub_region, values_from = value)
+                       },
+                       
+                       # ---- Timeseries ----
+                       "timeseries" = {
+                         fruit_data %>%
+                           pivot_longer(
+                             cols = -`Vegetables and fruit for human consumption`,
+                             names_to = "year",
+                             values_to = "value"
+                           ) %>%
+                           pivot_wider(names_from = year, values_from = value)
+                       },
+                       
+                       # ---- Constituency ----
+                       "map_con" = {
+                         fruit_constituency
+                       },
+                       
+                       # ---- Local authority ----
+                       "map_uni" = {
+                         fruit_unitauth
+                       }
+        )
+        
         write.csv(data, file, row.names = FALSE)
       }
     )
-  })
+  }
+  )
 }
 
 fruit_demo <- function() {

@@ -78,8 +78,10 @@ landUseSummaryUI <- function(id) {
         radioButtons(
           ns("table_data"),
           "Select Data to Display",
-          choices = c("Map Data" = "map", "Time Series Data" = "timeseries"),
-                        #"Constituency Map"),
+          choices = c("Map Data" = "map", 
+                      "Time Series Data" = "timeseries",
+                      "Constituency Data" = "map_con",
+                      "Local Authority Data" = "map_uni"),
           selected = "map"
         )
       )
@@ -151,15 +153,64 @@ landUseSummaryServer <- function(id) {
     })
     
     # Table data with formatted values for better readability
+    # table_data <- reactive({
+    #   if (input$table_data == "map") {
+    #     land_use_subregion %>%
+    #       mutate(across(where(is.numeric), comma))  # Format numeric columns with commas
+    #   } else {
+    #     land_use_data %>%
+    #       mutate(across(where(is.numeric), comma))  # Format numeric columns with commas
+    #   }
+    # })
+    
+    
     table_data <- reactive({
-      if (input$table_data == "map") {
-        land_use_subregion %>%
-          mutate(across(where(is.numeric), comma))  # Format numeric columns with commas
-      } else {
-        land_use_data %>%
-          mutate(across(where(is.numeric), comma))  # Format numeric columns with commas
+      req(input$table_data)
+      
+      # Pick the raw dataset
+      raw_data <- switch(
+        input$table_data,
+        "map"        = land_use_subregion,
+        "timeseries" = land_use_data,
+        "map_con"     = land_use_constituency,
+        "map_uni"   = land_use_unitauth
+      )
+      
+      
+      if ("land use" %in% names(raw_data)) {
+        raw_data <- raw_data %>% rename(`Crop/Land use` = `land use`)
       }
+      
+      
+      # Apply numeric formatting once
+      
+      
+      raw_data %>%
+        mutate(
+          across(
+            everything(),
+            ~ ifelse(
+              # test: is it numeric once coerced?
+              !is.na(suppressWarnings(as.numeric(.x))),
+              
+              # yes → round + comma format
+              scales::comma(round(as.numeric(.x))),
+              
+              # no → return original value (e.g., "c")
+              .x
+            )
+          )
+        )
+      
     })
+    
+    
+    # 
+    # con_data <- reactive({land_use_constituency %>%
+    #     rename(`Crop/Land use` = `land use`)})
+    # 
+    # uni_data <- reactive({land_use_unitauth %>%
+    #     rename(`Crop/Land use` = `land use`)})
     
     mapServer(
       id = "map",
@@ -254,12 +305,13 @@ landUseSummaryServer <- function(id) {
       )
     })
     
+    
     # Download handler with formatted values
     output$download_data <- createDownloadHandler(
       input = input,
       file_map_name = "Land Use Subregion Data 2025.xlsx",
       file_timeseries_name = "Land Use Timeseries Data 2013 to 2025.xlsx",
-     # file_map_con_name = "Land Use Constituency Data 2026.xlsx",
+      # file_map_con_name = "Land Use Constituency Data 2026.xlsx",
       map_data = table_data(),  # Use the formatted data for download
       timeseries_data = table_data()  # Use the formatted data for download
     )
@@ -276,4 +328,6 @@ land_use_demo <- function() {
 }
 
 land_use_demo()
+
+
 

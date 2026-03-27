@@ -83,7 +83,10 @@ otherAnimalsUI <- function(id) {
         radioButtons(
           ns("table_data"),
           "Select Data to Display",
-          choices = c("Map Data" = "map", "Chart Data" = "timeseries"),
+          choices = c("Map Data" = "map", 
+                      "Chart Data" = "timeseries",
+                      "Constituency Data" = "map_con",
+                      "Local Authority" = "map_uni"),
           selected = "map"
         )
       )
@@ -223,59 +226,138 @@ otherAnimalsServer <- function(id) {
       y_col = "value"
     )
     
+    # Data Table output
     output$table <- renderDT({
       req(input$tabsetPanel == "Data Table")
-      if (input$table_data == "map") {
-        req(input$variable_region)
-        other_animals_data %>%
-          pivot_wider(names_from = sub_region, values_from = value)  %>%
-          mutate(across(where(is.numeric) & !contains("Year"), comma)) %>%
-          datatable(
-            options = list(
-              scrollX = TRUE,  # Enable horizontal scrolling
-              pageLength = 20,  # Show 20 entries by default
-              autoWidth = TRUE, # Apply column widths
-              columnDefs = list(
-                list(width = '100px', targets = 1)
-              )
-            )
+      
+      # -------------------------
+      # Select which dataset to show
+      # -------------------------
+      data <- switch(input$table_data,
+                     
+                     # -------------------
+                     # 1. Agricultural Region data
+                     # -------------------
+                     "map" = {
+                       other_animals_data %>%
+                         pivot_wider(names_from = sub_region, values_from = value) %>%
+                         mutate(across(where(is.numeric) & !contains("Year"), comma))
+                     },
+                     
+                     # -------------------
+                     # 2. Timeseries data
+                     # -------------------
+                     "timeseries" = {
+                       number_of_other_livestock %>%
+                         pivot_longer(cols = -`Livestock by category`,
+                                      names_to = "year",
+                                      values_to = "value") %>%
+                         pivot_wider(names_from = year, values_from = value) %>%
+                         mutate(across(where(is.numeric) & !contains("Year"), comma))
+                     },
+                     
+                     # -------------------
+                     # 3. Constituency Table
+                     # -------------------
+                     
+                     "map_con" = {
+                       other_animals_constituency %>%
+                         rename(`Livestock by category` = `livestock`) %>%
+                         mutate(across(
+                           where(is.character),
+                           ~ ifelse(grepl("^\\d+$", .x), comma(as.numeric(.x)), .x)
+                         ))
+                     },
+                     
+                     
+                     # -------------------
+                     # 4. Local authority table
+                     # -------------------
+                     "map_uni" = {
+                       other_animals_unitauth %>% 
+                         rename(`Livestock by category` = `livestock`) %>%
+                         mutate(across(
+                           where(is.character),
+                           ~ ifelse(grepl("^\\d+$", .x), comma(as.numeric(.x)), .x)
+                         ))                     }
+      )
+      
+      # -------------------------
+      # Render the chosen table
+      # -------------------------
+      datatable(
+        data,
+        options = list(
+          scrollX = TRUE,
+          autoWidth = TRUE,
+          pageLength = 20,
+          columnDefs = list(
+            list(width = '200px', targets = 1)
           )
-      } else {
-        number_of_other_livestock %>%
-          pivot_longer(cols = -`Livestock by category`, names_to = "year", values_to = "value") %>%
-          pivot_wider(names_from = year, values_from = value)  %>%
-          mutate(across(where(is.numeric) & !contains("Year"), comma)) %>%
-          datatable(
-            options = list(
-              scrollX = TRUE,  # Enable horizontal scrolling
-              pageLength = 20  # Show 20 entries by default
-            )
-          )
-      }
+        )
+      )
     })
     
+    # Data Download Handler
     output$downloadData <- downloadHandler(
+      
+      # ---- Dynamic filename depending on selected table ----
       filename = function() {
-        if (input$table_data == "map") {
-          paste("Other_Animals_Map_Data_", Sys.Date(), ".csv", sep = "")
-        } else {
-          paste("Other_Animals_Timeseries_Data_", Sys.Date(), ".csv", sep = "")
-        }
+        
+        switch(input$table_data,
+               
+               "map" = paste0("Other_Animals_Map_Data_", Sys.Date(), ".csv"),
+               
+               "timeseries" = paste0("Other_Animals_Timeseries_Data_", Sys.Date(), ".csv"),
+               
+               "map_con" = paste0("Constituency_Data_", Sys.Date(), ".csv"),
+               
+               "map_uni" = paste0("Local_Authority_Data_", Sys.Date(), ".csv"),
+               
+               # fallback
+               paste0("Downloaded_Data_", Sys.Date(), ".csv")
+        )
       },
+      
+      # ---- Write selected dataset to disk ----
       content = function(file) {
-        data <- if (input$table_data == "map") {
-          other_animals_data %>%
-            filter(`Livestock by category` == input$variable) %>%
-            pivot_wider(names_from = sub_region, values_from = value)
-        } else {
-          number_of_other_livestock %>%
-            pivot_longer(cols = -`Livestock by category`, names_to = "year", values_to = "value") %>%
-            pivot_wider(names_from = year, values_from = value)
-        }
+        
+        data <- switch(input$table_data,
+                       
+                       # ---- Agricultural region map ----
+                       "map" = {
+                         other_animals_data %>%
+                           filter(`Livestock by category` == input$variable_region) %>%
+                           pivot_wider(names_from = sub_region, values_from = value)
+                       },
+                       
+                       # ---- Timeseries ----
+                       "timeseries" = {
+                         number_of_other_livestock %>%
+                           pivot_longer(
+                             cols = -`Livestock by category`,
+                             names_to = "year",
+                             values_to = "value"
+                           ) %>%
+                           pivot_wider(names_from = year, values_from = value)
+                       },
+                       
+                       # ---- Constituency ----
+                       "map_con" = {
+                         other_animals_constituency
+                       },
+                       
+                       # ---- Local authority ----
+                       "map_uni" = {
+                         other_animals_unitauth
+                       }
+        )
+        
         write.csv(data, file, row.names = FALSE)
       }
     )
-  })
+  }
+  )
 }
 
 # Testing module
