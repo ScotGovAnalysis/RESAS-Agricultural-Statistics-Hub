@@ -313,7 +313,7 @@ stockfeedingServer <- function(id) {
     })
     
     # Data Download Handler
-    output$downloadData <- downloadHandler(
+    output$download_data <- downloadHandler(
       
       # ---- Dynamic filename depending on selected table ----
       filename = function() {
@@ -341,8 +341,8 @@ stockfeedingServer <- function(id) {
                        # ---- Agricultural region map ----
                        "map" = {
                          stockfeeding_subregion %>%
-                           filter(`Land use by category` == input$variable_region) %>%
-                           pivot_wider(names_from = sub_region, values_from = value)
+                           filter(`Land use by category` == input$variable_region)# %>%
+                          # pivot_wider(names_from = sub_region, values_from = value)
                        },
                        
                        # ---- Timeseries ----

@@ -310,7 +310,7 @@ humanVegetablesServer <- function(id) {
     })
     
     # Data Download Handler
-    output$downloadData <- downloadHandler(
+    output$download_data <- downloadHandler(
       
       # ---- Dynamic filename depending on selected table ----
       filename = function() {

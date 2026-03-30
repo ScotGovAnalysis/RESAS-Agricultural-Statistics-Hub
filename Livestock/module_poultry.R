@@ -71,7 +71,7 @@ poultryUI <- function(id) {
         radioButtons(
           ns("table_data"),
           "Select Data to Display",
-          choices = c("Map Data" = "map", 
+          choices = c("Agricultural Region Data" = "map", 
                       "Time Series Data" = "timeseries",
                       "Constituency Data" = "map_con",
                       "Local Authority Data" = "map_uni"),
@@ -314,9 +314,9 @@ poultryServer <- function(id) {
                        
                        # ---- Agricultural region map ----
                        "map" = {
-                         poultry_data %>%
-                           filter(`Poultry by category` == input$variable_region) %>%
-                           pivot_wider(names_from = sub_region, values_from = value)
+                         livestock_subregion %>%
+                           filter(`Livestock by category` == input$variable_region)# %>%
+                     #      pivot_wider(names_from = sub_region, values_from = value)
                        },
                        
                        # ---- Timeseries ----

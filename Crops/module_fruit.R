@@ -62,7 +62,7 @@ fruitUI <- function(id) {
         radioButtons(
           ns("table_data"),
           "Select Data to Display",
-          choices = c("Map Data" = "map",
+          choices = c("Agricultural Region Data" = "map",
                       "Time Series Data" = "timeseries",
                       "Constituency Table" = "map_con",
                       "Local Authority Table" = "map_uni"),
@@ -319,7 +319,7 @@ fruitServer <- function(id) {
     })
     
     # Data Download Handler
-    output$downloadData <- downloadHandler(
+    output$download_data <- downloadHandler(
       
       # ---- Dynamic filename depending on selected table ----
       filename = function() {
@@ -347,19 +347,19 @@ fruitServer <- function(id) {
                        # ---- Agricultural region map ----
                        "map" = {
                          fruit_subregion %>%
-                           filter(`Land use by category` == input$variable_region) %>%
-                           pivot_wider(names_from = sub_region, values_from = value)
+                           filter(`Land use by category` == input$variable_region) # %>%
+                        #   pivot_wider(names_from = sub_region, values_from = value)
                        },
                        
                        # ---- Timeseries ----
                        "timeseries" = {
                          fruit_data %>%
                            pivot_longer(
-                             cols = -`Vegetables and fruit for human consumption`,
+                             cols = -`Vegetables and fruits for human consumption`,
                              names_to = "year",
                              values_to = "value"
-                           ) %>%
-                           pivot_wider(names_from = year, values_from = value)
+                           ) #%>%
+                          # pivot_wider(names_from = year, values_from = value)
                        },
                        
                        # ---- Constituency ----

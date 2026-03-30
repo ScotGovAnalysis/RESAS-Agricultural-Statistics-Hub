@@ -217,7 +217,7 @@ potatoesServer <- function(id) {
                      # -------------------
                      "timeseries" = {
                        potatoes_data %>%
-                         pivot_longer(cols = -`Crops/Land use`,
+                         pivot_longer(cols = -`Crop/Land use`,
                                       names_to = "year",
                                       values_to = "value") %>%
                          pivot_wider(names_from = year, values_from = value) %>%
@@ -308,7 +308,7 @@ potatoesServer <- function(id) {
     })
     
     # Data Download Handler
-    output$downloadData <- downloadHandler(
+    output$download_data <- downloadHandler(
       
       # ---- Dynamic filename depending on selected table ----
       filename = function() {
@@ -336,8 +336,8 @@ potatoesServer <- function(id) {
                        # ---- Agricultural region map ----
                        "map" = {
                          potatoes_subregion %>%
-                           filter(`Land use by category` == input$variable_region) %>%
-                           pivot_wider(names_from = sub_region, values_from = value)
+                           filter(`Land use by category` == input$variable_region)# %>%
+                         #  pivot_wider(names_from = sub_region, values_from = value)
                        },
                        
                        # ---- Timeseries ----
@@ -347,8 +347,8 @@ potatoesServer <- function(id) {
                              cols = -`Crop/Land use`,
                              names_to = "year",
                              values_to = "value"
-                           ) %>%
-                           pivot_wider(names_from = year, values_from = value)
+                           ) #%>%
+                          # pivot_wider(names_from = year, values_from = value)
                        },
                        
                        # ---- Constituency ----

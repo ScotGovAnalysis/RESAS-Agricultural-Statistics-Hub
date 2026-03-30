@@ -83,7 +83,7 @@ otherAnimalsUI <- function(id) {
         radioButtons(
           ns("table_data"),
           "Select Data to Display",
-          choices = c("Map Data" = "map", 
+          choices = c("Agricultural Region Data" = "map", 
                       "Chart Data" = "timeseries",
                       "Constituency Data" = "map_con",
                       "Local Authority" = "map_uni"),
