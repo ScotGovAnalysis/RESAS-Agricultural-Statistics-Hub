@@ -326,13 +326,13 @@ fruitServer <- function(id) {
         
         switch(input$table_data,
                
-               "map" = paste0("Fruit_Map_Data_", Sys.Date(), ".csv"),
+               "map" = paste0("Fruit_Agricultural_Region_Data_", Sys.Date(), ".csv"),
                
                "timeseries" = paste0("Fruit_Timeseries_Data_", Sys.Date(), ".csv"),
                
-               "map_con" = paste0("Constituency_Data_", Sys.Date(), ".csv"),
+               "map_con" = paste0("Fruit_Constituency_Data_", Sys.Date(), ".csv"),
                
-               "map_uni" = paste0("Local_Authority_Data_", Sys.Date(), ".csv"),
+               "map_uni" = paste0("Fruit_Local_Authority_Data_", Sys.Date(), ".csv"),
                
                # fallback
                paste0("Downloaded_Data_", Sys.Date(), ".csv")

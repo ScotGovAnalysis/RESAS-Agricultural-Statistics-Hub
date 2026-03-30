@@ -78,7 +78,7 @@ landUseSummaryUI <- function(id) {
         radioButtons(
           ns("table_data"),
           "Select Data to Display",
-          choices = c("Map Data" = "map", 
+          choices = c("Agricultural Region Data" = "map", 
                       "Time Series Data" = "timeseries",
                       "Constituency Data" = "map_con",
                       "Local Authority Data" = "map_uni"),
@@ -294,28 +294,180 @@ landUseSummaryServer <- function(id) {
       y_col = "value"
     )
     
-    # Render the data table with formatted values
+    # ===================== DATA TABLE =====================
+    
     output$table <- renderDT({
+      req(input$tabsetPanel == "Data Table")
+      
+      # -------------------------
+      # Select which dataset to show
+      # -------------------------
+      data <- switch(input$table_data,
+                     
+                     # -------------------
+                     # 1. Agricultural Region data
+                     # -------------------
+                     "map" = {
+                       land_use_map() %>%
+                         pivot_wider(names_from = sub_region, values_from = value) %>%
+                         mutate(across(where(is.numeric) & !contains("Year"), comma))
+                     },
+                     
+                     # -------------------
+                     # 2. Timeseries data
+                     # -------------------
+                     "timeseries" = {
+                       land_use_data %>%
+                         pivot_longer(cols = -`Crop/Land use`,
+                                      names_to = "year",
+                                      values_to = "value") %>%
+                         pivot_wider(names_from = year, values_from = value) %>%
+                         mutate(across(where(is.numeric) & !contains("Year"), comma))
+                     },
+                     
+                     # -------------------
+                     # 3. Constituency Table
+                     # -------------------
+                     
+                     "map_con" = {
+                       land_use_constituency %>%
+                         rename(`Land use by category` = `land use`) %>%
+                         mutate(across(
+                           where(is.character),
+                           ~ ifelse(grepl("^\\d+$", .x), scales::comma(as.numeric(.x)), .x)
+                         )) %>%
+                         
+                         mutate(
+                           across(
+                             where(is.numeric),
+                             ~ round(.x, 0)
+                           )
+                         ) %>%
+                         
+                         
+                         mutate(
+                           across(
+                             where(is.character),
+                             ~ ifelse(
+                               grepl("^\\d+(\\.\\d+)?$", .x),   # matches integers or decimals
+                               as.character(round(as.numeric(.x), 0)),
+                               .x
+                             )
+                           )
+                         )
+                       
+                     },
+                     
+                     
+                     # -------------------
+                     # 4. Local authority table
+                     # -------------------
+                     "map_uni" = {
+                       land_use_unitauth %>%
+                         rename(`Land use by category` = `land use`) %>%
+                         mutate(across(
+                           where(is.character),
+                           ~ ifelse(grepl("^\\d+$", .x), scales::comma(as.numeric(.x)), .x)
+                         )) %>%
+                         
+                         mutate(
+                           across(
+                             where(is.numeric),
+                             ~ round(.x, 0)
+                           )
+                         ) %>%
+                         
+                         
+                         mutate(
+                           across(
+                             where(is.character),
+                             ~ ifelse(
+                               grepl("^\\d+(\\.\\d+)?$", .x),   # matches integers or decimals
+                               as.character(round(as.numeric(.x), 0)),
+                               .x
+                             )
+                           )
+                         )
+                       
+                     },
+      )
+      
+      # -------------------------
+      # Render the chosen table
+      # -------------------------
       datatable(
-        table_data(),
+        data,
         options = list(
-          scrollX = TRUE,  # Enable horizontal scrolling
-          pageLength = 20  # Show 20 entries by default
+          scrollX = TRUE,
+          autoWidth = TRUE,
+          pageLength = 20,
+          columnDefs = list(
+            list(width = '200px', targets = 1)
+          )
         )
       )
     })
     
-    
-    # Download handler with formatted values
-    output$download_data <- createDownloadHandler(
-      input = input,
-      file_map_name = "Land Use Subregion Data 2025.xlsx",
-      file_timeseries_name = "Land Use Timeseries Data 2013 to 2025.xlsx",
-      # file_map_con_name = "Land Use Constituency Data 2026.xlsx",
-      map_data = table_data(),  # Use the formatted data for download
-      timeseries_data = table_data()  # Use the formatted data for download
+    # Data Download Handler
+    output$downloadData <- downloadHandler(
+      
+      # ---- Dynamic filename depending on selected table ----
+      filename = function() {
+        
+        switch(input$table_data,
+               
+               "map" = paste0("Land_Use_Agricultural_Region_Map_Data_", Sys.Date(), ".csv"),
+               
+               "timeseries" = paste0("Land_Use_Timeseries_Data_", Sys.Date(), ".csv"),
+               
+               "map_con" = paste0("Land_Use_Constituency_Data_", Sys.Date(), ".csv"),
+               
+               "map_uni" = paste0("Land_Use_Local_Authority_Data_", Sys.Date(), ".csv"),
+               
+               # fallback
+               paste0("Downloaded_Data_", Sys.Date(), ".csv")
+        )
+      },
+      
+      # ---- Write selected dataset to disk ----
+      content = function(file) {
+        
+        data <- switch(input$table_data,
+                       
+                       # ---- Agricultural region map ----
+                       "map" = {
+                         land_use_subregion %>%
+                           filter(`Land use by category` == input$variable_region) %>%
+                           pivot_wider(names_from = sub_region, values_from = value)
+                       },
+                       
+                       # ---- Timeseries ----
+                       "timeseries" = {
+                         land_use_data %>%
+                           pivot_longer(
+                             cols = -`Crop/Land use`,
+                             names_to = "year",
+                             values_to = "value"
+                           ) %>%
+                           pivot_wider(names_from = year, values_from = value)
+                       },
+                       
+                       # ---- Constituency ----
+                       "map_con" = {
+                         land_use_constituency
+                       },
+                       
+                       # ---- Local authority ----
+                       "map_uni" = {
+                         land_use_unitauth
+                       }
+        )
+        
+        write.csv(data, file, row.names = FALSE)
+      }
     )
-  })
+  }
+  )
 }
 
 

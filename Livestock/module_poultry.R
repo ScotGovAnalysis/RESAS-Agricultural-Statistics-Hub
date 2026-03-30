@@ -298,9 +298,9 @@ poultryServer <- function(id) {
                
                "timeseries" = paste0("Poultry_Timeseries_Data_", Sys.Date(), ".csv"),
                
-               "map_con" = paste0("Constituency_Data_", Sys.Date(), ".csv"),
+               "map_con" = paste0("Poultry_Constituency_Data_", Sys.Date(), ".csv"),
                
-               "map_uni" = paste0("Local_Authority_Data_", Sys.Date(), ".csv"),
+               "map_uni" = paste0("Poultry_Local_Authority_Data_", Sys.Date(), ".csv"),
                
                # fallback
                paste0("Downloaded_Data_", Sys.Date(), ".csv")

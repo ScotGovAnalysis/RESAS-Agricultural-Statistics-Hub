@@ -284,10 +284,10 @@ pigsServer <- function(id) {
                "timeseries" = paste0("Pigs_Timeseries_Data_", Sys.Date(), ".csv"),
                
                # NEW table 3
-               "map_con" = paste0("Constituency_Data_", Sys.Date(), ".csv"),
+               "map_con" = paste0("Pigs_Constituency_Data_", Sys.Date(), ".csv"),
                
                # NEW table 4
-               "map_uni" = paste0("Local_Authority_Data_", Sys.Date(), ".csv"),
+               "map_uni" = paste0("Pigs_Local_Authority_Data_", Sys.Date(), ".csv"),
                
                # fallback
                paste0("Downloaded_Data_", Sys.Date(), ".csv")

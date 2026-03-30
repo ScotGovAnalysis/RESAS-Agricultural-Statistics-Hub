@@ -310,9 +310,9 @@ otherAnimalsServer <- function(id) {
                
                "timeseries" = paste0("Other_Animals_Timeseries_Data_", Sys.Date(), ".csv"),
                
-               "map_con" = paste0("Constituency_Data_", Sys.Date(), ".csv"),
+               "map_con" = paste0("Other_Animals_Constituency_Data_", Sys.Date(), ".csv"),
                
-               "map_uni" = paste0("Local_Authority_Data_", Sys.Date(), ".csv"),
+               "map_uni" = paste0("Other_Animals_Local_Authority_Data_", Sys.Date(), ".csv"),
                
                # fallback
                paste0("Downloaded_Data_", Sys.Date(), ".csv")

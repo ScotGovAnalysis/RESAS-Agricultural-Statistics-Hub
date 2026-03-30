@@ -218,9 +218,8 @@ cattleServer <- function(id) {
       y_col = "value"
     )
     
-    # Data Table output
+    # ===================== DATA TABLE =====================
     
-    # Data Table output
     output$table <- renderDT({
       req(input$tabsetPanel == "Data Table")
       
@@ -230,7 +229,7 @@ cattleServer <- function(id) {
       data <- switch(input$table_data,
                      
                      # -------------------
-                     # 1. MAP data (existing)
+                     # 1. Agricultural Region data
                      # -------------------
                      "map" = {
                        cattle_data %>%
@@ -239,7 +238,7 @@ cattleServer <- function(id) {
                      },
                      
                      # -------------------
-                     # 2. TIME-SERIES data (existing)
+                     # 2. Timeseries data
                      # -------------------
                      "timeseries" = {
                        number_of_cattle %>%
@@ -256,11 +255,31 @@ cattleServer <- function(id) {
                      
                      "map_con" = {
                        cattle_constituency %>%
-                         rename(`Cattle by category` = `livestock`) %>%
+                         rename(`Livestock by category` = `livestock`) %>%
                          mutate(across(
                            where(is.character),
-                           ~ ifelse(grepl("^\\d+$", .x), comma(as.numeric(.x)), .x)
-                         ))
+                           ~ ifelse(grepl("^\\d+$", .x), scales::comma(as.numeric(.x)), .x)
+                         )) %>%
+                         
+                         mutate(
+                           across(
+                             where(is.numeric),
+                             ~ round(.x, 0)
+                           )
+                         ) %>%
+                         
+                         
+                         mutate(
+                           across(
+                             where(is.character),
+                             ~ ifelse(
+                               grepl("^\\d+(\\.\\d+)?$", .x),   # matches integers or decimals
+                               as.character(round(as.numeric(.x), 0)),
+                               .x
+                             )
+                           )
+                         )
+                       
                      },
                      
                      
@@ -268,12 +287,33 @@ cattleServer <- function(id) {
                      # 4. Local authority table
                      # -------------------
                      "map_uni" = {
-                       cattle_unitauth %>% 
-                         rename(`Cattle by category` = `livestock`) %>%
+                       cattle_unitauth %>%
+                         rename(`Livestock by category` = `livestock`) %>%
                          mutate(across(
                            where(is.character),
-                           ~ ifelse(grepl("^\\d+$", .x), comma(as.numeric(.x)), .x)
-                         ))                     }
+                           ~ ifelse(grepl("^\\d+$", .x), scales::comma(as.numeric(.x)), .x)
+                         )) %>%
+                         
+                         mutate(
+                           across(
+                             where(is.numeric),
+                             ~ round(.x, 0)
+                           )
+                         ) %>%
+                         
+                         
+                         mutate(
+                           across(
+                             where(is.character),
+                             ~ ifelse(
+                               grepl("^\\d+(\\.\\d+)?$", .x),   # matches integers or decimals
+                               as.character(round(as.numeric(.x), 0)),
+                               .x
+                             )
+                           )
+                         )
+                       
+                     },
       )
       
       # -------------------------
@@ -294,30 +334,65 @@ cattleServer <- function(id) {
     
     # Data Download Handler
     output$downloadData <- downloadHandler(
+      
+      # ---- Dynamic filename depending on selected table ----
       filename = function() {
-        if (input$table_data == "map") {
-          paste("Cattle_Map_Data_", Sys.Date(), ".csv", sep = "")
-        } else {
-          paste("Cattle_Timeseries_Data_", Sys.Date(), ".csv", sep = "")
-        }
+        
+        switch(input$table_data,
+               
+               "map" = paste0("Cattle_Agricultural_Region_Data_", Sys.Date(), ".csv"),
+               
+               "timeseries" = paste0("Cattle_Timeseries_Data_", Sys.Date(), ".csv"),
+               
+               "map_con" = paste0("Cattle_Constituency_Data_", Sys.Date(), ".csv"),
+               
+               "map_uni" = paste0("Cattle_Local_Authority_Data_", Sys.Date(), ".csv"),
+               
+               # fallback
+               paste0("Downloaded_Data_", Sys.Date(), ".csv")
+        )
       },
+      
+      # ---- Write selected dataset to disk ----
       content = function(file) {
-        data <- if (input$table_data == "map") {
-          cattle_data %>%
-            filter(`Livestock by category` == input$variable_region) %>%
-            pivot_wider(names_from = sub_region, values_from = value)
-        } else {
-          number_of_cattle %>%
-            pivot_longer(cols = -`Cattle by category`, names_to = "year", values_to = "value") %>%
-            pivot_wider(names_from = year, values_from = value)
-        }
+        
+        data <- switch(input$table_data,
+                       
+                       # ---- Agricultural region map ----
+                       "map" = {
+                         livestock_subregion %>%
+                           filter(`Livestock by category` == input$variable_region) %>%
+                           pivot_wider(names_from = sub_region, values_from = value)
+                       },
+                       
+                       # ---- Timeseries ----
+                       "timeseries" = {
+                         cattle_data %>%
+                           pivot_longer(
+                             cols = -`Livestock by category`,
+                             names_to = "year",
+                             values_to = "value"
+                           ) %>%
+                           pivot_wider(names_from = year, values_from = value)
+                       },
+                       
+                       # ---- Constituency ----
+                       "map_con" = {
+                         livestock_constituency
+                       },
+                       
+                       # ---- Local authority ----
+                       "map_uni" = {
+                         livestock_unitauth
+                       }
+        )
+        
         write.csv(data, file, row.names = FALSE)
       }
     )
-  })
+  }
+  )
 }
-
-
 cattle_demo <- function() {
   ui <- fluidPage(cattleUI("cattle_test"))
   server <- function(input, output, session) {

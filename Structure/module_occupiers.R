@@ -340,15 +340,15 @@ occupiersServer <- function(id) {
         paste(input$data_source, Sys.Date(), ".csv", sep = "")
       },
       content = function(file) {
-        if (input$data_source == "Population Pyramid Data") {
+        if (input$data_source == "Occupiers 2025 - Population Pyramid Data") {
           write.csv(pivoted_chart_data(), file, row.names = FALSE)
-        } else if (input$data_source == "Map Data") {
+        } else if (input$data_source == "Occupiers 2025 - Agricultural Region Data") {
           write.csv(pivoted_regions_data(), file, row.names = FALSE)
-        } else if (input$data_source == "Time Series Data") {
+        } else if (input$data_source == "Occupiers 2025 - Time Series Data") {
           write.csv(pivoted_timeseries_data(), file, row.names = FALSE)
-        } else if (input$data_source == "Constituency Data") {
+        } else if (input$data_source == "Occupiers 2025 - Constituency Data") {
           write.csv(con_data(), file, row.names = FALSE)
-        } else if (input$data_source == "Local Authority Data") {
+        } else if (input$data_source == "Occupiers 2025 - Local Authority Data") {
           write.csv(uni_data(), file, row.names = FALSE)
         }
       }
