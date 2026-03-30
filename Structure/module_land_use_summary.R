@@ -309,7 +309,7 @@ landUseSummaryServer <- function(id) {
                      # -------------------
                      "map" = {
                        land_use_map() %>%
-                         pivot_wider(names_from = sub_region, values_from = value) %>%
+                         pivot_wider(names_from = `sub_region`, values_from = value) %>%
                          mutate(across(where(is.numeric) & !contains("Year"), comma))
                      },
                      
@@ -409,7 +409,7 @@ landUseSummaryServer <- function(id) {
     })
     
     # Data Download Handler
-    output$downloadData <- downloadHandler(
+    output$download_data <- downloadHandler(
       
       # ---- Dynamic filename depending on selected table ----
       filename = function() {
@@ -437,8 +437,8 @@ landUseSummaryServer <- function(id) {
                        # ---- Agricultural region map ----
                        "map" = {
                          land_use_subregion %>%
-                           filter(`Land use by category` == input$variable_region) %>%
-                           pivot_wider(names_from = sub_region, values_from = value)
+                           filter(`Land use by category` == input$variable_region)# %>%
+                      #     pivot_wider(names_from = sub_region, values_from = value)
                        },
                        
                        # ---- Timeseries ----
