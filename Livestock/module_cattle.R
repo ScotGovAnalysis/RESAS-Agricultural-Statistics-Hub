@@ -361,19 +361,19 @@ cattleServer <- function(id) {
                        # ---- Agricultural region map ----
                        "map" = {
                          livestock_subregion %>%
-                           filter(`Livestock by category` == input$variable_region) %>%
-                           pivot_wider(names_from = sub_region, values_from = value)
+                           filter(`Livestock by category` == input$variable_region)# %>%
+           #                pivot_wider(names_from = sub_region, values_from = value)
                        },
                        
                        # ---- Timeseries ----
                        "timeseries" = {
-                         cattle_data %>%
+                         number_of_cattle %>%
                            pivot_longer(
-                             cols = -`Livestock by category`,
+                             cols = -`Cattle by category`,
                              names_to = "year",
                              values_to = "value"
-                           ) %>%
-                           pivot_wider(names_from = year, values_from = value)
+                           )# %>%
+                           #pivot_wider(names_from = year, values_from = value)
                        },
                        
                        # ---- Constituency ----
