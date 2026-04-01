@@ -21,18 +21,48 @@
   overflow: auto !important;  /* Enable scrolling for main content */
   height: calc(100vh - 65px) !important;  /* Adjust for header and reduced margin */
 }
-.header-logo {
-  position: absolute !important;
-  top: 0px !important;
-  right: 0px !important;
-  height: 60px !important;
-}
 
 .box {
     border: 1px solid #e3e3e3;
   background-color: white;
   margin: 0;
   padding: 10px;
+}
+
+
+
+/* Make navbar the positioning anchor (BS5 uses flexbox) */
+.navbar {
+  position: relative;
+  align-items: center;        /* vertically center items */
+  min-height: 60px;           
+}
+
+
+
+
+/* Far-right aligned logo inside Bootstrap 5 navbar */
+.navbar-logo {
+  position: absolute !important;
+  right: 1rem !important;    /* pushes to far-right */
+  top: 50% !important;          /* vertically centered */
+  transform: translateY(-50%) !important;
+  height: 80px !important;      /* adjust size if needed */
+  width: auto !important;
+  object-fit: contain;
+  z-index: 1000;
+}
+
+
+
+
+
+/* Navbar brand/logo alignment */
+.navbar-brand {
+  padding-top: 5px !important;
+  padding-bottom: 5px !important;
+  display: flex;
+  align-items: center;           /* vertically center the logo in Bootstrap 5 */
 }
 
 
