@@ -160,7 +160,7 @@ occupiersServer <- function(id) {
           "Occupiers Not Working On The Holding (Number)"
         ))
       } else if (input$tabs == "data_table") {
-        radioButtons(ns("data_source"), "Choose data to show:", choices = c("Map Data", "Population Pyramid Data",  "Time Series Data", "Constituency Data", "Local Authority Data"))
+        radioButtons(ns("data_source"), "Choose data to show:", choices = c("Agricultural Region Data", "Population Pyramid Data",  "Time Series Data", "Constituency Data", "Local Authority Data"))
       } else if (input$tabs == "timeseries") {
         checkboxGroupInput(
           ns("variables"), 
@@ -304,57 +304,74 @@ occupiersServer <- function(id) {
     
     uni_data <- reactive({occupiers_unitauth %>%
         rename(`Occupiers and employees by category` = occupier)})
-    
-    # Data Table - Output
+
     output$data_table <- renderDT({
       req(input$data_source)
+      
       if (input$data_source == "Population Pyramid Data") {
-        datatable(pivoted_chart_data(), options = list(
-          scrollX = TRUE,
-          pageLength = 26  # Adjust this to show all entries
-        ))
-      } else if (input$data_source == "Map Data") {
-        datatable(pivoted_regions_data(), options = list(
-          scrollX = TRUE
-        ))
+        
+        datatable(
+          pivoted_chart_data() %>%
+            mutate(across(where(is.character), ~ {
+              suppressWarnings(num <- as.numeric(.x))
+              ifelse(!is.na(num), format(round(num), big.mark = ","), .x)
+            })),
+          options = list(scrollX = TRUE, pageLength = 26)
+        )
+        
+      } else if (input$data_source == "Agricultural Region Data") {
+        
+        datatable(
+          pivoted_regions_data() %>%
+            mutate(across(where(is.character), ~ {
+              suppressWarnings(num <- as.numeric(.x))
+              ifelse(!is.na(num), format(round(num), big.mark = ","), .x)
+            })),
+          options = list(scrollX = TRUE)
+        )
+        
       } else if (input$data_source == "Time Series Data") {
-        datatable(pivoted_timeseries_data(), options = list(
-          scrollX = TRUE
-        ))
-      }
-      else if (input$data_source == "Constituency Data") {
-        datatable(con_data(), options = list(
-          scrollX = TRUE
-        ))
-      }
-      else if (input$data_source == "Local Authority Data") {
-        datatable(uni_data(), options = list(
-          scrollX = TRUE
-        ))
+        
+        datatable(
+          pivoted_timeseries_data() %>%
+            mutate(across(where(is.character), ~ {
+              suppressWarnings(num <- as.numeric(.x))
+              ifelse(!is.na(num), format(round(num), big.mark = ","), .x)
+            })),
+          options = list(scrollX = TRUE)
+        )
+        
+      } else if (input$data_source == "Constituency Data") {
+        
+        datatable(
+          con_data() %>%
+            mutate(across(where(is.character), ~ {
+              suppressWarnings(num <- as.numeric(.x))
+              ifelse(!is.na(num), format(round(num), big.mark = ","), .x)
+            })),
+          options = list(scrollX = TRUE)
+        )
+        
+      } else if (input$data_source == "Local Authority Data") {
+        
+        datatable(
+          uni_data() %>%
+            mutate(across(where(is.character), ~ {
+              suppressWarnings(num <- as.numeric(.x))
+              ifelse(!is.na(num), format(round(num), big.mark = ","), .x)
+            })),
+          options = list(scrollX = TRUE)
+        )
       }
     })
-    
-    # Data Table - Download Handler
-    output$downloadData <- downloadHandler(
-      filename = function() {
-        paste(input$data_source, Sys.Date(), ".csv", sep = "")
-      },
-      content = function(file) {
-        if (input$data_source == "Occupiers 2025 - Population Pyramid Data") {
-          write.csv(pivoted_chart_data(), file, row.names = FALSE)
-        } else if (input$data_source == "Occupiers 2025 - Agricultural Region Data") {
-          write.csv(pivoted_regions_data(), file, row.names = FALSE)
-        } else if (input$data_source == "Occupiers 2025 - Time Series Data") {
-          write.csv(pivoted_timeseries_data(), file, row.names = FALSE)
-        } else if (input$data_source == "Occupiers 2025 - Constituency Data") {
-          write.csv(con_data(), file, row.names = FALSE)
-        } else if (input$data_source == "Occupiers 2025 - Local Authority Data") {
-          write.csv(uni_data(), file, row.names = FALSE)
-        }
-      }
-    )
-  })
+  }
+  )
 }
+
+  
+
+
+
 
 # Testing module
 content_demo <- function() {

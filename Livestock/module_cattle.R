@@ -74,7 +74,7 @@ cattleUI <- function(id) {
         radioButtons(
           ns("table_data"),
           "Select Data to Display",
-          choices = c("Map Data" = "map",
+          choices = c("Agricultural Region Data" = "map",
                       "Time Series Data" = "timeseries",
                       "Constituency Data" = "map_con",
                       "Local Authority Data" = "map_uni"),
@@ -378,12 +378,12 @@ cattleServer <- function(id) {
                        
                        # ---- Constituency ----
                        "map_con" = {
-                         livestock_constituency
+                         cattle_constituency
                        },
                        
                        # ---- Local authority ----
                        "map_uni" = {
-                         livestock_unitauth
+                         cattle_unitauth
                        }
         )
         

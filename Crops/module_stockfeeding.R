@@ -59,7 +59,7 @@ stockfeedingUI <- function(id) {
         radioButtons(
           ns("table_data"),
           "Select Data to Display",
-          choices = c("Map Data" = "map", 
+          choices = c("Agricultural Region Data" = "map", 
                       "Time Series Data" = "timeseries",
                       "Constituency Data" = "map_con",
                       "Local Authority Data" = "map_uni"),
@@ -237,29 +237,23 @@ stockfeedingServer <- function(id) {
                        stockfeeding_constituency %>%
                          rename(`Land use by category` = `crop`) %>%
                          mutate(across(
-                           where(is.character),
-                           ~ ifelse(grepl("^\\d+$", .x), scales::comma(as.numeric(.x)), .x)
-                         )) %>%
-                         
-                         mutate(
-                           across(
-                             where(is.numeric),
-                             ~ round(.x, 0)
-                           )
-                         ) %>%
-                         
-                         
-                         mutate(
-                           across(
-                             where(is.character),
-                             ~ ifelse(
-                               grepl("^\\d+(\\.\\d+)?$", .x),   # matches integers or decimals
-                               as.character(round(as.numeric(.x), 0)),
-                               .x
+                           everything(),
+                           ~ {
+                             x <- as.character(.x)
+                             
+                             # extract numbers (gives NA for "c")
+                             nums <- readr::parse_number(x)
+                             
+                             # round + comma format where numeric exists
+                             formatted <- ifelse(
+                               is.na(nums),
+                               x,   # keep original ("c", NA, etc.)
+                               scales::comma(round(nums, 0))
                              )
-                           )
-                         )
-                       
+                             
+                             formatted
+                           }
+                         ))
                      },
                      
                      
@@ -270,29 +264,23 @@ stockfeedingServer <- function(id) {
                        stockfeeding_unitauth %>%
                          rename(`Land use by category` = `crop`) %>%
                          mutate(across(
-                           where(is.character),
-                           ~ ifelse(grepl("^\\d+$", .x), scales::comma(as.numeric(.x)), .x)
-                         )) %>%
-                         
-                         mutate(
-                           across(
-                             where(is.numeric),
-                             ~ round(.x, 0)
-                           )
-                         ) %>%
-                         
-                         
-                         mutate(
-                           across(
-                             where(is.character),
-                             ~ ifelse(
-                               grepl("^\\d+(\\.\\d+)?$", .x),   # matches integers or decimals
-                               as.character(round(as.numeric(.x), 0)),
-                               .x
+                           everything(),
+                           ~ {
+                             x <- as.character(.x)
+                             
+                             # extract numbers (gives NA for "c")
+                             nums <- readr::parse_number(x)
+                             
+                             # round + comma format where numeric exists
+                             formatted <- ifelse(
+                               is.na(nums),
+                               x,   # keep original ("c", NA, etc.)
+                               scales::comma(round(nums, 0))
                              )
-                           )
-                         )
-                       
+                             
+                             formatted
+                           }
+                         ))
                      },
       )
       

@@ -80,7 +80,7 @@ sheepUI <- function(id) {
         radioButtons(
           ns("table_data"),
           "Select Data to Display",
-          choices = c("Map Data" = "map", 
+          choices = c("Agricultural Region Data" = "map", 
                       "Time Series Data" = "timeseries",
                       "Constituency Data" = "map_con",
                       "Local Authority Data" = "map_uni"),

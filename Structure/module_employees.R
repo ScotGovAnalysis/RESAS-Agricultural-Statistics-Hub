@@ -109,7 +109,7 @@ employeesMapServer <- function(id) {
       } else if (input$tabs == "map_uni") {
         radioButtons(ns("variable_uni"), "Select Variable", choices = categories_con)
       } else if (input$tabs == "data_table") {
-        radioButtons(ns("data_source"), "Choose data to show:", choices = c("Chart Data", "Agricultural Region Data", "Constituency Data", "Local Authority Data"))
+        radioButtons(ns("data_source"), "Choose data to show:", choices = c("Time Series Data", "Agricultural Region Data", "Constituency Data", "Local Authority Data"))
       } else if (input$tabs == "timeseries") {
         selectizeInput(
           ns("variables"), 
@@ -209,58 +209,104 @@ employeesMapServer <- function(id) {
     ########### DATA TABLES ##############
     output$data_table <- renderDT({
       req(input$data_source)
-      if (input$data_source == "Chart Data") {
-        datatable(pivoted_chart_data(), options = list(
+      
+      # Inline formatting code (round + commas + keep "c")
+      fmt <- function(df) {
+        df %>%
+          mutate(across(
+            everything(),
+            ~ {
+              x <- as.character(.x)
+              nums <- readr::parse_number(x)   # gets number or NA for "c"
+              ifelse(
+                is.na(nums),
+                x,                              # keep "c" or NA
+                scales::comma(round(nums, 0))   # round + commas
+              )
+            }
+          ))
+      }
+      
+      if (input$data_source == "Time Series Data") {
+        datatable(fmt(pivoted_chart_data()), options = list(
           scrollX = TRUE,
-          pageLength = 26  # Show all 26 entries on a single page
+          pageLength = 26
         ))
+        
       } else if (input$data_source == "Agricultural Region Data") {
-        datatable(pivoted_regions_data(), options = list(
+        datatable(fmt(pivoted_regions_data()), options = list(
           scrollX = TRUE,
-          pageLength = 10  # You can adjust this if needed for the map data
+          pageLength = 10
         ))
         
       } else if (input$data_source == "Constituency Data") {
-        datatable(con_data(), options = list(
-            scrollX = TRUE,
-            pageLength = 20         
-          ))
-      }
-      else if (input$data_source == "Local Authority Data") {
-        datatable(uni_data(), options = list(
+        datatable(fmt(con_data()), options = list(
           scrollX = TRUE,
-          pageLength = 20         
+          pageLength = 20
+        ))
+        
+      } else if (input$data_source == "Local Authority Data") {
+        datatable(fmt(uni_data()), options = list(
+          scrollX = TRUE,
+          pageLength = 20
         ))
       }
     })
     
-    # Create a download handler with appropriate naming
+    # ---------------------
+    # DOWNLOAD HANDLER
+    # ---------------------
+    
     output$downloadData <- downloadHandler(
       filename = function() {
-        if (input$data_source == "Chart Data") {
-          paste("Scottish Agricultural Employees Time Series Data - 2013 to 2025.csv", sep = "")
+        if (input$data_source == "Time Series Data") {
+          "Scottish Agricultural Employees Time Series Data - 2013 to 2025.csv"
         } else if (input$data_source == "Agricultural Region Data") {
-          paste("Scottish Agricultural Employees Agricultural Regional Data - 2025.csv", sep = "")
+          "Scottish Agricultural Employees Agricultural Regional Data - 2025.csv"
         } else if (input$data_source == "Constituency Data") {
-          paste("Scottish Agricultural Employees Constituency Data - 2025.csv", sep = "")
+          "Scottish Agricultural Employees Constituency Data - 2025.csv"
         } else if (input$data_source == "Local Authority Data") {
-          paste("Scottish Agricultural Employees Local Authority Data - 2025.csv", sep = "")
+          "Scottish Agricultural Employees Local Authority Data - 2025.csv"
         }
       },
+      
       content = function(file) {
-        if (input$data_source == "Chart Data") {
-          write.csv(pivoted_chart_data(), file, row.names = FALSE)
+        
+        # apply same formatting to the downloaded file
+        fmt <- function(df) {
+          df %>%
+            mutate(across(
+              everything(),
+              ~ {
+                x <- as.character(.x)
+                nums <- readr::parse_number(x)
+                ifelse(
+                  is.na(nums),
+                  x,
+                  scales::comma(round(nums, 0))
+                )
+              }
+            ))
+        }
+        
+        if (input$data_source == "Time Series Data") {
+          write.csv(fmt(pivoted_chart_data()), file, row.names = FALSE)
+          
         } else if (input$data_source == "Agricultural Region Data") {
-          write.csv(pivoted_regions_data(), file, row.names = FALSE)
+          write.csv(fmt(pivoted_regions_data()), file, row.names = FALSE)
+          
         } else if (input$data_source == "Constituency Data") {
-          write.csv(con_data(), file, row.names = FALSE)
+          write.csv(fmt(con_data()), file, row.names = FALSE)
+          
         } else if (input$data_source == "Local Authority Data") {
-          write.csv(uni_data(), file, row.names = FALSE)
+          write.csv(fmt(uni_data()), file, row.names = FALSE)
         }
       }
     )
-  })
+  }
+  )
 }
+
 
 # Testing module
 content_demo <- function() {
