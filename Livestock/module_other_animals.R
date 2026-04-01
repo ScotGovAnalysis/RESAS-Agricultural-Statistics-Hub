@@ -86,7 +86,7 @@ otherAnimalsUI <- function(id) {
           choices = c("Agricultural Region Data" = "map", 
                       "Chart Data" = "timeseries",
                       "Constituency Data" = "map_con",
-                      "Local Authority" = "map_uni"),
+                      "Local Authority Data" = "map_uni"),
           selected = "map"
         )
       )
