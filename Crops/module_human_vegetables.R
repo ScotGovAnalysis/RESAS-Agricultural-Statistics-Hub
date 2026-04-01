@@ -26,6 +26,16 @@ humanVegetablesUI <- function(id) {
       ),     
       
       conditionalPanel(
+        condition = "input.tabsetPanel === 'Local Authority Map'",
+        ns = ns,
+        radioButtons(
+          ns("variable_uni"), 
+          "Select Variable", 
+          choices = unique(vegetables_unitauth$crop)
+        )
+      ),     
+      
+      conditionalPanel(
         condition = "input.tabsetPanel === 'Time Series' || input.tabsetPanel === 'Area Chart'",
         ns = ns,
         checkboxGroupInput(
@@ -48,7 +58,10 @@ humanVegetablesUI <- function(id) {
         radioButtons(
           ns("table_data"),
           "Select Data to Display",
-          choices = c("Map Data" = "map", "Time Series Data" = "timeseries"),
+          choices = c("Agricultural Region Data" = "map", 
+                      "Time Series Data" = "timeseries",
+                      "Constituency Data" = "map_con",
+                      "Local Authority Data" = "map_uni"),
           selected = "map"
         )
       )
@@ -59,6 +72,7 @@ humanVegetablesUI <- function(id) {
         id = ns("tabsetPanel"),
         tabPanel("Agricultural Region Map", mapUI(ns("map"))),
         tabPanel("Constituency Map", mapConstituenciesUI(ns("map_con"))),
+        tabPanel("Local Authority Map", mapUnitaryUI(ns("map_uni"))),
         tabPanel("Time Series", lineChartUI(ns("line"))),
         tabPanel("Area Chart", areaChartUI(ns("area"))),
         tabPanel("Data Table", 
@@ -122,6 +136,33 @@ humanVegetablesServer <- function(id) {
       legend_title = "Area (hectares)"
     )
     
+    # ===================== LOCAL AUTHORITY MAP =====================
+    veg_uni_map <- reactive({
+      vegetables_unitauth %>%         # <— your constituency land use table
+        mutate(across(everything(), as.character)) %>%
+        pivot_longer(
+          cols = -`crop`,
+          names_to = "unitauth",
+          values_to = "value"
+        ) %>% 
+        mutate(
+          value = if_else(is.na(value), NA_real_, as.numeric(value))
+        )
+    })
+    
+    mapUnitaryServer(
+      id = "map_uni",
+      data = reactive({
+        req(input$variable_uni)
+        veg_uni_map() %>% filter(`crop` == input$variable_uni)
+      }),
+      unit = "hectares",
+      footer = census_footer,
+      variable = reactive(input$variable_uni),
+      title = paste("Vegetables for human consumption crops distribution by local authority in", census_year),
+      legend_title = "Area (hectares)"
+    )
+    
     
     chart_data <- reactive({
       req(input$timeseries_variables)
@@ -158,55 +199,166 @@ humanVegetablesServer <- function(id) {
     
     output$table <- renderDT({
       req(input$tabsetPanel == "Data Table")
-      if (input$table_data == "map") {
-        req(input$variable_region)
-        human_vegetables_map %>%
-          filter(`Land use by category` == input$variable_region) %>%
-          pivot_wider(names_from = sub_region, values_from = value) %>%
-          mutate(across(where(is.numeric) & !contains("Year"), comma)) %>%
-          datatable(
-            options = list(
-              scrollX = TRUE,  # Enable horizontal scrolling
-              pageLength = 20  # Show 20 entries by default
-            )
+      
+      # -------------------------
+      # Select which dataset to show
+      # -------------------------
+      data <- switch(input$table_data,
+                     
+                     # -------------------
+                     # 1. Agricultural Region data
+                     # -------------------
+                     "map" = {
+                       human_vegetables_map %>%
+                         pivot_wider(names_from = sub_region, values_from = value) %>%
+                         mutate(across(where(is.numeric) & !contains("Year"), comma))
+                     },
+                     
+                     # -------------------
+                     # 2. Timeseries data
+                     # -------------------
+                     "timeseries" = {
+                       human_vegetables_data %>%
+                         pivot_longer(cols = -`Vegetables and fruits for human consumption`,
+                                      names_to = "year",
+                                      values_to = "value") %>%
+                         pivot_wider(names_from = year, values_from = value) %>%
+                         mutate(across(where(is.numeric) & !contains("Year"), comma))
+                     },
+                     
+                     # -------------------
+                     # 3. Constituency Table
+                     # -------------------
+                     
+                     "map_con" = {
+                       vegetables_constituency %>%
+                         rename(`Land use by category` = `crop`) %>%
+                         mutate(across(
+                           everything(),
+                           ~ {
+                             x <- as.character(.x)
+                             
+                             # extract numbers (gives NA for "c")
+                             nums <- readr::parse_number(x)
+                             
+                             # round + comma format where numeric exists
+                             formatted <- ifelse(
+                               is.na(nums),
+                               x,   # keep original ("c", NA, etc.)
+                               scales::comma(round(nums, 0))
+                             )
+                             
+                             formatted
+                           }
+                         ))
+                     },
+                     
+                     
+                     # -------------------
+                     # 4. Local authority table
+                     # -------------------
+                     "map_uni" = {
+                       vegetables_unitauth %>%
+                         rename(`Land use by category` = `crop`) %>%
+                         mutate(across(
+                           everything(),
+                           ~ {
+                             x <- as.character(.x)
+                             
+                             # extract numbers (gives NA for "c")
+                             nums <- readr::parse_number(x)
+                             
+                             # round + comma format where numeric exists
+                             formatted <- ifelse(
+                               is.na(nums),
+                               x,   # keep original ("c", NA, etc.)
+                               scales::comma(round(nums, 0))
+                             )
+                             
+                             formatted
+                           }
+                         ))
+                     },
+      )
+      
+      # -------------------------
+      # Render the chosen table
+      # -------------------------
+      datatable(
+        data,
+        options = list(
+          scrollX = TRUE,
+          autoWidth = TRUE,
+          pageLength = 20,
+          columnDefs = list(
+            list(width = '200px', targets = 1)
           )
-      } else {
-        human_vegetables_data %>%
-          pivot_longer(cols = -`Vegetables and fruits for human consumption`, names_to = "year", values_to = "value") %>%
-          pivot_wider(names_from = year, values_from = value) %>%
-          mutate(across(where(is.numeric) & !contains("Year"), comma)) %>%
-          datatable(
-            options = list(
-              scrollX = TRUE,  # Enable horizontal scrolling
-              pageLength = 20  # Show 20 entries by default
-            )
-          )
-      }
+        )
+      )
     })
     
+    # Data Download Handler
     output$download_data <- downloadHandler(
+      
+      # ---- Dynamic filename depending on selected table ----
       filename = function() {
-        if (input$table_data == "map") {
-          paste("Human_Vegetables_Subregion_Data_", Sys.Date(), ".csv", sep = "")
-        } else {
-          paste("Human_Vegetables_Timeseries_Data_", Sys.Date(), ".csv", sep = "")
-        }
+        
+        switch(input$table_data,
+               
+               "map" = paste0("Vegetables_Agricultural_Region_Data_", Sys.Date(), ".csv"),
+               
+               "timeseries" = paste0("Vegetables_Timeseries_Data_", Sys.Date(), ".csv"),
+               
+               "map_con" = paste0("Vegetables_Constituency_Data_", Sys.Date(), ".csv"),
+               
+               "map_uni" = paste0("Vegetables_Local_Authority_Data_", Sys.Date(), ".csv"),
+               
+               # fallback
+               paste0("Downloaded_Data_", Sys.Date(), ".csv")
+        )
       },
+      
+      # ---- Write selected dataset to disk ----
       content = function(file) {
-        data <- if (input$table_data == "map") {
-          human_vegetables_map %>%
-            filter(`Land use by category` == input$variable) %>%
-            pivot_wider(names_from = sub_region, values_from = value)
-        } else {
-          human_vegetables_data %>%
-            pivot_longer(cols = -`Vegetables and fruits for human consumption`, names_to = "year", values_to = "value") %>%
-            pivot_wider(names_from = year, values_from = value)
-        }
+        
+        data <- switch(input$table_data,
+                       
+                       # ---- Agricultural region map ----
+                       "map" = {
+                         human_vegetables_map %>%
+                           filter(`Land use by category` == input$variable_region) %>%
+                           pivot_wider(names_from = sub_region, values_from = value)
+                       },
+                       
+                       # ---- Timeseries ----
+                       "timeseries" = {
+                         human_vegetables_data %>%
+                           pivot_longer(
+                             cols = -`Vegetables and fruits for human consumption`,
+                             names_to = "year",
+                             values_to = "value"
+                           ) %>%
+                           pivot_wider(names_from = year, values_from = value)
+                       },
+                       
+                       # ---- Constituency ----
+                       "map_con" = {
+                         vegetables_constituency
+                       },
+                       
+                       # ---- Local authority ----
+                       "map_uni" = {
+                         vegetables_unitauth
+                       }
+        )
+        
         write.csv(data, file, row.names = FALSE)
       }
     )
-  })
+  }
+  )
 }
+
 
 human_vegetables_demo <- function() {
   ui <- fluidPage(humanVegetablesUI("human_vegetables_test"))

@@ -33,6 +33,20 @@ poultryUI <- function(id) {
         )
       ),
       conditionalPanel(
+        condition = "input.tabsetPanel === 'Local Authority Map'",
+        ns = ns,
+        radioButtons(
+          ns("variable_uni"), 
+          "Select Variable", 
+          choices = c(           
+            "Total Poultry" = "Total Poultry (Number)",
+            "Fowls for producing eggs" = "Fowls for producing eggs (Number)",
+            "Fowls for breeding" = "Fowls for breeding (Number)",
+            "Broilers and other table fowls and other poultry" = "Broilers and other table fowls and other poultry (Number)"
+          )
+        )
+      ),
+      conditionalPanel(
         condition = "input.tabsetPanel === 'Time Series' || input.tabsetPanel === 'Area Chart'",
         ns = ns,
         selectizeInput(
@@ -57,7 +71,10 @@ poultryUI <- function(id) {
         radioButtons(
           ns("table_data"),
           "Select Data to Display",
-          choices = c("Map Data" = "map", "Time Series Data" = "timeseries"),
+          choices = c("Agricultural Region Data" = "map", 
+                      "Time Series Data" = "timeseries",
+                      "Constituency Data" = "map_con",
+                      "Local Authority Data" = "map_uni"),
           selected = "map"
         )
       )
@@ -68,6 +85,7 @@ poultryUI <- function(id) {
         id = ns("tabsetPanel"),
         tabPanel("Agricultural Region Map", mapUI(ns("map"))),
         tabPanel("Constituency Map", mapConstituenciesUI(ns("map_con"))),
+        tabPanel("Local Authority Map", mapUnitaryUI(ns("map_uni"))),
         tabPanel("Time Series", lineChartUI(ns("line"), note_type = 2)),
         tabPanel("Area Chart", areaChartUI(ns("area"), note_type = 2)),
         tabPanel("Data Table", 
@@ -139,6 +157,32 @@ poultryServer <- function(id) {
       legend_title = "Poultry (number)"
     )
     
+    poultry_uni_map <- reactive({
+      poultry_unitauth %>%    
+        mutate(across(everything(), as.character)) %>%
+        pivot_longer(
+          cols = -`livestock`,
+          names_to = "unitauth",
+          values_to = "value"
+        ) %>% 
+        mutate(
+          value = if_else(is.na(value), NA_integer_, as.integer(value))
+        )
+    })
+    
+    mapUnitaryServer(
+      id = "map_uni",
+      data = reactive({
+        req(input$variable_uni)
+        poultry_uni_map() %>% filter(`livestock` == input$variable_uni)
+      }),
+      unit = "number",
+      footer = census_footer,
+      variable = reactive(input$variable_uni),
+      title = paste("Poultry distribution by Local authority in", census_year),
+      legend_title = "Poultry (number)"
+    )
+    
     chart_data <- reactive({
       req(input$timeseries_variables)
       filtered_data <- number_of_poultry %>%
@@ -170,64 +214,138 @@ poultryServer <- function(id) {
       y_col = "value"
     )
     
+    # Data Table output
     output$table <- renderDT({
       req(input$tabsetPanel == "Data Table")
-      if (input$table_data == "map") {
-        req(input$variable_region)
-        poultry_data %>%
-          pivot_wider(names_from = sub_region, values_from = value)  %>%
-          mutate(across(where(is.numeric) & !contains("Year"), comma)) %>%
-          datatable(
-            options = list(
-              scrollX = TRUE,  # Enable horizontal scrolling
-              pageLength = 20,  # Show 20 entries by default
-              autoWidth = TRUE, # Apply column widths
-              columnDefs = list(
-                list(width = '150px', targets = 1)
-              )
-            )
+      
+      # -------------------------
+      # Select which dataset to show
+      # -------------------------
+      data <- switch(input$table_data,
+                     
+                     # -------------------
+                     # 1. Agricultural Region data
+                     # -------------------
+                     "map" = {
+                       poultry_data %>%
+                         pivot_wider(names_from = sub_region, values_from = value) %>%
+                         mutate(across(where(is.numeric) & !contains("Year"), comma))
+                     },
+                     
+                     # -------------------
+                     # 2. Timeseries data
+                     # -------------------
+                     "timeseries" = {
+                       number_of_poultry %>%
+                         pivot_longer(cols = -`Poultry by category`,
+                                      names_to = "year",
+                                      values_to = "value") %>%
+                         pivot_wider(names_from = year, values_from = value) %>%
+                         mutate(across(where(is.numeric) & !contains("Year"), comma))
+                     },
+                     
+                     # -------------------
+                     # 3. Constituency Table
+                     # -------------------
+                     
+                     "map_con" = {
+                       poultry_constituency %>%
+                         rename(`Poultry by category` = `livestock`) %>%
+                         mutate(across(
+                           where(is.character),
+                           ~ ifelse(grepl("^\\d+$", .x), comma(as.numeric(.x)), .x)
+                         ))
+                     },
+                     
+                     
+                     # -------------------
+                     # 4. Local authority table
+                     # -------------------
+                     "map_uni" = {
+                       poultry_unitauth %>% 
+                         rename(`Poultry by category` = `livestock`) %>%
+                         mutate(across(
+                           where(is.character),
+                           ~ ifelse(grepl("^\\d+$", .x), comma(as.numeric(.x)), .x)
+                         ))                     }
+      )
+      
+      # -------------------------
+      # Render the chosen table
+      # -------------------------
+      datatable(
+        data,
+        options = list(
+          scrollX = TRUE,
+          autoWidth = TRUE,
+          pageLength = 20,
+          columnDefs = list(
+            list(width = '200px', targets = 1)
           )
-      } else {
-        number_of_poultry %>%
-          select(-`% Change 2025 to 2024`) %>% 
-          pivot_longer(cols = -`Poultry by category`, names_to = "year", values_to = "value") %>%
-          pivot_wider(names_from = year, values_from = value)  %>%
-          mutate(across(where(is.numeric) & !contains("Year"), comma)) %>%
-          datatable(
-            options = list(
-              scrollX = TRUE,  # Enable horizontal scrolling
-              pageLength = 20,  # Show 20 entries by default
-              autoWidth = TRUE, # Apply column widths
-              columnDefs = list(
-                list(width = '150px', targets = 1)
-              )
-            )
-          )
-      }
+        )
+      )
     })
     
+    # Data Download Handler
     output$downloadData <- downloadHandler(
+      
+      # ---- Dynamic filename depending on selected table ----
       filename = function() {
-        if (input$table_data == "map") {
-          paste("Poultry_Map_Data_", Sys.Date(), ".csv", sep = "")
-        } else {
-          paste("Poultry_Timeseries_Data_", Sys.Date(), ".csv", sep = "")
-        }
+        
+        switch(input$table_data,
+               
+               "map" = paste0("Poultry_Map_Data_", Sys.Date(), ".csv"),
+               
+               "timeseries" = paste0("Poultry_Timeseries_Data_", Sys.Date(), ".csv"),
+               
+               "map_con" = paste0("Poultry_Constituency_Data_", Sys.Date(), ".csv"),
+               
+               "map_uni" = paste0("Poultry_Local_Authority_Data_", Sys.Date(), ".csv"),
+               
+               # fallback
+               paste0("Downloaded_Data_", Sys.Date(), ".csv")
+        )
       },
+      
+      # ---- Write selected dataset to disk ----
       content = function(file) {
-        data <- if (input$table_data == "map") {
-          poultry_data %>%
-            filter(`Livestock by category` == input$variable) %>%
-            pivot_wider(names_from = sub_region, values_from = value)
-        } else {
-          number_of_poultry %>%
-            pivot_longer(cols = -`Poultry by category`, names_to = "year", values_to = "value") %>%
-            pivot_wider(names_from = year, values_from = value)
-        }
+        
+        data <- switch(input$table_data,
+                       
+                       # ---- Agricultural region map ----
+                       "map" = {
+                         livestock_subregion %>%
+                           filter(`Livestock by category` == input$variable_region)# %>%
+                     #      pivot_wider(names_from = sub_region, values_from = value)
+                       },
+                       
+                       # ---- Timeseries ----
+                       "timeseries" = {
+                         number_of_poultry %>%
+                           pivot_longer(
+                             cols = -`Poultry by category`,
+                             names_to = "year",
+                             values_to = "value"
+                           ) %>%
+                           pivot_wider(names_from = year, values_from = value)
+                       },
+                       
+                       # ---- Constituency ----
+                       "map_con" = {
+                         poultry_constituency
+                       },
+                       
+                       # ---- Local authority ----
+                       "map_uni" = {
+                         poultry_unitauth
+                       }
+        )
+        
         write.csv(data, file, row.names = FALSE)
       }
     )
-  })
+  }
+  )
 }
 
 # Testing module
