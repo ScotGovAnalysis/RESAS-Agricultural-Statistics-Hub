@@ -1,27 +1,22 @@
-# packages may need to install to run the Ag Stats Hub app
+install.packages("renv")
 
-install.packages("labelled")
-install.packages("png")
-install.packages("DT")
-install.packages("shinyjs")
-install.packages("geojsonio")
-install.packages("shinyWidgets")
-install.packages("shinydashboard")
-install.packages("rsconnect")
-install.packages("shinythemes")
-install.packages("here")
+library(renv)
+
+dependencies<-dependencies(
+  path = getwd(),
+  root = NULL,
+  quiet = NULL,
+  progress = TRUE,
+  errors = c("reported", "fatal", "ignored"),
+  dev = FALSE
+)
 
 
-# packages used
-library(readxl)
-library(openxlsx)
-library(dplyr)
-library(tidyr)
-library(stringr)
-library(highcharter)
-library(scales)
-library(shiny)
-library(highcharter)
-library(geojsonio)
-library(shinythemes)
-library(here)
+requiredPackages <- unique(dependencies$Package)
+
+for (package in requiredPackages) { #Installs packages if not yet installed
+  if (!requireNamespace(package, quietly = TRUE))
+    install.packages(package)
+}
+
+

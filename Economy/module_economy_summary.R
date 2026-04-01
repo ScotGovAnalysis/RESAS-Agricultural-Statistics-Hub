@@ -163,7 +163,7 @@ economySummaryServer <- function(id) {
       category = "Total income from farming",
       current_year = tiff_current_year,
       comparison_year = tiff_comparison_year,
-      unit = "   real (constant 2024) prices" # change if not
+      unit = paste("   real (constant", fbs_gdp_year, ") prices") # change if not
       #display_title = "Value of TIFF in Scotland"
     )
     
@@ -173,19 +173,19 @@ economySummaryServer <- function(id) {
       category = "Average farm business income",
       current_year = fbs_current_year,
       comparison_year = fbs_comparison_year,
-      unit = "   real (constant 2023) prices"
+      unit = paste("   real (constant", fbs_gdp_year, ") prices" )
       # display_title = "Average farm business income (FBI) of commercial farms in Scotland"
     )
   })
 }
 
-# Testing module
-content_demo <- function() {
-  ui <- fluidPage(economySummaryUI("summary_economy_test"))
-  server <- function(input, output, session) {
-    economySummaryServer("summary_economy_test")
-  }
-  shinyApp(ui, server)
-}
-
-content_demo()
+# # Testing module
+# content_demo <- function() {
+#   ui <- fluidPage(economySummaryUI("summary_economy_test"))
+#   server <- function(input, output, session) {
+#     economySummaryServer("summary_economy_test")
+#   }
+#   shinyApp(ui, server)
+# }
+# 
+# content_demo()

@@ -88,6 +88,20 @@ homeUI <- function(id) {
           "Welcome to the RESAS Agricultural Statistics Hub - in development"
         ),
         
+        # fluidRow(
+        #   column(
+        #     width = 12,
+        #     div(
+        #       style = "display: flex; justify-content :left; margin: 20px 0;",
+        #       img(
+        #         src = "home_photo.svg",
+        #         alt = "RESAS Agricultural Statistics Hub",
+        #         style = "max-width: 4000px; width: 100%; height: auto; object-fit: contain;"
+        #       )
+        #     )
+        #   )
+        # ),
+        
         HTML("<br>"),
         tags$p(
           style = "font-size: 16px;",

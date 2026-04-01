@@ -8,12 +8,14 @@ structureInformationUI <- function(id) {
         style = "margin-top: 20px;",
         tags$div(style = "font-size: 18px; font-weight: bold;", "Scottish Agricultural Census: results"),
         p(HTML('More data on land use, crop areas, livestock, farm structure, and the number of people working on agricultural holdings are available in the <a href="https://www.gov.scot/collections/june-scottish-agricultural-census/" target="_blank">Scottish Agricultural Census: results</a>.')),
+       
+        tags$div(style = "font-size: 18px; font-weight: bold;", "Supporting Evidence for Scotland’s 4th Land Use Strategy"),
+         p(HTML('Explore interactive maps and visual content of Scottish land use from the <a href="https://storymaps.arcgis.com/stories/45b9910cba85426cb5dbc254d11c0ce1" target="_blank">Land Use Strategy Evidence pack.</a>.')),
         tags$div(style = "font-size: 18px; font-weight: bold;", "Economic data"),
         p(HTML('Economic data about Scottish agriculture, including the value of production, costs, and support payments, are available through <a href="https://www.gov.scot/collections/total-income-from-farming/" target="_blank">Total income from farming</a>, <a href="https://www.gov.scot/collections/economic-report-on-scottish-agriculture/" target="_blank">Scottish agriculture: economic reports</a>, and <a href="https://www.gov.scot/collections/scottish-farm-business-income-fbi-annual-estimates/" target="_blank">Scottish farm business income estimates</a>.')),
-        tags$div(style = "font-size: 18px; font-weight: bold;", "UK-wide Agricultural Data"),
-      #   p(HTML('Useful links to data collected across the UK: <a href="https://www.gov.uk/government/collections/structure-of-the-agricultural-industry" target="_blank">Defra census</a>, <a href="https://www.daera-ni.gov.uk/topics/statistics/statistics-latest-releases" target="_blank">Northern Ireland statistics</a>, <a href="https://statswales.gov.wales/Catalogue/Agriculture" target="_blank">Wales agricultural statistics</a>.'))
-      # ),
-      
+       
+        
+      tags$div(style = "font-size: 18px; font-weight: bold;", "UK-wide Agricultural Data"),
       p(HTML('Useful links to data collected across the UK:'),
         tags$ul(
           style = "list-style-type: disc; padding-left: 20px;",
@@ -24,7 +26,7 @@ structureInformationUI <- function(id) {
             tags$a(href = "https://www.daera-ni.gov.uk/articles/agricultural-statistics", target = "_blank", "Northern Ireland agricultural statistics")
           ),
           tags$li(
-            tags$a(href = "https://www.gov.wales/survey-agriculture-and-horticulture-june-2024", target = "_blank", "Wales agricultural statistics")
+            tags$a(href = "https://www.gov.wales/survey-agriculture-and-horticulture", target = "_blank", "Wales agricultural statistics")
           )
         )
       ),
