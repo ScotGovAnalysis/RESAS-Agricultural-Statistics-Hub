@@ -227,7 +227,7 @@ sheepServer <- function(id) {
                       req(input$variable_region)
                       sheep_data %>%
                         pivot_wider(names_from = sub_region, values_from = value) %>%
-                        mutate(across(where(is.numeric) & !contains("Year"), comma))
+                        mutate(across(where(is.numeric), comma))
                     },
                     
                     # Timeseries table
@@ -244,20 +244,15 @@ sheepServer <- function(id) {
                     "map_con" = {
                       sheep_constituency %>%
                         rename(`Sheep by category` = `livestock`) %>%
-                        mutate(across(
-                          where(is.character),
-                          ~ ifelse(grepl("^\\d+$", .x), comma(as.numeric(.x)), .x)
-                        ))
+                        mutate(across(where(is.numeric), comma))
                     },
                     
                     # Local authority table
                     "map_uni" = {
                       sheep_unitauth %>% 
                         rename(`Sheep by category` = `livestock`) %>%
-                        mutate(across(
-                          where(is.character),
-                          ~ ifelse(grepl("^\\d+$", .x), comma(as.numeric(.x)), .x)
-                        ))                     }
+                        mutate(across(where(is.numeric), comma))                    
+                    }
       )
       
       # Render the chosen table

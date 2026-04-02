@@ -217,7 +217,7 @@ pigsServer <- function(id) {
                        req(input$variable_region)
                        pigs_data %>%
                          pivot_wider(names_from = sub_region, values_from = value) %>%
-                         mutate(across(where(is.numeric) & !contains("Year"), comma))
+                         mutate(across(where(is.numeric), comma))
                      },
                      
                      # ---- Timeseries Table ----
@@ -234,20 +234,15 @@ pigsServer <- function(id) {
                      "map_con" = {
                        pigs_constituency %>%
                          rename(`Pigs by category` = `livestock`) %>%
-                         mutate(across(
-                           where(is.character),
-                           ~ ifelse(grepl("^\\d+$", .x), comma(as.numeric(.x)), .x)
-                         ))
+                         mutate(across(where(is.numeric), comma))
                      },
                      
                      # ---- Local authority table ----
                      "map_uni" = {
                        pigs_unitauth %>% 
                          rename(`Pigs by category` = `livestock`) %>%
-                         mutate(across(
-                           where(is.character),
-                           ~ ifelse(grepl("^\\d+$", .x), comma(as.numeric(.x)), .x)
-                         ))                     }
+                         mutate(across(where(is.numeric), comma))
+                     }
       )
       
       # Render the chosen table
@@ -271,13 +266,9 @@ pigsServer <- function(id) {
       filename = function() {
         
         switch(input$table_data,
-               
                "map" = paste0("Pigs_Map_Data_", Sys.Date(), ".csv"),
-               
                "timeseries" = paste0("Pigs_Timeseries_Data_", Sys.Date(), ".csv"),
-               
                "map_con" = paste0("Pigs_Constituency_Data_", Sys.Date(), ".csv"),
-               
                "map_uni" = paste0("Pigs_Local_Authority_Data_", Sys.Date(), ".csv"),
                
                # fallback

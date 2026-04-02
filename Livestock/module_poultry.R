@@ -229,7 +229,7 @@ poultryServer <- function(id) {
                      "map" = {
                        poultry_data %>%
                          pivot_wider(names_from = sub_region, values_from = value) %>%
-                         mutate(across(where(is.numeric) & !contains("Year"), comma))
+                         mutate(across(where(is.numeric), comma))
                      },
                      
                      # -------------------
@@ -251,10 +251,7 @@ poultryServer <- function(id) {
                      "map_con" = {
                        poultry_constituency %>%
                          rename(`Poultry by category` = `livestock`) %>%
-                         mutate(across(
-                           where(is.character),
-                           ~ ifelse(grepl("^\\d+$", .x), comma(as.numeric(.x)), .x)
-                         ))
+                         mutate(across(where(is.numeric), comma))
                      },
                      
                      
@@ -264,10 +261,8 @@ poultryServer <- function(id) {
                      "map_uni" = {
                        poultry_unitauth %>% 
                          rename(`Poultry by category` = `livestock`) %>%
-                         mutate(across(
-                           where(is.character),
-                           ~ ifelse(grepl("^\\d+$", .x), comma(as.numeric(.x)), .x)
-                         ))                     }
+                         mutate(across(where(is.numeric), comma))                 
+                      }
       )
       
       # -------------------------
@@ -293,13 +288,9 @@ poultryServer <- function(id) {
       filename = function() {
         
         switch(input$table_data,
-               
                "map" = paste0("Poultry_Map_Data_", Sys.Date(), ".csv"),
-               
                "timeseries" = paste0("Poultry_Timeseries_Data_", Sys.Date(), ".csv"),
-               
                "map_con" = paste0("Poultry_Constituency_Data_", Sys.Date(), ".csv"),
-               
                "map_uni" = paste0("Poultry_Local_Authority_Data_", Sys.Date(), ".csv"),
                
                # fallback

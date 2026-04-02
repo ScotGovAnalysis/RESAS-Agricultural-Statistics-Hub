@@ -312,10 +312,7 @@ occupiersServer <- function(id) {
         
         datatable(
           pivoted_chart_data() %>%
-            mutate(across(where(is.character), ~ {
-              suppressWarnings(num <- as.numeric(.x))
-              ifelse(!is.na(num), format(round(num), big.mark = ","), .x)
-            })),
+            mutate(across(where(is.numeric) & !contains("Year"), comma)),
           options = list(scrollX = TRUE, pageLength = 26)
         )
         
@@ -323,10 +320,7 @@ occupiersServer <- function(id) {
         
         datatable(
           pivoted_regions_data() %>%
-            mutate(across(where(is.character), ~ {
-              suppressWarnings(num <- as.numeric(.x))
-              ifelse(!is.na(num), format(round(num), big.mark = ","), .x)
-            })),
+            mutate(across(where(is.numeric), comma)),
           options = list(scrollX = TRUE)
         )
         
@@ -334,10 +328,7 @@ occupiersServer <- function(id) {
         
         datatable(
           pivoted_timeseries_data() %>%
-            mutate(across(where(is.character), ~ {
-              suppressWarnings(num <- as.numeric(.x))
-              ifelse(!is.na(num), format(round(num), big.mark = ","), .x)
-            })),
+            mutate(across(where(is.numeric), comma)),
           options = list(scrollX = TRUE)
         )
         
@@ -345,10 +336,7 @@ occupiersServer <- function(id) {
         
         datatable(
           con_data() %>%
-            mutate(across(where(is.character), ~ {
-              suppressWarnings(num <- as.numeric(.x))
-              ifelse(!is.na(num), format(round(num), big.mark = ","), .x)
-            })),
+            mutate(across(where(is.numeric), comma)),
           options = list(scrollX = TRUE)
         )
         
@@ -356,10 +344,7 @@ occupiersServer <- function(id) {
         
         datatable(
           uni_data() %>%
-            mutate(across(where(is.character), ~ {
-              suppressWarnings(num <- as.numeric(.x))
-              ifelse(!is.na(num), format(round(num), big.mark = ","), .x)
-            })),
+            mutate(across(where(is.numeric), comma)),
           options = list(scrollX = TRUE)
         )
       }

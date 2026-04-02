@@ -241,7 +241,7 @@ otherAnimalsServer <- function(id) {
                      "map" = {
                        other_animals_data %>%
                          pivot_wider(names_from = sub_region, values_from = value) %>%
-                         mutate(across(where(is.numeric) & !contains("Year"), comma))
+                         mutate(across(where(is.numeric), comma))
                      },
                      
                      # -------------------
@@ -263,10 +263,7 @@ otherAnimalsServer <- function(id) {
                      "map_con" = {
                        other_animals_constituency %>%
                          rename(`Livestock by category` = `livestock`) %>%
-                         mutate(across(
-                           where(is.character),
-                           ~ ifelse(grepl("^\\d+$", .x), comma(as.numeric(.x)), .x)
-                         ))
+                         mutate(across(where(is.numeric), comma))
                      },
                      
                      
@@ -276,10 +273,8 @@ otherAnimalsServer <- function(id) {
                      "map_uni" = {
                        other_animals_unitauth %>% 
                          rename(`Livestock by category` = `livestock`) %>%
-                         mutate(across(
-                           where(is.character),
-                           ~ ifelse(grepl("^\\d+$", .x), comma(as.numeric(.x)), .x)
-                         ))                     }
+                         mutate(across(where(is.numeric), comma))           
+                     }
       )
       
       # -------------------------
@@ -305,13 +300,9 @@ otherAnimalsServer <- function(id) {
       filename = function() {
         
         switch(input$table_data,
-               
                "map" = paste0("Other_Animals_Map_Data_", Sys.Date(), ".csv"),
-               
                "timeseries" = paste0("Other_Animals_Timeseries_Data_", Sys.Date(), ".csv"),
-               
                "map_con" = paste0("Other_Animals_Constituency_Data_", Sys.Date(), ".csv"),
-               
                "map_uni" = paste0("Other_Animals_Local_Authority_Data_", Sys.Date(), ".csv"),
                
                # fallback

@@ -221,7 +221,7 @@ beansServer <- function(id) {
                      "map" = {
                        beans_map %>%
                          pivot_wider(names_from = sub_region, values_from = value) %>%
-                         mutate(across(where(is.numeric) & !contains("Year"), comma))
+                         mutate(across(where(is.numeric), comma))
                      },
                      
                      # -------------------
@@ -239,34 +239,10 @@ beansServer <- function(id) {
                      # -------------------
                      # 3. Constituency Table
                      # -------------------
-                     
                      "map_con" = {
                        peas_beans_constituency %>%
                          rename(`Crop/Land use` = `crop`) %>%
-                         mutate(across(
-                           where(is.character),
-                           ~ ifelse(grepl("^\\d+$", .x), scales::comma(as.numeric(.x)), .x)
-                         )) %>%
-                         
-                         mutate(
-                           across(
-                             where(is.numeric),
-                             ~ round(.x, 0)
-                           )
-                         ) %>%
-                         
-                         
-                         mutate(
-                           across(
-                             where(is.character),
-                             ~ ifelse(
-                               grepl("^\\d+(\\.\\d+)?$", .x),   # matches integers or decimals
-                               as.character(round(as.numeric(.x), 0)),
-                               .x
-                             )
-                           )
-                         )
-                       
+                         mutate(across(where(is.numeric), comma))
                      },
                      
                      
@@ -276,30 +252,7 @@ beansServer <- function(id) {
                      "map_uni" = {
                        peas_beans_unitauth %>%
                          rename(`Crop/Land use` = `crop`) %>%
-                         mutate(across(
-                           where(is.character),
-                           ~ ifelse(grepl("^\\d+$", .x), scales::comma(as.numeric(.x)), .x)
-                         )) %>%
-                         
-                         mutate(
-                           across(
-                             where(is.numeric),
-                             ~ round(.x, 0)
-                           )
-                         ) %>%
-                         
-                         
-                         mutate(
-                           across(
-                             where(is.character),
-                             ~ ifelse(
-                               grepl("^\\d+(\\.\\d+)?$", .x),   # matches integers or decimals
-                               as.character(round(as.numeric(.x), 0)),
-                               .x
-                             )
-                           )
-                         )
-                       
+                         mutate(across(where(is.numeric), comma))
                      },
       )
       
@@ -326,13 +279,9 @@ beansServer <- function(id) {
       filename = function() {
         
         switch(input$table_data,
-               
                "map" = paste0("Peas_Beans_Agricultural_Region_Data_", Sys.Date(), ".csv"),
-               
                "timeseries" = paste0("Peas_Beans_Timeseries_Data_", Sys.Date(), ".csv"),
-               
                "map_con" = paste0("Peas_Beans_Constituency_Data_", Sys.Date(), ".csv"),
-               
                "map_uni" = paste0("Peas_Beans_Local_Authority_Data_", Sys.Date(), ".csv"),
                
                # fallback

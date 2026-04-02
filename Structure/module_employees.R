@@ -210,45 +210,28 @@ employeesMapServer <- function(id) {
     output$data_table <- renderDT({
       req(input$data_source)
       
-      # Inline formatting code (round + commas + keep "c")
-      fmt <- function(df) {
-        df %>%
-          mutate(across(
-            everything(),
-            ~ {
-              x <- as.character(.x)
-              nums <- readr::parse_number(x)   # gets number or NA for "c"
-              ifelse(
-                is.na(nums),
-                x,                              # keep "c" or NA
-                scales::comma(round(nums, 0))   # round + commas
-              )
-            }
-          ))
-      }
-      
       if (input$data_source == "Time Series Data") {
-        datatable(fmt(pivoted_chart_data()), options = list(
-          scrollX = TRUE,
-          pageLength = 26
+        pivoted_chart_data() %>% 
+        mutate(across(where(is.numeric) & !contains("Year"), comma)) %>% 
+        datatable(., options = list(scrollX = TRUE, pageLength = 26
         ))
         
       } else if (input$data_source == "Agricultural Region Data") {
-        datatable(fmt(pivoted_regions_data()), options = list(
-          scrollX = TRUE,
-          pageLength = 10
+        pivoted_regions_data() %>% 
+          mutate(across(where(is.numeric) & !contains("Year"), comma)) %>% 
+          datatable(., options = list(scrollX = TRUE, pageLength = 10
         ))
         
       } else if (input$data_source == "Constituency Data") {
-        datatable(fmt(con_data()), options = list(
-          scrollX = TRUE,
-          pageLength = 20
+        con_data() %>% 
+          mutate(across(where(is.numeric) & !contains("Year"), comma)) %>% 
+          datatable(., options = list(scrollX = TRUE, pageLength = 20
         ))
         
       } else if (input$data_source == "Local Authority Data") {
-        datatable(fmt(uni_data()), options = list(
-          scrollX = TRUE,
-          pageLength = 20
+        uni_data() %>% 
+          mutate(across(where(is.numeric) & !contains("Year"), comma)) %>%
+          datatable(, options = list(scrollX = TRUE, pageLength = 20
         ))
       }
     })

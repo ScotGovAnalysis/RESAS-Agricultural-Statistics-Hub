@@ -374,7 +374,7 @@ cerealsServer <- function(id) {
         
         cereals_map %>%
           pivot_wider(names_from = sub_region, values_from = value) %>%
-          mutate(across(where(is.numeric) & !contains("Year"), comma)) %>%
+          mutate(across(where(is.numeric), comma)) %>%
           datatable(
             options = list(
               scrollX = TRUE,
@@ -438,25 +438,8 @@ cerealsServer <- function(id) {
       } else if (input$table_data == "map_con") {
         
         cereals_constituency %>%
-           rename(`Crop/Land use` = crop) %>%
-          mutate(across(
-            everything(),
-            ~ {
-              x <- as.character(.x)
-              
-              # extract numbers (gives NA for "c")
-              nums <- readr::parse_number(x)
-              
-              # round + comma format where numeric exists
-              formatted <- ifelse(
-                is.na(nums),
-                x,   # keep original ("c", NA, etc.)
-                scales::comma(round(nums, 0))
-              )
-              
-              formatted
-            }
-          )) %>%
+          rename(`Crop/Land use` = crop) %>%
+          mutate(across(where(is.numeric), comma)) %>%
           datatable(
             options = list(
               scrollX = TRUE,
@@ -472,24 +455,7 @@ cerealsServer <- function(id) {
         
         cereals_unitauth %>%
           rename(`Crop/Land use` = crop) %>%
-          mutate(across(
-            everything(),
-            ~ {
-              x <- as.character(.x)
-              
-              # extract numbers (gives NA for "c")
-              nums <- readr::parse_number(x)
-              
-              # round + comma format where numeric exists
-              formatted <- ifelse(
-                is.na(nums),
-                x,   # keep original ("c", NA, etc.)
-                scales::comma(round(nums, 0))
-              )
-              
-              formatted
-            }
-          )) %>%
+          mutate(across(where(is.numeric), comma)) %>%
           datatable(
             options = list(
               scrollX = TRUE,
