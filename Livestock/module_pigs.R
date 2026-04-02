@@ -24,9 +24,9 @@ pigsUI <- function(id) {
           ns("variable_con"), 
           "Select Variable", 
           choices = c(
-            "Total Pigs" = "Total Pigs (Number)",
-            "Female pigs breeding herd" = "Female pigs breeding herd (Number)",
-            "All other non-breeding pigs" = "All other non-breeding pigs (Number)"
+            "Total Pigs" = "Total Pigs",
+            "Female pigs breeding herd" = "Female pigs breeding herd",
+            "All other non-breeding pigs" = "All other non-breeding pigs"
           ))
       ),
       conditionalPanel(
@@ -36,9 +36,9 @@ pigsUI <- function(id) {
           ns("variable_uni"), 
           "Select Variable", 
           choices = c(
-            "Total Pigs" = "Total Pigs (Number)",
-            "Female pigs breeding herd" = "Female pigs breeding herd (Number)",
-            "All other non-breeding pigs" = "All other non-breeding pigs (Number)"
+            "Total Pigs" = "Total Pigs",
+            "Female pigs breeding herd" = "Female pigs breeding herd",
+            "All other non-breeding pigs" = "All other non-breeding pigs"
           ))
       ),
       conditionalPanel(

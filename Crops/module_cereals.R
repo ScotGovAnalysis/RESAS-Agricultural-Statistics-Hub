@@ -25,10 +25,10 @@ cerealsUI <- function(id) {
           ns("variable_con"), 
           "Select Variable", 
           choices = c(
-            "Wheat" = "Wheat (Hectares)",
-            "Winter Barley" = "Winter Barley (Hectares)",
-            "Spring Barley" = "Spring Barley (Hectares)",
-            "Oats and Mixed Grain" = "Oats and mixed grain (Hectares)"
+            "Wheat" = "Wheat",
+            "Winter Barley" = "Winter Barley",
+            "Spring Barley" = "Spring Barley",
+            "Oats and Mixed Grain" = "Oats and mixed grain"
           )
         )
       ),
@@ -41,10 +41,10 @@ cerealsUI <- function(id) {
           ns("variable_uni"), 
           "Select Variable", 
           choices = c(
-            "Wheat" = "Wheat (Hectares)",
-            "Winter Barley" = "Winter Barley (Hectares)",
-            "Spring Barley" = "Spring Barley (Hectares)",
-            "Oats and Mixed Grain" = "Oats and mixed grain (Hectares)"
+            "Wheat" = "Wheat",
+            "Winter Barley" = "Winter Barley",
+            "Spring Barley" = "Spring Barley",
+            "Oats and Mixed Grain" = "Oats and mixed grain"
           )
         )
       ),

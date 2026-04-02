@@ -26,11 +26,11 @@ sheepUI <- function(id) {
           ns("variable_con"), 
           "Select Variable", 
           choices = c(
-            "Total Sheep" = "Total Sheep (Number)",
-            "Ewes for breeding" = "Ewes for breeding (Number)",
-            "Other sheep 1 year and over for breeding" = "Other sheep 1 year and over for breeding (Number)",
-            "Rams for service" = "Rams for service (Number)",
-            "Lambs" = "Lambs (Number)"
+            "Total Sheep" = "Total Sheep",
+            "Ewes for breeding" = "Ewes for breeding",
+            "Other sheep 1 year and over for breeding" = "Other sheep 1 year and over for breeding",
+            "Rams for service" = "Rams for service",
+            "Lambs" = "Lambs"
           )
         )
       )
@@ -42,11 +42,11 @@ sheepUI <- function(id) {
           ns("variable_uni"), 
           "Select Variable", 
           choices = c(
-            "Total Sheep" = "Total Sheep (Number)",
-            "Ewes for breeding" = "Ewes for breeding (Number)",
-            "Other sheep 1 year and over for breeding" = "Other sheep 1 year and over for breeding (Number)",
-            "Rams for service" = "Rams for service (Number)",
-            "Lambs" = "Lambs (Number)"
+            "Total Sheep" = "Total Sheep",
+            "Ewes for breeding" = "Ewes for breeding",
+            "Other sheep 1 year and over for breeding" = "Other sheep 1 year and over for breeding",
+            "Rams for service" = "Rams for service",
+            "Lambs" = "Lambs"
           )
         )
       )

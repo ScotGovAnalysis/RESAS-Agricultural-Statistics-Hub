@@ -26,11 +26,11 @@ cattleUI <- function(id) {
           ns("variable_con"), 
           "Select Variable", 
           choices = c(
-            "Total Cattle" = "Total Cattle (Number)",
-            "Total Female Dairy Cattle" = "Total Female Dairy Cattle (Number)",
-            "Total Female Beef Cattle" = "Total Female Beef Cattle (Number)",
-            "Total Male Cattle" = "Total Male Cattle (Number)",
-            "Total Calves" = "Total Calves (Number)"
+            "Total Cattle" = "Total Cattle",
+            "Total Female Dairy Cattle" = "Total Female Dairy Cattle",
+            "Total Female Beef Cattle" = "Total Female Beef Cattle",
+            "Total Male Cattle" = "Total Male Cattle",
+            "Total Calves" = "Total Calves"
           )
         )
       ),
@@ -41,11 +41,11 @@ cattleUI <- function(id) {
           ns("variable_uni"), 
           "Select Variable", 
           choices = c(
-            "Total Cattle" = "Total Cattle (Number)",
-            "Total Female Dairy Cattle" = "Total Female Dairy Cattle (Number)",
-            "Total Female Beef Cattle" = "Total Female Beef Cattle (Number)",
-            "Total Male Cattle" = "Total Male Cattle (Number)",
-            "Total Calves" = "Total Calves (Number)"
+            "Total Cattle" = "Total Cattle",
+            "Total Female Dairy Cattle" = "Total Female Dairy Cattle",
+            "Total Female Beef Cattle" = "Total Female Beef Cattle",
+            "Total Male Cattle" = "Total Male Cattle",
+            "Total Calves" = "Total Calves"
           )
         )
       ),

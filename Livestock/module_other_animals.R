@@ -28,12 +28,12 @@ otherAnimalsUI <- function(id) {
           ns("variable_con"), 
           "Select Variable", 
           choices = c(
-            "Goats and kids" = "Goats and kids (Number)",
-            "Deer" = "Deer (Number)",
-            "Horses" = "Horses (Number)",
-            "Donkeys" = "Donkeys (Number)",
-            "Camelids" = "Camelids (Number)",
-            "Beehives" = "Beehives (Number)"
+            "Goats and kids" = "Goats and kids",
+            "Deer" = "Deer",
+            "Horses" = "Horses",
+            "Donkeys" = "Donkeys",
+            "Camelids" = "Camelids",
+            "Beehives" = "Beehives"
           )
         )
       ),
@@ -44,12 +44,12 @@ otherAnimalsUI <- function(id) {
           ns("variable_uni"), 
           "Select Variable", 
           choices = c(
-            "Goats and kids" = "Goats and kids (Number)",
-            "Deer" = "Deer (Number)",
-            "Horses" = "Horses (Number)",
-            "Donkeys" = "Donkeys (Number)",
-            "Camelids" = "Camelids (Number)",
-            "Beehives" = "Beehives (Number)"
+            "Goats and kids" = "Goats and kids",
+            "Deer" = "Deer",
+            "Horses" = "Horses",
+            "Donkeys" = "Donkeys",
+            "Camelids" = "Camelids",
+            "Beehives" = "Beehives"
           )
         )
       ),

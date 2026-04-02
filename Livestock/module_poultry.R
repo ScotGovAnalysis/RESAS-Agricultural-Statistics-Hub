@@ -25,10 +25,10 @@ poultryUI <- function(id) {
           ns("variable_con"), 
           "Select Variable", 
           choices = c(           
-            "Total Poultry" = "Total Poultry (Number)",
-            "Fowls for producing eggs" = "Fowls for producing eggs (Number)",
-            "Fowls for breeding" = "Fowls for breeding (Number)",
-            "Broilers and other table fowls and other poultry" = "Broilers and other table fowls and other poultry (Number)"
+            "Total Poultry" = "Total Poultry",
+            "Fowls for producing eggs" = "Fowls for producing eggs",
+            "Fowls for breeding" = "Fowls for breeding",
+            "Broilers and other table fowls and other poultry" = "Broilers and other table fowls and other poultry"
           )
         )
       ),
@@ -39,10 +39,10 @@ poultryUI <- function(id) {
           ns("variable_uni"), 
           "Select Variable", 
           choices = c(           
-            "Total Poultry" = "Total Poultry (Number)",
-            "Fowls for producing eggs" = "Fowls for producing eggs (Number)",
-            "Fowls for breeding" = "Fowls for breeding (Number)",
-            "Broilers and other table fowls and other poultry" = "Broilers and other table fowls and other poultry (Number)"
+            "Total Poultry" = "Total Poultry",
+            "Fowls for producing eggs" = "Fowls for producing eggs",
+            "Fowls for breeding" = "Fowls for breeding",
+            "Broilers and other table fowls and other poultry" = "Broilers and other table fowls and other poultry"
           )
         )
       ),

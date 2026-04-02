@@ -108,8 +108,8 @@ occupiersServer <- function(id) {
         mutate(
           value = if_else(is.na(value), NA_integer_, as.integer(value))) %>%
         filter(`occupier` %in% c(
-              "Total Working Occupiers (Number)", 
-              "Occupiers Not Working On The Holding (Number)"
+              "Total Working Occupiers", 
+              "Occupiers Not Working On The Holding"
             ))
     })
     
@@ -125,8 +125,8 @@ occupiersServer <- function(id) {
         mutate(
           value = if_else(is.na(value), NA_integer_, as.integer(value))) %>%
         filter(`occupier` %in% c(
-          "Total Working Occupiers (Number)", 
-          "Occupiers Not Working On The Holding (Number)"
+          "Total Working Occupiers", 
+          "Occupiers Not Working On The Holding"
         ))
     })
     
@@ -151,13 +151,13 @@ occupiersServer <- function(id) {
         ))
       } else if (input$tabs == "map_con") {
         radioButtons(ns("variable_con"), "Select Variable", choices = c(
-          "Total Working Occupiers (Number)",
-          "Occupiers Not Working On The Holding (Number)"
+          "Total Working Occupiers",
+          "Occupiers Not Working On The Holding"
         ))
       } else if (input$tabs == "map_uni") {
         radioButtons(ns("variable_uni"), "Select Variable", choices = c(
-          "Total Working Occupiers (Number)",
-          "Occupiers Not Working On The Holding (Number)"
+          "Total Working Occupiers",
+          "Occupiers Not Working On The Holding"
         ))
       } else if (input$tabs == "data_table") {
         radioButtons(ns("data_source"), "Choose data to show:", choices = c("Agricultural Region Data", "Population Pyramid Data",  "Time Series Data", "Constituency Data", "Local Authority Data"))

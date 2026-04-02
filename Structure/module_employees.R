@@ -15,10 +15,10 @@ categories <- c("Regular Full-Time Staff Total",
                 "Total Casual And Seasonal Staff", 
                 "Total Workforce (including occupiers)")
 
-categories_con <- c("Regular Full-Time Staff Total (Number)", 
-                    "Regular Part-Time Staff Total (Number)", 
-                    "Total Casual And Seasonal Staff (Number)", 
-                    "Total Workforce (including occupiers) (Number)")
+categories_con <- c("Regular Full-Time Staff Total", 
+                    "Regular Part-Time Staff Total", 
+                    "Total Casual And Seasonal Staff", 
+                    "Total Workforce (including occupiers)")
 
 filtered_regions_data <- regions_data %>%
   filter(`Occupiers and employees by category` %in% categories)
