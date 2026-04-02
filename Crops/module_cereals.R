@@ -25,10 +25,10 @@ cerealsUI <- function(id) {
           ns("variable_con"), 
           "Select Variable", 
           choices = c(
-            "Wheat" = "Wheat (Hectares)",
-            "Winter Barley" = "Winter Barley (Hectares)",
-            "Spring Barley" = "Spring Barley (Hectares)",
-            "Oats and Mixed Grain" = "Oats and mixed grain (Hectares)"
+            "Wheat" = "Wheat",
+            "Winter Barley" = "Winter Barley",
+            "Spring Barley" = "Spring Barley",
+            "Oats and Mixed Grain" = "Oats and mixed grain"
           )
         )
       ),
@@ -41,10 +41,10 @@ cerealsUI <- function(id) {
           ns("variable_uni"), 
           "Select Variable", 
           choices = c(
-            "Wheat" = "Wheat (Hectares)",
-            "Winter Barley" = "Winter Barley (Hectares)",
-            "Spring Barley" = "Spring Barley (Hectares)",
-            "Oats and Mixed Grain" = "Oats and mixed grain (Hectares)"
+            "Wheat" = "Wheat",
+            "Winter Barley" = "Winter Barley",
+            "Spring Barley" = "Spring Barley",
+            "Oats and Mixed Grain" = "Oats and mixed grain"
           )
         )
       ),
@@ -95,7 +95,7 @@ cerealsUI <- function(id) {
         radioButtons(
           ns("table_data"),
           "Select Data to Display",
-          choices = c("Map Data" = "map", 
+          choices = c("Agricultural Region Data" = "map", 
                       "Time Series Data" = "timeseries",
                       "Constituency Data" = "map_con",
                       "Local Authority Data" = "map_uni"),
@@ -156,7 +156,7 @@ cerealsUI <- function(id) {
 cerealsServer <- function(id) {
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
-    # ===================== MAP =====================
+    # =============== AGRICULTURAL REGION MAP ==================
     cereals_map <- cereals_subregion %>%
       select(-`Scotland total`) %>%
       mutate(across(everything(), as.character)) %>%
@@ -177,7 +177,7 @@ cerealsServer <- function(id) {
     )
     # ===================== CONSTITUENCY MAP =====================
     cereal_const_map <- reactive({
-      cereals_constituency %>%         # <— your constituency land use table
+      cereals_constituency %>%        
         mutate(across(everything(), as.character)) %>%
         pivot_longer(
           cols = -`crop`,
@@ -204,7 +204,7 @@ cerealsServer <- function(id) {
     
     # ===================== LOCAL AUTHORITY MAP =====================
     cereal_uni_map <- reactive({
-      cereals_unitauth %>%         # <— your constituency land use table
+      cereals_unitauth %>%      
         mutate(across(everything(), as.character)) %>%
         pivot_longer(
           cols = -`crop`,
@@ -366,11 +366,15 @@ cerealsServer <- function(id) {
     output$table <- renderDT({
       req(input$tabsetPanel == "Data Table")
       
+      # ------------------------------------------------------
+      # TABLE 1 — AGRICULTURAL REGION MAP DATA
+      # ------------------------------------------------------
       if (input$table_data == "map") {
         req(input$variable_region)
+        
         cereals_map %>%
           pivot_wider(names_from = sub_region, values_from = value) %>%
-          mutate(across(where(is.numeric) & !contains("Year"), comma)) %>%
+          mutate(across(where(is.numeric), comma)) %>%
           datatable(
             options = list(
               scrollX = TRUE,
@@ -381,14 +385,18 @@ cerealsServer <- function(id) {
               )
             )
           )
-      } else {
+        
+        # ------------------------------------------------------
+        # TABLE 2 — TIME SERIES DATA
+        # ------------------------------------------------------
+      } else if (input$table_data == "timeseries") {
+        
         ts_data <- cereals_combined_long %>%
           pivot_wider(
             id_cols = c(`Crop/Land use`, Measure),
             names_from = Year,
             values_from = Value
           ) %>%
-          # Relabel Measure values with units
           mutate(
             Measure = recode(
               Measure,
@@ -410,7 +418,6 @@ cerealsServer <- function(id) {
           )) %>% 
           arrange(Measure)
         
-        # Columns for alignment
         left_cols  <- c("Crop/Land use", "Measure")
         right_cols <- setdiff(names(ts_data), left_cols)
         
@@ -424,31 +431,78 @@ cerealsServer <- function(id) {
         ) %>%
           formatStyle(left_cols,  `text-align` = "left") %>%
           formatStyle(right_cols, `text-align` = "right")
+        
+        # ------------------------------------------------------
+        # TABLE 3 — CONSTITUENCY MAP DATA
+        # ------------------------------------------------------
+      } else if (input$table_data == "map_con") {
+        
+        cereals_constituency %>%
+          rename(`Crop/Land use` = crop) %>%
+          mutate(across(where(is.numeric), comma)) %>%
+          datatable(
+            options = list(
+              scrollX = TRUE,
+              pageLength = 20,
+              autoWidth = TRUE
+            )
+          )
+        
+        # ------------------------------------------------------
+        # TABLE 4 — LOCAL AUTHORITY MAP DATA
+        # ------------------------------------------------------
+      } else if (input$table_data == "map_uni") {
+        
+        cereals_unitauth %>%
+          rename(`Crop/Land use` = crop) %>%
+          mutate(across(where(is.numeric), comma)) %>%
+          datatable(
+            options = list(
+              scrollX = TRUE,
+              pageLength = 20,
+              autoWidth = TRUE
+            )
+          )
+        
       }
     })
     
-    
     output$downloadData <- downloadHandler(
       filename = function() {
+        
         if (input$table_data == "map") {
           paste("Cereals_Map_Data_", Sys.Date(), ".csv", sep = "")
-        } else {
+          
+        } else if (input$table_data == "timeseries") {
           paste("Cereals_Timeseries_Data_", Sys.Date(), ".csv", sep = "")
+          
+        } else if (input$table_data == "map_con") {
+          paste("Cereals_Constituency_Data_", Sys.Date(), ".csv", sep = "")
+          
+        } else if (input$table_data == "table4") {
+          paste("Cereals_Local_Authority_Data_", Sys.Date(), ".csv", sep = "")
         }
+        
       },
+      
       content = function(file) {
+        
         data <- if (input$table_data == "map") {
+          
+          # ------ AGRICULTURAL REGION MAP -------
           cereals_map %>%
             filter(`Land use by category` == input$variable) %>%
             pivot_wider(names_from = sub_region, values_from = value)
-        } else {
+          
+        } else if (input$table_data == "timeseries") {
+          
+          # ------------- TIMESERIES -------------
           cereals_combined_long %>%
             pivot_wider(
-              id_cols = c(`Crop/Land use`, Measure),  
-              names_from = Year,                      
-              values_from = Value                     
+              id_cols = c(`Crop/Land use`, Measure),
+              names_from = Year,
+              values_from = Value
             ) %>%
-            # Relabel Measure values with units
             mutate(
               Measure = recode(
                 Measure,
@@ -459,18 +513,23 @@ cerealsServer <- function(id) {
             ) %>%
             select(
               `Crop/Land use`, Measure,
-              sort(as.numeric(colnames(.)[!(colnames(.) %in% c("Crop/Land use", "Measure"))]), decreasing = FALSE) %>% 
+              sort(as.numeric(colnames(.)[!(colnames(.) %in% c("Crop/Land use", "Measure"))]), decreasing = FALSE) %>%
                 as.character()
             ) %>%
-            mutate(across(
-              where(is.numeric),
-              ~ case_when(
-                Measure == "Yield (tonnes per hectare)" ~ comma(round(.x, 1), accuracy = 0.1),  # 1 dp with commas
-                TRUE                                   ~ comma(round(.x, 0), accuracy = 1)      # 0 dp with commas
-              )
-            )) %>% 
             arrange(Measure)
+          
+        } else if (input$table_data == "map_con") {
+          
+          # ---------- CONSTITUENCY MAP ----------
+          cereals_constituency 
+          
+        } else if (input$table_data == "map_uni") {
+          
+          # -------- LOCAL AUTHORITY MAP ---------
+          cereals_unitauth  
         }
+        
+        # Write CSV (no formatting so numbers stay numeric)
         write.csv(data, file, row.names = FALSE)
       }
     )
@@ -491,7 +550,7 @@ cerealsServer <- function(id) {
     valueBoxServer("summaryValueBox", summary_data, "Crop/Land use", reactive(input$summary_variable), current_year, comparison_year, "ha")
   })
 }
-
+# 
 # # Testing module
 # cereals_demo <- function() {
 #   ui <- fluidPage(cerealsUI("cereals_test"))

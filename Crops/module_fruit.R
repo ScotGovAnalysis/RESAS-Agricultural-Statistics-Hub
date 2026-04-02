@@ -116,7 +116,7 @@ fruitServer <- function(id) {
     
     # ===================== CONSTITUENCY MAP =====================
     fruit_const_map <- reactive({
-      fruit_constituency %>%         # <— your constituency land use table
+      fruit_constituency %>%        
         mutate(across(everything(), as.character)) %>%
         pivot_longer(
           cols = -`crop`,
@@ -143,7 +143,7 @@ fruitServer <- function(id) {
     
     # ===================== LOCAL AUTHORITY MAP =====================
     fruit_uni_map <- reactive({
-      fruit_unitauth %>%         # <— your constituency land use table
+      fruit_unitauth %>%        
         mutate(across(everything(), as.character)) %>%
         pivot_longer(
           cols = -`crop`,
@@ -220,7 +220,7 @@ fruitServer <- function(id) {
                      "map" = {
                        fruit_map %>%
                          pivot_wider(names_from = sub_region, values_from = value) %>%
-                         mutate(across(where(is.numeric) & !contains("Year"), comma))
+                         mutate(across(where(is.numeric), comma))
                      },
                      
                      # -------------------
@@ -238,34 +238,10 @@ fruitServer <- function(id) {
                      # -------------------
                      # 3. Constituency Table
                      # -------------------
-                     
                      "map_con" = {
                        fruit_constituency %>%
                          rename(`Land use by category` = `crop`) %>%
-                         mutate(across(
-                           where(is.character),
-                           ~ ifelse(grepl("^\\d+$", .x), scales::comma(as.numeric(.x)), .x)
-                         )) %>%
-                  
-                         mutate(
-                           across(
-                             where(is.numeric),
-                             ~ round(.x, 0)
-                           )
-                         ) %>%
-                         
-                         
-                         mutate(
-                           across(
-                             where(is.character),
-                             ~ ifelse(
-                               grepl("^\\d+(\\.\\d+)?$", .x),   # matches integers or decimals
-                               as.character(round(as.numeric(.x), 0)),
-                               .x
-                             )
-                           )
-                         )
-                       
+                         mutate(across(where(is.numeric), comma))
                      },
                      
                      
@@ -275,30 +251,7 @@ fruitServer <- function(id) {
                      "map_uni" = {
                        fruit_unitauth %>%
                          rename(`Land use by category` = `crop`) %>%
-                         mutate(across(
-                           where(is.character),
-                           ~ ifelse(grepl("^\\d+$", .x), scales::comma(as.numeric(.x)), .x)
-                         )) %>%
-                         
-                         mutate(
-                           across(
-                             where(is.numeric),
-                             ~ round(.x, 0)
-                           )
-                         ) %>%
-                         
-                         
-                         mutate(
-                           across(
-                             where(is.character),
-                             ~ ifelse(
-                               grepl("^\\d+(\\.\\d+)?$", .x),   # matches integers or decimals
-                               as.character(round(as.numeric(.x), 0)),
-                               .x
-                             )
-                           )
-                         )
-                       
+                         mutate(across(where(is.numeric), comma))
                      },
       )
       
@@ -325,13 +278,9 @@ fruitServer <- function(id) {
       filename = function() {
         
         switch(input$table_data,
-               
                "map" = paste0("Fruit_Agricultural_Region_Data_", Sys.Date(), ".csv"),
-               
                "timeseries" = paste0("Fruit_Timeseries_Data_", Sys.Date(), ".csv"),
-               
                "map_con" = paste0("Fruit_Constituency_Data_", Sys.Date(), ".csv"),
-               
                "map_uni" = paste0("Fruit_Local_Authority_Data_", Sys.Date(), ".csv"),
                
                # fallback

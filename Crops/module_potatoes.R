@@ -107,7 +107,7 @@ potatoesServer <- function(id) {
     
     # ===================== CONSTITUENCY MAP =====================
     potato_const_map <- reactive({
-      potatoes_constituency %>%         # <— your constituency land use table
+      potatoes_constituency %>%       
         mutate(across(everything(), as.character)) %>%
         pivot_longer(
           cols = -`crop`,
@@ -209,7 +209,7 @@ potatoesServer <- function(id) {
                      "map" = {
                        potatoes_map %>%
                          pivot_wider(names_from = sub_region, values_from = value) %>%
-                         mutate(across(where(is.numeric) & !contains("Year"), comma))
+                         mutate(across(where(is.numeric), comma))
                      },
                      
                      # -------------------
@@ -227,30 +227,11 @@ potatoesServer <- function(id) {
                      # -------------------
                      # 3. Constituency Table
                      # -------------------
-                     
                      "map_con" = {
                        potatoes_constituency %>%
                          rename(`Land use by category` = `crop`) %>%
-                         mutate(across(
-                           everything(),
-                           ~ {
-                             x <- as.character(.x)
-                             
-                             # extract numbers (gives NA for "c")
-                             nums <- readr::parse_number(x)
-                             
-                             # round + comma format where numeric exists
-                             formatted <- ifelse(
-                               is.na(nums),
-                               x,   # keep original ("c", NA, etc.)
-                               scales::comma(round(nums, 0))
-                             )
-                             
-                             formatted
-                           }
-                         ))
+                         mutate(across(where(is.numeric), comma))
                      },
-                     
                      
                      # -------------------
                      # 4. Local authority table
@@ -258,24 +239,7 @@ potatoesServer <- function(id) {
                      "map_uni" = {
                        potatoes_unitauth %>%
                          rename(`Land use by category` = `crop`) %>%
-                         mutate(across(
-                           everything(),
-                           ~ {
-                             x <- as.character(.x)
-                             
-                             # extract numbers (gives NA for "c")
-                             nums <- readr::parse_number(x)
-                             
-                             # round + comma format where numeric exists
-                             formatted <- ifelse(
-                               is.na(nums),
-                               x,   # keep original ("c", NA, etc.)
-                               scales::comma(round(nums, 0))
-                             )
-                             
-                             formatted
-                           }
-                         ))
+                         mutate(across(where(is.numeric), comma))
                      },
       )
       
@@ -302,13 +266,9 @@ potatoesServer <- function(id) {
       filename = function() {
         
         switch(input$table_data,
-               
                "map" = paste0("Potatoes_Agricultural_Region_Map_Data_", Sys.Date(), ".csv"),
-               
                "timeseries" = paste0("Potatoes_Timeseries_Data_", Sys.Date(), ".csv"),
-               
                "map_con" = paste0("Potatoes_Constituency_Data_", Sys.Date(), ".csv"),
-               
                "map_uni" = paste0("Potatoes_Local_Authority_Data_", Sys.Date(), ".csv"),
                
                # fallback

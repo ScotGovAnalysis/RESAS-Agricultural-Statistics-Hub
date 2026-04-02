@@ -111,7 +111,7 @@ humanVegetablesServer <- function(id) {
     
     # ===================== CONSTITUENCY MAP =====================
     veg_const_map <- reactive({
-      vegetables_constituency %>%         # <— your constituency land use table
+      vegetables_constituency %>%       
         mutate(across(everything(), as.character)) %>%
         pivot_longer(
           cols = -`crop`,
@@ -138,7 +138,7 @@ humanVegetablesServer <- function(id) {
     
     # ===================== LOCAL AUTHORITY MAP =====================
     veg_uni_map <- reactive({
-      vegetables_unitauth %>%         # <— your constituency land use table
+      vegetables_unitauth %>%       
         mutate(across(everything(), as.character)) %>%
         pivot_longer(
           cols = -`crop`,
@@ -211,7 +211,7 @@ humanVegetablesServer <- function(id) {
                      "map" = {
                        human_vegetables_map %>%
                          pivot_wider(names_from = sub_region, values_from = value) %>%
-                         mutate(across(where(is.numeric) & !contains("Year"), comma))
+                         mutate(across(where(is.numeric), comma))
                      },
                      
                      # -------------------
@@ -229,30 +229,11 @@ humanVegetablesServer <- function(id) {
                      # -------------------
                      # 3. Constituency Table
                      # -------------------
-                     
                      "map_con" = {
                        vegetables_constituency %>%
                          rename(`Land use by category` = `crop`) %>%
-                         mutate(across(
-                           everything(),
-                           ~ {
-                             x <- as.character(.x)
-                             
-                             # extract numbers (gives NA for "c")
-                             nums <- readr::parse_number(x)
-                             
-                             # round + comma format where numeric exists
-                             formatted <- ifelse(
-                               is.na(nums),
-                               x,   # keep original ("c", NA, etc.)
-                               scales::comma(round(nums, 0))
-                             )
-                             
-                             formatted
-                           }
-                         ))
+                         mutate(across(where(is.numeric), comma))
                      },
-                     
                      
                      # -------------------
                      # 4. Local authority table
@@ -260,24 +241,7 @@ humanVegetablesServer <- function(id) {
                      "map_uni" = {
                        vegetables_unitauth %>%
                          rename(`Land use by category` = `crop`) %>%
-                         mutate(across(
-                           everything(),
-                           ~ {
-                             x <- as.character(.x)
-                             
-                             # extract numbers (gives NA for "c")
-                             nums <- readr::parse_number(x)
-                             
-                             # round + comma format where numeric exists
-                             formatted <- ifelse(
-                               is.na(nums),
-                               x,   # keep original ("c", NA, etc.)
-                               scales::comma(round(nums, 0))
-                             )
-                             
-                             formatted
-                           }
-                         ))
+                         mutate(across(where(is.numeric), comma))
                      },
       )
       
@@ -304,13 +268,9 @@ humanVegetablesServer <- function(id) {
       filename = function() {
         
         switch(input$table_data,
-               
                "map" = paste0("Vegetables_Agricultural_Region_Data_", Sys.Date(), ".csv"),
-               
                "timeseries" = paste0("Vegetables_Timeseries_Data_", Sys.Date(), ".csv"),
-               
                "map_con" = paste0("Vegetables_Constituency_Data_", Sys.Date(), ".csv"),
-               
                "map_uni" = paste0("Vegetables_Local_Authority_Data_", Sys.Date(), ".csv"),
                
                # fallback

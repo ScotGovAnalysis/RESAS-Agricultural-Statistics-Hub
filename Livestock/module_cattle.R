@@ -26,11 +26,11 @@ cattleUI <- function(id) {
           ns("variable_con"), 
           "Select Variable", 
           choices = c(
-            "Total Cattle" = "Total Cattle (Number)",
-            "Total Female Dairy Cattle" = "Total Female Dairy Cattle (Number)",
-            "Total Female Beef Cattle" = "Total Female Beef Cattle (Number)",
-            "Total Male Cattle" = "Total Male Cattle (Number)",
-            "Total Calves" = "Total Calves (Number)"
+            "Total Cattle" = "Total Cattle",
+            "Total Female Dairy Cattle" = "Total Female Dairy Cattle",
+            "Total Female Beef Cattle" = "Total Female Beef Cattle",
+            "Total Male Cattle" = "Total Male Cattle",
+            "Total Calves" = "Total Calves"
           )
         )
       ),
@@ -41,11 +41,11 @@ cattleUI <- function(id) {
           ns("variable_uni"), 
           "Select Variable", 
           choices = c(
-            "Total Cattle" = "Total Cattle (Number)",
-            "Total Female Dairy Cattle" = "Total Female Dairy Cattle (Number)",
-            "Total Female Beef Cattle" = "Total Female Beef Cattle (Number)",
-            "Total Male Cattle" = "Total Male Cattle (Number)",
-            "Total Calves" = "Total Calves (Number)"
+            "Total Cattle" = "Total Cattle",
+            "Total Female Dairy Cattle" = "Total Female Dairy Cattle",
+            "Total Female Beef Cattle" = "Total Female Beef Cattle",
+            "Total Male Cattle" = "Total Male Cattle",
+            "Total Calves" = "Total Calves"
           )
         )
       ),
@@ -134,7 +134,7 @@ cattleServer <- function(id) {
     )
     
     cattle_const_map <- reactive({
-      cattle_constituency %>%         # <— your constituency land use table
+      cattle_constituency %>%         
         mutate(across(everything(), as.character)) %>%
         pivot_longer(
           cols = -`livestock`,
@@ -234,7 +234,7 @@ cattleServer <- function(id) {
                      "map" = {
                        cattle_data %>%
                          pivot_wider(names_from = sub_region, values_from = value) %>%
-                         mutate(across(where(is.numeric) & !contains("Year"), comma))
+                         mutate(across(where(is.numeric), comma))
                      },
                      
                      # -------------------
@@ -252,36 +252,11 @@ cattleServer <- function(id) {
                      # -------------------
                      # 3. Constituency Table
                      # -------------------
-                     
                      "map_con" = {
                        cattle_constituency %>%
                          rename(`Livestock by category` = `livestock`) %>%
-                         mutate(across(
-                           where(is.character),
-                           ~ ifelse(grepl("^\\d+$", .x), scales::comma(as.numeric(.x)), .x)
-                         )) %>%
-                         
-                         mutate(
-                           across(
-                             where(is.numeric),
-                             ~ round(.x, 0)
-                           )
-                         ) %>%
-                         
-                         
-                         mutate(
-                           across(
-                             where(is.character),
-                             ~ ifelse(
-                               grepl("^\\d+(\\.\\d+)?$", .x),   # matches integers or decimals
-                               as.character(round(as.numeric(.x), 0)),
-                               .x
-                             )
-                           )
-                         )
-                       
+                         mutate(across(where(is.numeric), comma))
                      },
-                     
                      
                      # -------------------
                      # 4. Local authority table
@@ -289,30 +264,7 @@ cattleServer <- function(id) {
                      "map_uni" = {
                        cattle_unitauth %>%
                          rename(`Livestock by category` = `livestock`) %>%
-                         mutate(across(
-                           where(is.character),
-                           ~ ifelse(grepl("^\\d+$", .x), scales::comma(as.numeric(.x)), .x)
-                         )) %>%
-                         
-                         mutate(
-                           across(
-                             where(is.numeric),
-                             ~ round(.x, 0)
-                           )
-                         ) %>%
-                         
-                         
-                         mutate(
-                           across(
-                             where(is.character),
-                             ~ ifelse(
-                               grepl("^\\d+(\\.\\d+)?$", .x),   # matches integers or decimals
-                               as.character(round(as.numeric(.x), 0)),
-                               .x
-                             )
-                           )
-                         )
-                       
+                         mutate(across(where(is.numeric), comma))
                      },
       )
       
@@ -339,13 +291,9 @@ cattleServer <- function(id) {
       filename = function() {
         
         switch(input$table_data,
-               
                "map" = paste0("Cattle_Agricultural_Region_Data_", Sys.Date(), ".csv"),
-               
                "timeseries" = paste0("Cattle_Timeseries_Data_", Sys.Date(), ".csv"),
-               
                "map_con" = paste0("Cattle_Constituency_Data_", Sys.Date(), ".csv"),
-               
                "map_uni" = paste0("Cattle_Local_Authority_Data_", Sys.Date(), ".csv"),
                
                # fallback
