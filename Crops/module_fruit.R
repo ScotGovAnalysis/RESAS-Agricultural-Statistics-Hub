@@ -116,7 +116,7 @@ fruitServer <- function(id) {
     
     # ===================== CONSTITUENCY MAP =====================
     fruit_const_map <- reactive({
-      fruit_constituency %>%         # <— your constituency land use table
+      fruit_constituency %>%        
         mutate(across(everything(), as.character)) %>%
         pivot_longer(
           cols = -`crop`,
@@ -143,7 +143,7 @@ fruitServer <- function(id) {
     
     # ===================== LOCAL AUTHORITY MAP =====================
     fruit_uni_map <- reactive({
-      fruit_unitauth %>%         # <— your constituency land use table
+      fruit_unitauth %>%        
         mutate(across(everything(), as.character)) %>%
         pivot_longer(
           cols = -`crop`,

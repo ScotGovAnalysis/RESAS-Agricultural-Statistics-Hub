@@ -94,6 +94,7 @@ beansServer <- function(id) {
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
     
+    # ================== AGRICULTURAL REGION MAP ==================
     beans_map <- beans_subregion %>%
       select(-`Scotland total`) %>%
       mutate(across(everything(), as.character)) %>%
@@ -115,7 +116,7 @@ beansServer <- function(id) {
     
     # ===================== CONSTITUENCY MAP =====================
     peas_const_map <- reactive({
-      peas_beans_constituency %>%         # <— your constituency land use table
+      peas_beans_constituency %>%         
         mutate(across(everything(), as.character)) %>%
         pivot_longer(
           cols = -`crop`,
@@ -168,7 +169,7 @@ beansServer <- function(id) {
     )
     
     
-    
+    # ===================== TIME SERIES =====================
     chart_data <- reactive({
       req(input$timeseries_variables)
       filtered_data <- beans_data %>%

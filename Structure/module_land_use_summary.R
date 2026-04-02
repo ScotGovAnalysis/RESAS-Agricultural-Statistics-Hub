@@ -115,6 +115,7 @@ landUseSummaryServer <- function(id) {
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
     
+    # Agricultural region map
     # Map data remains unformatted for proper rendering
     land_use_map <- reactive({
       land_use_subregion %>%
@@ -124,8 +125,9 @@ landUseSummaryServer <- function(id) {
         mutate(value = as.numeric(value))
     })
     
+    # Constituency map
     land_use_const_map <- reactive({
-      land_use_constituency %>%         # <— your constituency land use table
+      land_use_constituency %>%   
         mutate(across(everything(), as.character)) %>%
         pivot_longer(
           cols = -`land use`,
@@ -137,8 +139,7 @@ landUseSummaryServer <- function(id) {
         )
     })
     
-    # Unitary Authority Map
-    
+    # Local Authority Map
     land_use_unitauth_map <- reactive({
       land_use_unitauth %>%        
         mutate(across(everything(), as.character)) %>%

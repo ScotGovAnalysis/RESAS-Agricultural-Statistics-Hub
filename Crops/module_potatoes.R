@@ -107,7 +107,7 @@ potatoesServer <- function(id) {
     
     # ===================== CONSTITUENCY MAP =====================
     potato_const_map <- reactive({
-      potatoes_constituency %>%         # <— your constituency land use table
+      potatoes_constituency %>%       
         mutate(across(everything(), as.character)) %>%
         pivot_longer(
           cols = -`crop`,

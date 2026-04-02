@@ -142,7 +142,7 @@ otherAnimalsServer <- function(id) {
     )
     
     other_const_map <- reactive({
-      other_animals_constituency %>%         # <— your constituency land use table
+      other_animals_constituency %>%    
         mutate(across(everything(), as.character)) %>%
         pivot_longer(
           cols = -`livestock`,

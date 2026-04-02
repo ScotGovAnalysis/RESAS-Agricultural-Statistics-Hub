@@ -111,7 +111,7 @@ humanVegetablesServer <- function(id) {
     
     # ===================== CONSTITUENCY MAP =====================
     veg_const_map <- reactive({
-      vegetables_constituency %>%         # <— your constituency land use table
+      vegetables_constituency %>%       
         mutate(across(everything(), as.character)) %>%
         pivot_longer(
           cols = -`crop`,
@@ -138,7 +138,7 @@ humanVegetablesServer <- function(id) {
     
     # ===================== LOCAL AUTHORITY MAP =====================
     veg_uni_map <- reactive({
-      vegetables_unitauth %>%         # <— your constituency land use table
+      vegetables_unitauth %>%       
         mutate(across(everything(), as.character)) %>%
         pivot_longer(
           cols = -`crop`,

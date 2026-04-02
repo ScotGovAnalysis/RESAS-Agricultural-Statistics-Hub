@@ -6,7 +6,7 @@ oilseedUI <- function(id) {
     sidebarPanel(
       width = 3,
       
-      # ===================== MAP =====================
+      # ================ AGRICULTURAL REGION MAP ===================
       conditionalPanel(
         condition = "input.tabsetPanel === 'Agricultural Region Map'",
         ns = ns,
@@ -114,7 +114,7 @@ oilseedUI <- function(id) {
 oilseedServer <- function(id) {
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
-    # ===================== MAP =====================
+    # ================= AGRICULTURAL REGION MAP ===================
     oilseed_map <- oilseed_subregion %>%
       select(-`Scotland total`) %>%
       mutate(across(everything(), as.character)) %>%
@@ -136,7 +136,7 @@ oilseedServer <- function(id) {
     
     # ===================== CONSTITUENCY MAP =====================
     oilseed_const_map <- reactive({
-      oilseeds_constituency %>%         # <— your constituency land use table
+      oilseeds_constituency %>%  
         mutate(across(everything(), as.character)) %>%
         pivot_longer(
           cols = -`crop`,
@@ -322,7 +322,7 @@ oilseedServer <- function(id) {
       req(input$tabsetPanel == "Data Table")
       
       # ------------------------------------------------------
-      # TABLE 1 — MAP DATA
+      # TABLE 1 — AGRCULTURAL REGION MAP DATA
       # ------------------------------------------------------
       if (input$table_data == "map") {
         req(input$variable_region)
@@ -388,7 +388,7 @@ oilseedServer <- function(id) {
           formatStyle(right_cols, `text-align` = "right")
         
         # ------------------------------------------------------
-        # TABLE 3 — NEW TABLE
+        # TABLE 3 — CONSTITUENCY MAP DATA
         # ------------------------------------------------------
       } else if (input$table_data == "map_con") {
         
@@ -421,7 +421,7 @@ oilseedServer <- function(id) {
           )
         
         # ------------------------------------------------------
-        # TABLE 4 — NEW TABLE
+        # TABLE 4 — LOCAL AUTHORITY MAP DATA
         # ------------------------------------------------------
       } else if (input$table_data == "map_uni") {
         
@@ -478,7 +478,7 @@ oilseedServer <- function(id) {
         
         data <- if (input$table_data == "map") {
           
-          # ---------------- MAP ----------------
+          # -------- AGRICULTURAL REGION MAP -----------
           oilseed_map %>%
             filter(`Land use by category` == input$variable) %>%
             pivot_wider(names_from = sub_region, values_from = value)
@@ -509,13 +509,13 @@ oilseedServer <- function(id) {
           
         } else if (input$table_data == "map_con") {
           
-          # ---------------- TABLE 3 ----------------
-          oilseeds_constituency  # replace with your actual dataset
+          # ---------- CONSTITUENCY MAP -------------
+          oilseeds_constituency 
           
         } else if (input$table_data == "map_uni") {
           
-          # ---------------- TABLE 4 ----------------
-          oilseeds_unitauth  # replace with your actual dataset
+          # --------- LOCAL AUTHORITY MAP ----------
+          oilseeds_unitauth  
         }
         
         # Write CSV (no formatting so numbers stay numeric)

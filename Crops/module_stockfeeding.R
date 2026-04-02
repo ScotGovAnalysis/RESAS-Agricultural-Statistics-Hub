@@ -112,7 +112,7 @@ stockfeedingServer <- function(id) {
     
     # ===================== CONSTITUENCY MAP =====================
     stock_const_map <- reactive({
-      stockfeeding_constituency %>%         # <— your constituency land use table
+      stockfeeding_constituency %>%        
         mutate(across(everything(), as.character)) %>%
         pivot_longer(
           cols = -`crop`,
