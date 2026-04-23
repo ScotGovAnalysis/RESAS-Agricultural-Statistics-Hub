@@ -4,11 +4,11 @@
 
 ###############################
 ####
-#### tiff 2024 data
+#### tiff 2025 data
 ####
-#### This data comes from the 2024 tiff publication 
+#### This data comes from the 2025 tiff publication 
 ####
-#### https://www.gov.scot/publications/total-income-from-farming-estimates-2018-2024/
+#### https://www.gov.scot/publications/total-income-from-farming-estimates-2025/
 
 #################################
 # Load necessary libraries
@@ -23,8 +23,8 @@ library(shinyjs)
 #LOAD TIFF data - run this once to save processed tiff data to tiff folder (uncomment and edit parameters for new year )
 #### parameters ----
 
-tiff_data_path <- "//s0196a/ADM-Rural and Environmental Science-Farming Statistics/Agriculture/Source/TIFF/TIFF 2024/"
-file_path <- paste0(tiff_data_path, "Downloaded TIFF Table 2024.xlsx")
+tiff_data_path <- "//s0196a/ADM-Rural and Environmental Science-Farming Statistics/Agriculture/Source/TIFF/TIFF 2025/"
+file_path <- paste0(tiff_data_path, "Downloaded TIFF Table 2025.xlsx")
 
 # Get sheet names
 sheets <- excel_sheets(file_path)
@@ -56,7 +56,7 @@ for (sheet in table_sheets) {
   price_value <- if (table_num %in% c(1, 2)) {
     "Current (nominal)"
   } else if (table_num %in% c(4, 5)) {
-    "Real (constant 2024)"
+    "Real (constant 2025)"
   } else {
     NA
   }
@@ -87,7 +87,7 @@ for (sheet in table_sheets) {
 table_names <- c("Table1", "Table2", "Table4", "Table5")
 
 # Define year columns
-year_cols <- as.character(1989:2024)
+year_cols <- as.character(1989:2025)
 
 # Function to process one table
 process_table <- function(tbl_name) {
@@ -126,7 +126,7 @@ combined_data <- table_names %>%
 ########################################
 ## Now process Table 3 ##
 ########################################
-year_cols <- as.character(1989:2024)
+year_cols <- as.character(1989:2025)
 
 
 # Standardize column types
@@ -144,14 +144,14 @@ Table3_clean <- Table3 %>%
   mutate(
     Price = case_when(
       grepl("current \\(nominal\\)", Measure, ignore.case = TRUE) ~ "Current (nominal)",
-      grepl("Real terms \\(constant 2024 price\\)", Measure, ignore.case = TRUE) ~ "Real (constant 2024)",
+      grepl("Real terms \\(constant 2025 price\\)", Measure, ignore.case = TRUE) ~ "Real (constant 2025)",
       TRUE ~ NA_character_
     ),
     Measure = case_when(
       Measure == "33a. Total income from farming, in current (nominal) prices (26-27-31)" ~ "Total income from farming",
-      Measure == "33b. Total income from farming, in real terms (constant 2024 price) (26-27-31)" ~ "Total income from farming",
+      Measure == "33b. Total income from farming, in real terms (constant 2025 price) (26-27-31)" ~ "Total income from farming",
       Measure == "34a. Total income from farming, without support payments, in current (nominal) prices (33a-25)" ~ "Total income from farming, without support payments",
-      Measure == "34b. Total income from farming, without support payments, in real terms (constant 2024 price) (33b-25)" ~ "Total income from farming, without support payments",
+      Measure == "34b. Total income from farming, without support payments, in real terms (constant 2025 price) (33b-25)" ~ "Total income from farming, without support payments",
       TRUE ~ Measure
     ),
     Value = as.numeric(Value),
