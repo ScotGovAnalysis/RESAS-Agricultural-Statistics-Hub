@@ -29,8 +29,8 @@ tiffUI <- function(id) {
         ),
         radioButtons(
           ns("tiff_prices"), "Select a price type",
-          choices = c("Real (constant 2024)", "Current (nominal)"),
-          selected = "Real (constant 2024)"
+          choices = c("Real (constant 2025)", "Current (nominal)"),
+          selected = "Real (constant 2025)"
         ),
         
         sliderInput(
@@ -217,22 +217,22 @@ tiffServer <- function(id) {
 
   
   
-# # ### Testing module --------
-# source(here("Economy/TIFF", "line_chart_copy.R"))
-# source("Economy/TIFF/tiff_utility.R")
-# source("utility/util_updates.R")
-# source("utility/util_functions.R")
-# source("utility/hc_theme.R")
-# source("utility/util_options.R")
-# 
-# 
-# content_demo <- function() {
-#   ui <- fluidPage(tiffUI("tifftest"))
-#   server <- function(input, output, session) {
-#     tiffServer("tifftest")
-#   }
-#   shinyApp(ui, server)
-# }
-# 
-# content_demo()
-# 
+# ### Testing module --------
+source(here("Economy/TIFF", "line_chart_copy.R"))
+source("Economy/TIFF/tiff_utility.R")
+source("utility/util_updates.R")
+source("utility/util_functions.R")
+source("utility/hc_theme.R")
+source("utility/util_options.R")
+
+
+content_demo <- function() {
+  ui <- fluidPage(tiffUI("tifftest"))
+  server <- function(input, output, session) {
+    tiffServer("tifftest")
+  }
+  shinyApp(ui, server)
+}
+
+content_demo()
+
