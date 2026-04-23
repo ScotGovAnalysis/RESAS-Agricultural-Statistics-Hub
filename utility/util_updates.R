@@ -17,7 +17,7 @@ emissions_year <- 2023
 
 fbs_year <-2024-25 
 
-last_update <- "26 March 2026"
+last_update <- "30 April 2026"
 
 #emissions_year 
 
@@ -53,7 +53,7 @@ fbs_footer <- HTML(
 
 
 
-tiff_footer <- '<div style="font-size: 16px; font-weight: bold;"> <a href="https://www.gov.scot/publications/total-income-from-farming-estimates-2018-2024/">Source: Total income from farming estimates: 2018-2024</a></div>'
+tiff_footer <- '<div style="font-size: 16px; font-weight: bold;"> <a href="https://www.gov.scot/publications/total-income-from-farming-estimates-2025/">Source: Total income from farming estimates: 2025</a></div>'
 
 
 # Function to generate the census data table footer with a light grey background
@@ -181,9 +181,9 @@ generatetiffTableFooter <- function() {
   div(
     style = "background-color: #f0f0f0; padding: 15px; border-radius: 5px; margin-top: 20px;",
     "This data is sourced from the ",
-    tags$a(href = "https://www.gov.scot/publications/total-income-from-farming-estimates-2018-2024/",
-           "Total income from farming estimates: 2018-2024"),
-    " which was published on 29 May 2025.",
+    tags$a(href = "https://www.gov.scot/publications/total-income-from-farming-estimates-2025/",
+           "Total income from farming estimates: 2025"),
+    " which was published on 30 April 2026.",
     tags$br(),
     "Total income from farming (TIFF) is the official measure of the profit gained by the agricultural industry in Scotland.",
     tags$br(),
