@@ -57,7 +57,7 @@ tiff_Outputs <- c("1. Output from crops",
                   "5. Gross output (1+2+3+4)")
 
 tiff_prices <- c("Current (nominal)",
-                 "Real (constant 2024)")
+                 "Real (constant 2025)")
 
 tiff_Costs <- c("6. Costs of seed",
                 "7. Costs of feed",
@@ -84,7 +84,4 @@ all_tiff <- c(tiff_Costs, tiff_Outputs, tiff_Total, tiff_Total_wsp, tiff_GVA, ti
 
 measure_lookup2 <- setNames(names(tiff_list), tiff_list)
 
-
-tiff_year <- max(main_tiff_data_long$Year) #Current TIFF year
-tiff_year_min <- min(main_tiff_data_long$Year)
 
