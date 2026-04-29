@@ -85,7 +85,7 @@ homeUI <- function(id) {
         width = 9,
         tags$div(
           style = "margin-top: 20px; font-size: 24px; font-weight: bold;",
-          "Welcome to the RESAS Agricultural Statistics Hub - in development"
+          "Welcome to the RESAS Agricultural Statistics Hub"
         ),
         
         # fluidRow(
