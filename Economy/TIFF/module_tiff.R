@@ -218,21 +218,21 @@ tiffServer <- function(id) {
   
   
 # ### Testing module --------
-source(here("Economy/TIFF", "line_chart_copy.R"))
-source("Economy/TIFF/tiff_utility.R")
-source("utility/util_updates.R")
-source("utility/util_functions.R")
-source("utility/hc_theme.R")
-source("utility/util_options.R")
-
-
-content_demo <- function() {
-  ui <- fluidPage(tiffUI("tifftest"))
-  server <- function(input, output, session) {
-    tiffServer("tifftest")
-  }
-  shinyApp(ui, server)
-}
-
-content_demo()
+# source(here("Economy/TIFF", "line_chart_copy.R"))
+# source("Economy/TIFF/tiff_utility.R")
+# source("utility/util_updates.R")
+# source("utility/util_functions.R")
+# source("utility/hc_theme.R")
+# source("utility/util_options.R")
+# 
+# 
+# content_demo <- function() {
+#   ui <- fluidPage(tiffUI("tifftest"))
+#   server <- function(input, output, session) {
+#     tiffServer("tifftest")
+#   }
+#   shinyApp(ui, server)
+# }
+# 
+# content_demo()
 
