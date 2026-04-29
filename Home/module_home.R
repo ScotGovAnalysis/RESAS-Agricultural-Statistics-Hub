@@ -159,7 +159,24 @@ homeUI <- function(id) {
           ),
           tags$li(
             tags$a(href = "https://www.gov.scot/collections/economic-report-on-scottish-agriculture/", target = "_blank", "Scottish agriculture: economic reports")
+          ),
+          tags$li(
+            tags$a(href = "https://www.gov.scot/publications/demographic-statistics-on-agricultural-workers-from-scotlands-census-2022/", target = "_blank", "Demographic statistics on agricultural workers")
           )
+        ),
+        tags$div(
+          style = "margin-top: 20px; font-size: 20px; font-weight: bold;",
+          "Show and Tell events"
+        ),
+        tags$p(
+          style = "font-size: 16px;",
+          "Our Show and Tell events keep users up to date with developments to our statistics products and provide a forum for users to engage directly with the statistics producers to improve our products so they better meet users needs. To find out about upcoming events and more, visit the",
+          tags$a(
+            href = "https://www.gov.scot/publications/agriculture-statistics-show-and-tell-events/pages/introduction/",
+            target = "_blank",
+            "Agriculture Statistics - Show and Tell events"
+          ),
+          " webpage."
         ),
         tags$div(
           style = "margin-top: 20px; font-size: 20px; font-weight: bold;",
