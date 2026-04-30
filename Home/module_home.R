@@ -85,7 +85,7 @@ homeUI <- function(id) {
         width = 9,
         tags$div(
           style = "margin-top: 20px; font-size: 24px; font-weight: bold;",
-          "Welcome to the RESAS Agricultural Statistics Hub - in development"
+          "Welcome to the RESAS Agricultural Statistics Hub"
         ),
         
         # fluidRow(
@@ -105,11 +105,8 @@ homeUI <- function(id) {
         HTML("<br>"),
         tags$p(
           style = "font-size: 16px;",
-          "This hub provides access to a variety of agricultural statistics and data visualisations developed by the RESAS (Rural & Environment Science & Analytical Services) division of the Scottish Government. This content is still in development. We would be grateful if you could fill in our ",
-          tags$a(href = "https://forms.office.com/e/Y9Eixgf4c1", target = "_blank", "feedback survey"),
-          ". You can also email us at ",
-          tags$a(href = "mailto:agric.stats@gov.scot", "agric.stats@gov.scot"),
-          "."
+          "This hub provides access to a variety of agricultural statistics and data visualisations developed by the RESAS (Rural & Environment Science & Analytical Services) division of the Scottish Government. This content is still in development. We would be grateful if you could fill in our",
+          tags$a(href = "https://forms.office.com/e/Y9Eixgf4c1", target = "_blank", "feedback survey.")
         ),
         tags$div(
           style = "margin-top: 20px; font-size: 20px; font-weight: bold;",
@@ -159,7 +156,24 @@ homeUI <- function(id) {
           ),
           tags$li(
             tags$a(href = "https://www.gov.scot/collections/economic-report-on-scottish-agriculture/", target = "_blank", "Scottish agriculture: economic reports")
+          ),
+          tags$li(
+            tags$a(href = "https://www.gov.scot/publications/demographic-statistics-on-agricultural-workers-from-scotlands-census-2022/", target = "_blank", "Demographic statistics on agricultural workers")
           )
+        ),
+        tags$div(
+          style = "margin-top: 20px; font-size: 20px; font-weight: bold;",
+          "Show and Tell events"
+        ),
+        tags$p(
+          style = "font-size: 16px;",
+          "Our Show and Tell events keep users up to date with developments to our statistics products and provide a forum for users to engage directly with the statistics producers to improve our products so they better meet users needs. To find out about upcoming events and more, visit the",
+          tags$a(
+            href = "https://www.gov.scot/publications/agriculture-statistics-show-and-tell-events/pages/introduction/",
+            target = "_blank",
+            "Agriculture Statistics - Show and Tell events"
+          ),
+          " webpage."
         ),
         tags$div(
           style = "margin-top: 20px; font-size: 20px; font-weight: bold;",
