@@ -105,11 +105,8 @@ homeUI <- function(id) {
         HTML("<br>"),
         tags$p(
           style = "font-size: 16px;",
-          "This hub provides access to a variety of agricultural statistics and data visualisations developed by the RESAS (Rural & Environment Science & Analytical Services) division of the Scottish Government. This content is still in development. We would be grateful if you could fill in our ",
-          tags$a(href = "https://forms.office.com/e/Y9Eixgf4c1", target = "_blank", "feedback survey"),
-          ". You can also email us at ",
-          tags$a(href = "mailto:agric.stats@gov.scot", "agric.stats@gov.scot"),
-          "."
+          "This hub provides access to a variety of agricultural statistics and data visualisations developed by the RESAS (Rural & Environment Science & Analytical Services) division of the Scottish Government. This content is still in development. We would be grateful if you could fill in our",
+          tags$a(href = "https://forms.office.com/e/Y9Eixgf4c1", target = "_blank", "feedback survey.")
         ),
         tags$div(
           style = "margin-top: 20px; font-size: 20px; font-weight: bold;",
