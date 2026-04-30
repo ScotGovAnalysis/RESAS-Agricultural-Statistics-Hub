@@ -24,7 +24,7 @@ library(shinyjs)
 #### parameters ----
 
 tiff_data_path <- "//s0196a/ADM-Rural and Environmental Science-Farming Statistics/Agriculture/Source/TIFF/TIFF 2025/"
-file_path <- paste0(tiff_data_path, "Downloaded TIFF Table 2025.xlsx")
+file_path <- paste0(tiff_data_path, "Total income from farming estimates 2025 - Total income from farming, inputs and outputs timeseries.xlsx")
 
 # Get sheet names
 sheets <- excel_sheets(file_path)
