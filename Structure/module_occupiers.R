@@ -108,8 +108,8 @@ occupiersServer <- function(id) {
         mutate(
           value = if_else(is.na(value), NA_integer_, as.integer(value))) %>%
         filter(`occupier` %in% c(
-              "Total Working Occupiers (Number)", 
-              "Occupiers Not Working On The Holding (Number)"
+              "Total Working Occupiers", 
+              "Occupiers Not Working On The Holding"
             ))
     })
     
@@ -125,8 +125,8 @@ occupiersServer <- function(id) {
         mutate(
           value = if_else(is.na(value), NA_integer_, as.integer(value))) %>%
         filter(`occupier` %in% c(
-          "Total Working Occupiers (Number)", 
-          "Occupiers Not Working On The Holding (Number)"
+          "Total Working Occupiers", 
+          "Occupiers Not Working On The Holding"
         ))
     })
     
@@ -151,13 +151,13 @@ occupiersServer <- function(id) {
         ))
       } else if (input$tabs == "map_con") {
         radioButtons(ns("variable_con"), "Select Variable", choices = c(
-          "Total Working Occupiers (Number)",
-          "Occupiers Not Working On The Holding (Number)"
+          "Total Working Occupiers",
+          "Occupiers Not Working On The Holding"
         ))
       } else if (input$tabs == "map_uni") {
         radioButtons(ns("variable_uni"), "Select Variable", choices = c(
-          "Total Working Occupiers (Number)",
-          "Occupiers Not Working On The Holding (Number)"
+          "Total Working Occupiers",
+          "Occupiers Not Working On The Holding"
         ))
       } else if (input$tabs == "data_table") {
         radioButtons(ns("data_source"), "Choose data to show:", choices = c("Agricultural Region Data", "Population Pyramid Data",  "Time Series Data", "Constituency Data", "Local Authority Data"))
@@ -312,10 +312,7 @@ occupiersServer <- function(id) {
         
         datatable(
           pivoted_chart_data() %>%
-            mutate(across(where(is.character), ~ {
-              suppressWarnings(num <- as.numeric(.x))
-              ifelse(!is.na(num), format(round(num), big.mark = ","), .x)
-            })),
+            mutate(across(where(is.numeric) & !contains("Year"), comma)),
           options = list(scrollX = TRUE, pageLength = 26)
         )
         
@@ -323,10 +320,7 @@ occupiersServer <- function(id) {
         
         datatable(
           pivoted_regions_data() %>%
-            mutate(across(where(is.character), ~ {
-              suppressWarnings(num <- as.numeric(.x))
-              ifelse(!is.na(num), format(round(num), big.mark = ","), .x)
-            })),
+            mutate(across(where(is.numeric), comma)),
           options = list(scrollX = TRUE)
         )
         
@@ -334,10 +328,7 @@ occupiersServer <- function(id) {
         
         datatable(
           pivoted_timeseries_data() %>%
-            mutate(across(where(is.character), ~ {
-              suppressWarnings(num <- as.numeric(.x))
-              ifelse(!is.na(num), format(round(num), big.mark = ","), .x)
-            })),
+            mutate(across(where(is.numeric), comma)),
           options = list(scrollX = TRUE)
         )
         
@@ -345,10 +336,7 @@ occupiersServer <- function(id) {
         
         datatable(
           con_data() %>%
-            mutate(across(where(is.character), ~ {
-              suppressWarnings(num <- as.numeric(.x))
-              ifelse(!is.na(num), format(round(num), big.mark = ","), .x)
-            })),
+            mutate(across(where(is.numeric), comma)),
           options = list(scrollX = TRUE)
         )
         
@@ -356,10 +344,7 @@ occupiersServer <- function(id) {
         
         datatable(
           uni_data() %>%
-            mutate(across(where(is.character), ~ {
-              suppressWarnings(num <- as.numeric(.x))
-              ifelse(!is.na(num), format(round(num), big.mark = ","), .x)
-            })),
+            mutate(across(where(is.numeric), comma)),
           options = list(scrollX = TRUE)
         )
       }

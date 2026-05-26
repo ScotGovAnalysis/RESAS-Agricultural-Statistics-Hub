@@ -26,11 +26,11 @@ sheepUI <- function(id) {
           ns("variable_con"), 
           "Select Variable", 
           choices = c(
-            "Total Sheep" = "Total Sheep (Number)",
-            "Ewes for breeding" = "Ewes for breeding (Number)",
-            "Other sheep 1 year and over for breeding" = "Other sheep 1 year and over for breeding (Number)",
-            "Rams for service" = "Rams for service (Number)",
-            "Lambs" = "Lambs (Number)"
+            "Total Sheep" = "Total Sheep",
+            "Ewes for breeding" = "Ewes for breeding",
+            "Other sheep 1 year and over for breeding" = "Other sheep 1 year and over for breeding",
+            "Rams for service" = "Rams for service",
+            "Lambs" = "Lambs"
           )
         )
       )
@@ -42,11 +42,11 @@ sheepUI <- function(id) {
           ns("variable_uni"), 
           "Select Variable", 
           choices = c(
-            "Total Sheep" = "Total Sheep (Number)",
-            "Ewes for breeding" = "Ewes for breeding (Number)",
-            "Other sheep 1 year and over for breeding" = "Other sheep 1 year and over for breeding (Number)",
-            "Rams for service" = "Rams for service (Number)",
-            "Lambs" = "Lambs (Number)"
+            "Total Sheep" = "Total Sheep",
+            "Ewes for breeding" = "Ewes for breeding",
+            "Other sheep 1 year and over for breeding" = "Other sheep 1 year and over for breeding",
+            "Rams for service" = "Rams for service",
+            "Lambs" = "Lambs"
           )
         )
       )
@@ -58,13 +58,6 @@ sheepUI <- function(id) {
           ns("timeseries_variables"),
           "Select Time Series Variables",
           choices = unique(number_of_sheep$`Sheep by category`),
-            # "Ewes for breeding",
-            # "Other sheep one year old and over for breeding",
-            # "Rams for service",
-            # "Total other sheep 1 year and over",
-            # "Lambs",
-            # "Total Sheep",
-            # "Other"
           selected = c(
             "Ewes Used For Breeding In Previous Season",
             "Sheep For Breeding Aged 1 Year And Over",
@@ -112,6 +105,7 @@ sheepServer <- function(id) {
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
     
+    # Agricultural region map
     sheep_data <- livestock_subregion %>%
       filter(`Livestock by category` %in%   
         c("Ewes for breeding",
@@ -136,8 +130,9 @@ sheepServer <- function(id) {
       legend_title = "Number of sheep"
     )
     
+    # Constituency map
     sheep_const_map <- reactive({
-      sheep_constituency %>%         # <— your constituency land use table
+      sheep_constituency %>%       
         mutate(across(everything(), as.character)) %>%
         pivot_longer(
           cols = -`livestock`,
@@ -162,6 +157,7 @@ sheepServer <- function(id) {
       legend_title = "Sheep (number)"
     )
     
+    # Local Authority map
     sheep_uni_map <- reactive({
       sheep_unitauth %>%        
         mutate(across(everything(), as.character)) %>%
@@ -188,6 +184,7 @@ sheepServer <- function(id) {
       legend_title = "Sheep (number)"
     )
     
+    # Time series
     chart_data <- reactive({
       req(input$timeseries_variables)
       filtered_data <- number_of_sheep %>% select (-last_col()) %>%  # remove %change column
@@ -225,15 +222,15 @@ sheepServer <- function(id) {
       # Choose which dataset to display
       data <- switch(input$table_data,
                     
-                    # ---- Existing table 1 ----
+                    # Agricultural region table
                     "map" = {
                       req(input$variable_region)
                       sheep_data %>%
                         pivot_wider(names_from = sub_region, values_from = value) %>%
-                        mutate(across(where(is.numeric) & !contains("Year"), comma))
+                        mutate(across(where(is.numeric), comma))
                     },
                     
-                    # ---- Existing table 2 ----
+                    # Timeseries table
                     "timeseries" = {
                       number_of_sheep %>%
                         pivot_longer(cols = -`Sheep by category`,
@@ -243,34 +240,22 @@ sheepServer <- function(id) {
                         mutate(across(where(is.numeric) & !contains("Year"), comma))
                     },
                     
-                    # -------------------
-                    # 3. Constituency Table
-                    # -------------------
-                    
+                    # Constituency Table
                     "map_con" = {
                       sheep_constituency %>%
                         rename(`Sheep by category` = `livestock`) %>%
-                        mutate(across(
-                          where(is.character),
-                          ~ ifelse(grepl("^\\d+$", .x), comma(as.numeric(.x)), .x)
-                        ))
+                        mutate(across(where(is.numeric), comma))
                     },
                     
-                    
-                    # -------------------
-                    # 4. Local authority table
-                    # -------------------
+                    # Local authority table
                     "map_uni" = {
                       sheep_unitauth %>% 
                         rename(`Sheep by category` = `livestock`) %>%
-                        mutate(across(
-                          where(is.character),
-                          ~ ifelse(grepl("^\\d+$", .x), comma(as.numeric(.x)), .x)
-                        ))                     }
+                        mutate(across(where(is.numeric), comma))                    
+                    }
       )
-      # -------------------------
+      
       # Render the chosen table
-      # -------------------------
       datatable(
         data,
         options = list(
@@ -287,19 +272,12 @@ sheepServer <- function(id) {
     # Data Download Handler
     output$downloadData <- downloadHandler(
       
-      # ---- Dynamic filename depending on selected table ----
+      # Dynamic filename depending on selected table
       filename = function() {
-        
         switch(input$table_data,
-               
                "map" = paste0("Sheep_Map_Data_", Sys.Date(), ".csv"),
-               
                "timeseries" = paste0("Sheep_Timeseries_Data_", Sys.Date(), ".csv"),
-               
-               # NEW table 3
                "map_con" = paste0("Sheep_Constituency_Data_", Sys.Date(), ".csv"),
-               
-               # NEW table 4
                "map_uni" = paste0("Sheep_Local_Authority_Data_", Sys.Date(), ".csv"),
                
                # fallback

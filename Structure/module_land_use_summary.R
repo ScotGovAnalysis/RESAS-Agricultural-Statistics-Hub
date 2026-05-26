@@ -115,6 +115,7 @@ landUseSummaryServer <- function(id) {
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
     
+    # Agricultural region map
     # Map data remains unformatted for proper rendering
     land_use_map <- reactive({
       land_use_subregion %>%
@@ -124,8 +125,9 @@ landUseSummaryServer <- function(id) {
         mutate(value = as.numeric(value))
     })
     
+    # Constituency map
     land_use_const_map <- reactive({
-      land_use_constituency %>%         # <— your constituency land use table
+      land_use_constituency %>%   
         mutate(across(everything(), as.character)) %>%
         pivot_longer(
           cols = -`land use`,
@@ -137,8 +139,7 @@ landUseSummaryServer <- function(id) {
         )
     })
     
-    # Unitary Authority Map
-    
+    # Local Authority Map
     land_use_unitauth_map <- reactive({
       land_use_unitauth %>%        
         mutate(across(everything(), as.character)) %>%
@@ -151,17 +152,6 @@ landUseSummaryServer <- function(id) {
           value = if_else(is.na(value), NA_real_, as.numeric(value))
         )
     })
-    
-    # Table data with formatted values for better readability
-    # table_data <- reactive({
-    #   if (input$table_data == "map") {
-    #     land_use_subregion %>%
-    #       mutate(across(where(is.numeric), comma))  # Format numeric columns with commas
-    #   } else {
-    #     land_use_data %>%
-    #       mutate(across(where(is.numeric), comma))  # Format numeric columns with commas
-    #   }
-    # })
     
     
     table_data <- reactive({
@@ -180,37 +170,9 @@ landUseSummaryServer <- function(id) {
       if ("land use" %in% names(raw_data)) {
         raw_data <- raw_data %>% rename(`Crop/Land use` = `land use`)
       }
-      
-      
-      # Apply numeric formatting once
-      
-      
-      raw_data %>%
-        mutate(
-          across(
-            everything(),
-            ~ ifelse(
-              # test: is it numeric once coerced?
-              !is.na(suppressWarnings(as.numeric(.x))),
-              
-              # yes → round + comma format
-              scales::comma(round(as.numeric(.x))),
-              
-              # no → return original value (e.g., "c")
-              .x
-            )
-          )
-        )
-      
+
     })
-    
-    
-    # 
-    # con_data <- reactive({land_use_constituency %>%
-    #     rename(`Crop/Land use` = `land use`)})
-    # 
-    # uni_data <- reactive({land_use_unitauth %>%
-    #     rename(`Crop/Land use` = `land use`)})
+  
     
     mapServer(
       id = "map",
@@ -267,8 +229,6 @@ landUseSummaryServer <- function(id) {
         mutate(year = as.numeric(year))  # Ensure year is numeric
     })
     
-
-    
     barChartServer(
       id = "bar_chart",
       chart_data = chart_data,
@@ -310,7 +270,7 @@ landUseSummaryServer <- function(id) {
                      "map" = {
                        land_use_map() %>%
                          pivot_wider(names_from = `sub_region`, values_from = value) %>%
-                         mutate(across(where(is.numeric) & !contains("Year"), comma))
+                         mutate(across(where(is.numeric), comma))
                      },
                      
                      # -------------------
@@ -328,35 +288,11 @@ landUseSummaryServer <- function(id) {
                      # -------------------
                      # 3. Constituency Table
                      # -------------------
-                     
-                     
-                     
                      "map_con" = {
                        land_use_constituency %>%
                          rename(`Land use by category` = `land use`) %>%
-                         
-                         mutate(across(
-                           everything(),
-                           ~ {
-                             x <- as.character(.x)
-                             
-                             # extract numbers (gives NA for "c")
-                             nums <- readr::parse_number(x)
-                             
-                             # round + comma format where numeric exists
-                             formatted <- ifelse(
-                               is.na(nums),
-                               x,   # keep original ("c", NA, etc.)
-                               scales::comma(round(nums, 0))
-                             )
-                             
-                             formatted
-                           }
-                         ))
+                         mutate(across(where(is.numeric), comma))
                      },
-                     
-                     
-                     
                      
                      # -------------------
                      # 4. Local authority table
@@ -364,24 +300,7 @@ landUseSummaryServer <- function(id) {
                      "map_uni" = {
                        land_use_unitauth %>%
                          rename(`Land use by category` = `land use`) %>%
-                         mutate(across(
-                           everything(),
-                           ~ {
-                             x <- as.character(.x)
-                             
-                             # extract numbers (gives NA for "c")
-                             nums <- readr::parse_number(x)
-                             
-                             # round + comma format where numeric exists
-                             formatted <- ifelse(
-                               is.na(nums),
-                               x,   # keep original ("c", NA, etc.)
-                               scales::comma(round(nums, 0))
-                             )
-                             
-                             formatted
-                           }
-                         ))
+                         mutate(across(where(is.numeric), comma))
                      },
       )
       

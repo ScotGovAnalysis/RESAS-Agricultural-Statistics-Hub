@@ -86,7 +86,7 @@ farmTypesServer <- function(id) {
     
     
     tooltip_unit <- reactive({
-      # Your logic to determine the unit based on input or other conditions
+      # logic to determine the unit based on input or other conditions
       switch(input$data_type,
              "holdings" = "holdings",
              "area" = "hectares",

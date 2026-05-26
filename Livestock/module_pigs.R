@@ -24,9 +24,9 @@ pigsUI <- function(id) {
           ns("variable_con"), 
           "Select Variable", 
           choices = c(
-            "Total Pigs" = "Total Pigs (Number)",
-            "Female pigs breeding herd" = "Female pigs breeding herd (Number)",
-            "All other non-breeding pigs" = "All other non-breeding pigs (Number)"
+            "Total Pigs" = "Total Pigs",
+            "Female pigs breeding herd" = "Female pigs breeding herd",
+            "All other non-breeding pigs" = "All other non-breeding pigs"
           ))
       ),
       conditionalPanel(
@@ -36,9 +36,9 @@ pigsUI <- function(id) {
           ns("variable_uni"), 
           "Select Variable", 
           choices = c(
-            "Total Pigs" = "Total Pigs (Number)",
-            "Female pigs breeding herd" = "Female pigs breeding herd (Number)",
-            "All other non-breeding pigs" = "All other non-breeding pigs (Number)"
+            "Total Pigs" = "Total Pigs",
+            "Female pigs breeding herd" = "Female pigs breeding herd",
+            "All other non-breeding pigs" = "All other non-breeding pigs"
           ))
       ),
       conditionalPanel(
@@ -122,7 +122,7 @@ pigsServer <- function(id) {
     )
     
     pig_const_map <- reactive({
-      pigs_constituency %>%         # <— your constituency land use table
+      pigs_constituency %>%   
         mutate(across(everything(), as.character)) %>%
         pivot_longer(
           cols = -`livestock`,
@@ -217,7 +217,7 @@ pigsServer <- function(id) {
                        req(input$variable_region)
                        pigs_data %>%
                          pivot_wider(names_from = sub_region, values_from = value) %>%
-                         mutate(across(where(is.numeric) & !contains("Year"), comma))
+                         mutate(across(where(is.numeric), comma))
                      },
                      
                      # ---- Timeseries Table ----
@@ -230,34 +230,22 @@ pigsServer <- function(id) {
                          mutate(across(where(is.numeric) & !contains("Year"), comma))
                      },
                      
-                     # -------------------
-                     # 3. Constituency Table
-                     # -------------------
-                     
+                     # ---- Constituency Table ----
                      "map_con" = {
                        pigs_constituency %>%
                          rename(`Pigs by category` = `livestock`) %>%
-                         mutate(across(
-                           where(is.character),
-                           ~ ifelse(grepl("^\\d+$", .x), comma(as.numeric(.x)), .x)
-                         ))
+                         mutate(across(where(is.numeric), comma))
                      },
                      
-                     
-                     # -------------------
-                     # 4. Local authority table
-                     # -------------------
+                     # ---- Local authority table ----
                      "map_uni" = {
                        pigs_unitauth %>% 
                          rename(`Pigs by category` = `livestock`) %>%
-                         mutate(across(
-                           where(is.character),
-                           ~ ifelse(grepl("^\\d+$", .x), comma(as.numeric(.x)), .x)
-                         ))                     }
+                         mutate(across(where(is.numeric), comma))
+                     }
       )
-      # -------------------------
+      
       # Render the chosen table
-      # -------------------------
       datatable(
         data,
         options = list(
@@ -278,15 +266,9 @@ pigsServer <- function(id) {
       filename = function() {
         
         switch(input$table_data,
-               
                "map" = paste0("Pigs_Map_Data_", Sys.Date(), ".csv"),
-               
                "timeseries" = paste0("Pigs_Timeseries_Data_", Sys.Date(), ".csv"),
-               
-               # NEW table 3
                "map_con" = paste0("Pigs_Constituency_Data_", Sys.Date(), ".csv"),
-               
-               # NEW table 4
                "map_uni" = paste0("Pigs_Local_Authority_Data_", Sys.Date(), ".csv"),
                
                # fallback
@@ -317,12 +299,12 @@ pigsServer <- function(id) {
                            pivot_wider(names_from = year, values_from = value)
                        },
                        
-                       # ---- Constituency ----
+                       # ---- Constituency map ----
                        "map_con" = {
                           pigs_constituency
                        },
                        
-                       # ---- Local authority ----
+                       # ---- Local authority map ----
                        "map_uni" = {
                          pigs_unitauth
                        }
