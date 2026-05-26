@@ -47,7 +47,7 @@ poultryUI <- function(id) {
         )
       ),
       conditionalPanel(
-        condition = "input.tabsetPanel === 'Time Series' || input.tabsetPanel === 'Area Chart'",
+        condition = "input.tabsetPanel === 'Time Series'",
         ns = ns,
         selectizeInput(
           ns("timeseries_variables"),
@@ -87,7 +87,6 @@ poultryUI <- function(id) {
         tabPanel("Constituency Map", mapConstituenciesUI(ns("map_con"))),
         tabPanel("Local Authority Map", mapUnitaryUI(ns("map_uni"))),
         tabPanel("Time Series", lineChartUI(ns("line"), note_type = 2)),
-        tabPanel("Area Chart", areaChartUI(ns("area"), note_type = 2)),
         tabPanel("Data Table", 
                  DTOutput(ns("table")),
                  downloadButton(ns("downloadData"), "Download Data"),
@@ -192,17 +191,6 @@ poultryServer <- function(id) {
         mutate(value = as.numeric(value))
     })
     
-    areaChartServer(
-      id = "area",
-      chart_data = chart_data,
-      title = "Number of poultry by category across time",
-      yAxisTitle = "Number of poultry (1,000)",
-      xAxisTitle = "Year",
-      footer = '<div style="font-size: 16px; font-weight: bold;">* Estimates for 2023 are not comparable to previous years due to methodological improvements.<br/><a href="https://www.gov.scot/publications/results-scottish-agricultural-census-june-2025/documents/">Source: Scottish Agricultural Census: June 2025</a></div>',
-      x_col = "year",
-      y_col = "value"
-    )
-    
     lineChartServer(
       id = "line",
       chart_data = chart_data,
@@ -247,13 +235,11 @@ poultryServer <- function(id) {
                      # -------------------
                      # 3. Constituency Table
                      # -------------------
-                     
                      "map_con" = {
                        poultry_constituency %>%
                          rename(`Poultry by category` = `livestock`) %>%
                          mutate(across(where(is.numeric), comma))
                      },
-                     
                      
                      # -------------------
                      # 4. Local authority table
