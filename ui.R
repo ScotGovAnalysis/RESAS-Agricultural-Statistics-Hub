@@ -140,7 +140,7 @@ ui <- fluidPage(
             ),
             navbarMenu("Agri-Environment",
                        tabPanel("Agriculture Emissions", value = "subsector", subsectorEmissionsUI("subsector")),
-                       tabPanel("Nitrogen Usage", value = "nitrogen", nitrogenUI("nitrogen")),
+                       tabPanel("Nitrogen Usage", value = "nitrogen"),
                        tabPanel("Manure Usage", value = "manure", manureUI("manure")),
                        tabPanel("Soil Testing", value = "soil", soilTestingUI("soil")),
                        tabPanel("Fertiliser Usage", value = "fertiliser", fertiliserUsageUI("fertiliser")),
