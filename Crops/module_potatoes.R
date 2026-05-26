@@ -37,7 +37,7 @@ potatoesUI <- function(id) {
       ),
       
       conditionalPanel(
-        condition = "input.tabsetPanel === 'Time Series' || input.tabsetPanel === 'Area Chart'",
+        condition = "input.tabsetPanel === 'Time Series'",
         ns = ns,
         checkboxGroupInput(
           ns("timeseries_variables"),
@@ -71,7 +71,6 @@ potatoesUI <- function(id) {
         tabPanel("Constituency Map", mapConstituenciesUI(ns("map_con"))),
         tabPanel("Local Authority Map", mapUnitaryUI(ns("map_uni"))),
         tabPanel("Time Series", lineChartUI(ns("line"))),
-        tabPanel("Area Chart", areaChartUI(ns("area"))),
         tabPanel("Data Table", 
                  DTOutput(ns("table")),
                  downloadButton(ns("download_data"), "Download Data"),
@@ -168,18 +167,6 @@ potatoesServer <- function(id) {
         mutate(year = as.numeric(year))  # Ensure year is numeric
       filtered_data
     })
-    
-    areaChartServer(
-      id = "area",
-      chart_data = chart_data,
-      title = "Area used to grow potatoes over time",
-      yAxisTitle = "Area of potatoes (1,000 hectares)",
-      xAxisTitle = "Year",
-      unit = "hectares",
-      footer = census_footer,
-      x_col = "year",
-      y_col = "value"
-    )
     
     lineChartServer(
       id = "line",
@@ -284,8 +271,7 @@ potatoesServer <- function(id) {
                        # ---- Agricultural region map ----
                        "map" = {
                          potatoes_subregion %>%
-                           filter(`Land use by category` == input$variable_region)# %>%
-                         #  pivot_wider(names_from = sub_region, values_from = value)
+                           filter(`Land use by category` == input$variable_region)
                        },
                        
                        # ---- Timeseries ----
@@ -295,8 +281,7 @@ potatoesServer <- function(id) {
                              cols = -`Crop/Land use`,
                              names_to = "year",
                              values_to = "value"
-                           ) #%>%
-                          # pivot_wider(names_from = year, values_from = value)
+                           )
                        },
                        
                        # ---- Constituency ----
