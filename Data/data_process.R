@@ -529,6 +529,15 @@ save(subsector_total, agri_gas, national_total, subsector_source, file = "ghg_da
 #load("ghg_data.RData")
 
 
+#########################################################################
+### 
+###
+### Nitrogen data processing - FBS
+###
+###
+##########################################################################
+
+
 
 
 
