@@ -51,7 +51,17 @@ fbs_footer <- HTML(
   )
 )
 
-
+nitrogen_footer <- HTML(
+  paste0(
+    ' <div style="font-size: 16px; font-weight: bold; margin-top: 8px;">
+       <a href="',
+    "https://www.gov.scot/scottish-agriculture-greenhouse-gas-emissions-nitrogen-use-2024-25/",
+    '" target="_blank">
+         Source: Scottish agriculture greenhouse gas emissions and nitrogen use:  ', fbs_current_year, '
+       </a>
+     </div>'
+  )
+)
 
 tiff_footer <- '<div style="font-size: 16px; font-weight: bold;"> <a href="https://www.gov.scot/publications/total-income-from-farming-estimates-2025/">Source: Total income from farming estimates: 2025</a></div>'
 

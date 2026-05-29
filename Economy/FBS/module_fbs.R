@@ -1,5 +1,5 @@
 # File: module_FBS.R
-#source(here("Economy/FBS/fbs_data_process.R"))
+
 
 ###UI#####
 CostOutUI <- function(id) {
@@ -59,7 +59,7 @@ CostOutUI <- function(id) {
         tabsetPanel(
           id = ns("tabs"),
           tabPanel("All farms", uiOutput(ns("chart1")), value = ns("all_farms")),
-          tabPanel("Cereals", uiOutput(ns("chart2")), value = ns("cereals")),
+          tabPanel("Cereal", uiOutput(ns("chart2")), value = ns("cereal")),
           tabPanel("General cropping", uiOutput(ns("chart3")), value = ns("general_cropping")),
           tabPanel("Dairy", uiOutput(ns("chart4")), value = ns("dairy")),
           tabPanel("LFA sheep", uiOutput(ns("chart5")), value = ns("lfa_sheep")),
@@ -319,14 +319,25 @@ CostOutServer <- function(id) {
     })
     
     # Download handler for CSV export of table data
-    output$downloadData <- downloadHandler(
-      filename = function() {
-        paste("Farm_level_output_costs_", Sys.Date(), ".csv", sep = "")
-      },
-      content = function(file) {
-        write.csv(table_data(), file, row.names = FALSE)
-      }
-    )
+    data_download <- reactive({
+      table_data() |> 
+        select(Measure, farm_type, year, value) |> 
+        rename (Year = year, `Farm type` = farm_type, Value = value)
+    })
+    
+    # Download handler for CSV export of table data
+    output$downloadData <-
+      
+      downloadHandler(
+        
+        
+        filename = function() {
+          paste("Farm_level_output_costs_", Sys.Date(), ".csv", sep = "")
+        },
+        content = function(file) {
+          write.csv(data_download(), file, row.names = FALSE)
+        }
+      )
   })
 }
 
@@ -340,9 +351,9 @@ CostOutServer <- function(id) {
 # source(here("utility", "hc_theme.R"))
 # source(here("utility", "util_options.R"))
 # #source(here("testing", "test_fbs_function_line_chart.R"))
-# 
-# 
-# 
+# # 
+# # 
+# # 
 # content_demo <- function() {
 #   ui <- fluidPage(CostOutUI("test"))
 #   server <- function(input, output, session) {
@@ -350,6 +361,6 @@ CostOutServer <- function(id) {
 #   }
 #   shinyApp(ui, server)
 # }
-
-content_demo()
+# 
+# content_demo()
 
