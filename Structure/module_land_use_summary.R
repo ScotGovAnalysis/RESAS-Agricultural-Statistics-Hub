@@ -43,18 +43,7 @@ landUseSummaryUI <- function(id) {
           " "
         )
       ), 
-      conditionalPanel(
-        condition = "input.tabsetPanel === 'Bar Chart'",
-        ns = ns,
-        checkboxGroupInput(
-          ns("variables"), 
-          "Choose variables to add to chart", 
-          choices = c("Total Crops, Fallow, And Set-Aside", "Total Grass", "Rough Grazing", 
-                      "Total Sole Right Agricultural Area", "Common Grazings"),
-          selected = c("Total Crops, Fallow, And Set-Aside", "Total Grass", "Rough Grazing", 
-                       "Total Sole Right Agricultural Area", "Common Grazings")
-        )
-      ),
+
       conditionalPanel(
         condition = "input.tabsetPanel === 'Time Series'",
         ns = ns,
@@ -72,6 +61,7 @@ landUseSummaryUI <- function(id) {
           )
         )
       ),
+      
       conditionalPanel(
         condition = "input.tabsetPanel === 'Data Table'",
         ns = ns,
@@ -95,7 +85,6 @@ landUseSummaryUI <- function(id) {
         tabPanel("Agricultural Region Map", mapUI(ns("map"))),
         tabPanel("Constituency Map", mapConstituenciesUI(ns("map_con"))),
         tabPanel("Local Authority Map", mapUnitaryUI(ns("map_uni"))),
-        tabPanel("Bar Chart", barChartUI(ns("bar_chart"))),
         tabPanel("Time Series", lineChartUI(ns("line"))),
         tabPanel("Data Table", 
                  DTOutput(ns("table")),
@@ -213,14 +202,6 @@ landUseSummaryServer <- function(id) {
       legend_title = "Area (hectares)"
     )
     
-
-    chart_data <- reactive({
-      agricultural_area_hectares %>%
-        filter(`Crop/Land use` %in% input$variables) %>%
-        select(`Crop/Land use`, `2025 Area`) %>%
-        rename(Variable = `Crop/Land use`, Value = `2025 Area`)
-    })
-    
     timeseries_data <- reactive({
       req(input$timeseries_variables)
       land_use_data %>%
@@ -228,20 +209,7 @@ landUseSummaryServer <- function(id) {
         pivot_longer(cols = -`Crop/Land use`, names_to = "year", values_to = "value") %>%
         mutate(year = as.numeric(year))  # Ensure year is numeric
     })
-    
-    barChartServer(
-      id = "bar_chart",
-      chart_data = chart_data,
-      title = paste("Agricultural area by land use type in", census_year),
-      yAxisTitle = "Area (1,000 hectares)",
-      xAxisTitle = "Land use type",
-      unit = "hectares",
-      footer = census_footer,
-      x_col = "Variable",
-      y_col = "Value",
-      tooltip_unit= reactive("hectares")
-    )
-    
+
     lineChartServer(
       id = "line",
       chart_data = timeseries_data,
@@ -327,13 +295,9 @@ landUseSummaryServer <- function(id) {
       filename = function() {
         
         switch(input$table_data,
-               
                "map" = paste0("Land_Use_Agricultural_Region_Map_Data_", Sys.Date(), ".csv"),
-               
                "timeseries" = paste0("Land_Use_Timeseries_Data_", Sys.Date(), ".csv"),
-               
                "map_con" = paste0("Land_Use_Constituency_Data_", Sys.Date(), ".csv"),
-               
                "map_uni" = paste0("Land_Use_Local_Authority_Data_", Sys.Date(), ".csv"),
                
                # fallback
@@ -353,7 +317,7 @@ landUseSummaryServer <- function(id) {
                       #     pivot_wider(names_from = sub_region, values_from = value)
                        },
                        
-                       # ---- Timeseries ----
+                       # ---- Time series ----
                        "timeseries" = {
                          land_use_data %>%
                            pivot_longer(
@@ -392,6 +356,3 @@ land_use_demo <- function() {
 }
 
 land_use_demo()
-
-
-

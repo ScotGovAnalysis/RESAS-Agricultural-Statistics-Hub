@@ -50,7 +50,7 @@ cattleUI <- function(id) {
         )
       ),
       conditionalPanel(
-        condition = "input.tabsetPanel === 'Time Series' || input.tabsetPanel === 'Area Chart'",
+        condition = "input.tabsetPanel === 'Time Series'",
         ns = ns,
         selectizeInput(
           ns("timeseries_variables"),
@@ -90,7 +90,6 @@ cattleUI <- function(id) {
         tabPanel("Constituency Map", mapConstituenciesUI(ns("map_con"))),
         tabPanel("Local Authority Map", mapUnitaryUI(ns("map_uni"))),
         tabPanel("Time Series", lineChartUI(ns("line"), note_type = 2)),
-        tabPanel("Area Chart", areaChartUI(ns("area"), note_type = 2)),
         tabPanel("Data Table", 
                  DTOutput(ns("table")),
                  downloadButton(ns("downloadData"), "Download Data"),
@@ -193,18 +192,6 @@ cattleServer <- function(id) {
         mutate(year = as.numeric(year))  # Ensure year is numeric
       filtered_data
     })
-    
-    # Area Chart Server
-    areaChartServer(
-      id = "area",
-      chart_data = chart_data,
-      title = "Number of cattle by category across time",
-      yAxisTitle = "Number of cattle (1,000)",
-      xAxisTitle = "Year",
-      footer = census_footer,
-      x_col = "year",
-      y_col = "value"
-    )
     
     # Line Chart Server
     lineChartServer(
@@ -309,8 +296,7 @@ cattleServer <- function(id) {
                        # ---- Agricultural region map ----
                        "map" = {
                          livestock_subregion %>%
-                           filter(`Livestock by category` == input$variable_region)# %>%
-           #                pivot_wider(names_from = sub_region, values_from = value)
+                           filter(`Livestock by category` == input$variable_region)
                        },
                        
                        # ---- Timeseries ----
@@ -320,8 +306,7 @@ cattleServer <- function(id) {
                              cols = -`Cattle by category`,
                              names_to = "year",
                              values_to = "value"
-                           )# %>%
-                           #pivot_wider(names_from = year, values_from = value)
+                           )
                        },
                        
                        # ---- Constituency ----
@@ -341,6 +326,8 @@ cattleServer <- function(id) {
   }
   )
 }
+
+
 cattle_demo <- function() {
   ui <- fluidPage(cattleUI("cattle_test"))
   server <- function(input, output, session) {

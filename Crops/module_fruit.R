@@ -36,7 +36,7 @@ fruitUI <- function(id) {
       ),   
       
       conditionalPanel(
-        condition = "input.tabsetPanel === 'Time Series' || input.tabsetPanel === 'Area Chart'",
+        condition = "input.tabsetPanel === 'Time Series'",
         ns = ns,
         selectizeInput(
           ns("timeseries_variables"),
@@ -78,7 +78,6 @@ fruitUI <- function(id) {
         tabPanel("Constituency Map", mapConstituenciesUI(ns("map_con"))),
         tabPanel("Local Authority Map", mapUnitaryUI(ns("map_uni"))),
         tabPanel("Time Series", lineChartUI(ns("line"), note_type = 2)),
-        tabPanel("Area Chart", areaChartUI(ns("area"), note_type = 2)),
         tabPanel("Data Table", 
                  DTOutput(ns("table")),
                  downloadButton(ns("download_data"), "Download Data"),
@@ -168,7 +167,7 @@ fruitServer <- function(id) {
       legend_title = "Area (hectares)"
     )
     
-    # ===================== AREA CHART =====================
+    # ===================== TIME SERIES =====================
     chart_data <- reactive({
       req(input$timeseries_variables)
       filtered_data <- fruit_data %>%
@@ -177,20 +176,6 @@ fruitServer <- function(id) {
         mutate(year = as.numeric(year))  # Ensure year is numeric
       filtered_data
     })
-    
-    areaChartServer(
-      id = "area",
-      chart_data = chart_data,
-      title = "Area used to grow fruit across time",
-      yAxisTitle = "Area of fruit (hectares)",
-      xAxisTitle = "Year",
-      unit = "hectares",
-      footer = census_footer,
-      x_col = "year",
-      y_col = "value"
-    )
-    
-    # ===================== LINE CHART =====================
     
     lineChartServer(
       id = "line",
@@ -336,4 +321,5 @@ fruit_demo <- function() {
   }
   shinyApp(ui, server)
 }
+
 fruit_demo()
