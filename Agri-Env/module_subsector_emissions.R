@@ -59,7 +59,7 @@ subsectorEmissionsUI <- function(id) {
                               class = "footer-text", 
                               style = "font-size: 16px; font-weight: bold; text-align: left; margin-top: 5px;",
                               HTML(
-                                '<a href="https://www.gov.scot/publications/scottish-agriculture-greenhouse-gas-emissions-and-nitrogen-use-2023-24/" target="_blank">Source: Scottish agriculture greenhouse gas emissions and nitrogen use 2023-24</a>, analysis based on results of the <a href="https://www.gov.scot/publications/scottish-greenhouse-gas-statistics-2023/" target="_blank">Scottish Greenhouse Gas Statistics 2023</a>.'
+                                '<a href="https://www.gov.scot/publications/scottish-agriculture-greenhouse-gas-emissions-and-nitrogen-use-2024-25/" target="_blank">Source: Scottish agriculture greenhouse gas emissions and nitrogen use 2024-25</a>, analysis based on results of the <a href="https://www.gov.scot/publications/scottish-greenhouse-gas-statistics-2024/" target="_blank">Scottish Greenhouse Gas Statistics 2024</a>.'
                               )
                             )
                      )
@@ -78,7 +78,7 @@ subsectorEmissionsUI <- function(id) {
                      )
                    )
           ),
-          tabPanel("Timelapse", timelapseBarChartUI(ns("timelapse_bar")), value = "Timelapse"),
+          # tabPanel("Timelapse", timelapseBarChartUI(ns("timelapse_bar")), value = "Timelapse"),
           tabPanel("Sources of Agricultural Emissions", breakdownChartUI(ns("breakdown")), value = "Breakdown"),
           tabPanel("Time Series", lineChartUI(ns("line")), value = "Line_Chart"),
           tabPanel("Area Chart", areaChartUI(ns("area")), value = "Area_Chart"),
@@ -156,18 +156,18 @@ subsectorEmissionsServer <- function(id) {
       y_col = "Value"
     )
     
-    timelapseBarChartServer(
-      id = "timelapse_bar",
-      chart_data = chart_data,
-      title = "Agricultural greenhouse gas emissions timelapse",
-      yAxisTitle = "Emissions (MtCO₂e)",
-      xAxisTitle = "Year",
-      unit = "MtCO₂e",
-      footer = emissions_footer,
-      x_col = "Year",
-      y_col = "Value"
-    )
-    
+    # timelapseBarChartServer(
+    #   id = "timelapse_bar",
+    #   chart_data = chart_data,
+    #   title = "Agricultural greenhouse gas emissions timelapse",
+    #   yAxisTitle = "Emissions (MtCO₂e)",
+    #   xAxisTitle = "Year",
+    #   unit = "MtCO₂e",
+    #   footer = emissions_footer,
+    #   x_col = "Year",
+    #   y_col = "Value"
+    # )
+    # 
     lineChartServer(
       id = "line",
       chart_data = chart_data,
@@ -183,7 +183,7 @@ subsectorEmissionsServer <- function(id) {
     breakdownChartServer(
       id = "breakdown",
       chart_data = reactive({ subsector_source }),  # Assuming subsector_source is your data
-      title = "Sources of Scottish agricultural emissions by subsector and type, 2023",
+      title = paste("Sources of Scottish agricultural emissions by subsector and type,", emissions_year),
       yAxisTitle = "Emissions (MtCO₂e)",
       xAxisTitle = "Subsector",
       unit = "MtCO₂e",

@@ -135,9 +135,9 @@ fbsline_ChartServer <- function(id, chart_data, title, yAxisTitle, xAxisTitle, u
           complete_series <- padded_series
         }
         
-        print(paste("Group:", g))
-        print(complete_series)
-        
+        # print(paste("Group:", g))
+        # print(complete_series)
+        # 
         color_to_use <- if (!is.null(colors[[g]])) colors[[g]] else NULL
         
         hc <<- hc %>%

@@ -295,8 +295,6 @@ CostOutServer <- function(id) {
      
        data <- table_data()
       
-
-    
     
       if (input$in_out_type %in% c("output", "costs")) {
         data <- data %>%
@@ -304,11 +302,11 @@ CostOutServer <- function(id) {
           mutate(
             input_output_type = sub("^([a-z])", "\\U\\1", tolower(input_output_type), perl = TRUE)
           )
-        col_names <- c("Measure", "Main Farm Type", "Output or Cost Category", "Year", "Value")
+        col_names <- c("Measure", "Farm Type", "Output or Cost Category", "Year", "Value")
       } else {
         data <- data %>%
           select(Measure, farm_type, year, value)
-        col_names <- c("Measure", "Main Farm Type", "Year", "Value")
+        col_names <- c("Measure", "Farm Type", "Year", "Value")
       }
       
       datatable(
@@ -318,13 +316,23 @@ CostOutServer <- function(id) {
       )
     })
     
+    data_download <- reactive({
+      table_data() |> 
+      select(Measure, farm_type, year, value) |> 
+      rename (Year = year, `Farm type` = farm_type, Value = value)
+      })
+    
     # Download handler for CSV export of table data
-    output$downloadData <- downloadHandler(
+    output$downloadData <-
+
+      downloadHandler(
+      
+
       filename = function() {
         paste("Farm_level_output_costs_", Sys.Date(), ".csv", sep = "")
       },
       content = function(file) {
-        write.csv(table_data(), file, row.names = FALSE)
+        write.csv(data_download(), file, row.names = FALSE)
       }
     )
   })

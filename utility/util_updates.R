@@ -13,11 +13,11 @@
 
 census_year <- 2025
 
-emissions_year <- 2023
+emissions_year <- 2024
 
 fbs_year <-2024-25 
 
-last_update <- "30 April 2026"
+last_update <- "9 June 2026"
 
 #emissions_year 
 
@@ -27,7 +27,7 @@ cereal_oilseed_footer <- '<div style="font-size: 16px; font-weight: bold;"><a hr
 
 
 
-emissions_footer <- '<div style="font-size: 16px; font-weight: bold;"> <a href="https://www.gov.scot/collections/scottish-agriculture-greenhouse-gas-emissions-and-nitrogen-use/" target="_blank">Source: Scottish agriculture greenhouse gas emissions and nitrogen use 2023-24</a>, analysis based on results of the <a href="https://www.gov.scot/publications/scottish-greenhouse-gas-statistics-2023/" target="_blank">Scottish Greenhouse Gas Statistics 2023</a>.</div>'
+emissions_footer <- '<div style="font-size: 16px; font-weight: bold;"> <a href="https://www.gov.scot/collections/scottish-agriculture-greenhouse-gas-emissions-and-nitrogen-use/" target="_blank">Source: Scottish agriculture greenhouse gas emissions and nitrogen use 2024-25</a>, analysis based on results of the <a href="https://www.gov.scot/publications/scottish-greenhouse-gas-statistics-2024/" target="_blank">Scottish Greenhouse Gas Statistics 2024</a>.</div>'
 
 
 
@@ -94,10 +94,10 @@ generateEmissionsTableFooter <- function() {
     style = "background-color: #f0f0f0; padding: 15px; border-radius: 5px; margin-top: 20px;",
     "This data is sourced from the ",
     tags$a(href = "https://www.gov.scot/collections/scottish-agriculture-greenhouse-gas-emissions-and-nitrogen-use/",
-           "Scottish agriculture greenhouse gas emissions and nitrogen use 2023-24"),
-    " which was published on 10 June 2025, with its analysis based on the ",
-    tags$a(href = "https://www.gov.scot/publications/scottish-greenhouse-gas-statistics-2023/", 
-           "Scottish Greenhouse Gas Statistics 2023."),
+           "Scottish agriculture greenhouse gas emissions and nitrogen use 2024-25"),
+    " which was published on 9 June 2026, with its analysis based on the ",
+    tags$a(href = "https://www.gov.scot/publications/scottish-greenhouse-gas-statistics-2024/", 
+           "Scottish Greenhouse Gas Statistics 2024."),
     tags$br(),
     "Full data tables and detailed analysis are available within the full reports."
   )
