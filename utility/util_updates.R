@@ -17,7 +17,7 @@ emissions_year <- 2023
 
 fbs_year <-2024-25 
 
-last_update <- "30 April 2026"
+last_update <- "9 June 2026"
 
 #emissions_year 
 
