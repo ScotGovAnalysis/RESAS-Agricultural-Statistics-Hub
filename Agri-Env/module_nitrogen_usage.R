@@ -1,13 +1,18 @@
 load("Data/n_balance.Rda")
 load("Data/nue.Rda")
 
+source(here("charts_tables_functions", "nitrogen_function_line_chart.R"))
 
 n_balance<-table_5_df %>% 
   mutate(n_type="n_balance") %>% 
   pivot_longer(
     cols = `2019-20`:fbs_current_year,
     names_to = "year",
-    values_to="value")
+    values_to="value") %>% 
+  tidyr::pivot_wider(
+    names_from = Measure,
+    values_from = value)
+
 
 
 nue<-table_6_df %>% 
@@ -15,12 +20,25 @@ nue<-table_6_df %>%
   pivot_longer(
     cols = `2019-20`:fbs_current_year,
     names_to = "year",
-    values_to="value")
+    values_to="value") %>% 
+  tidyr::pivot_wider(
+    names_from = Measure,
+    values_from = value)
+
 
 nitrogen_data<-dplyr::bind_rows(n_balance, nue) %>% 
-  rename(farm_type=`Farm type`) %>% 
-  filter(Measure=="Average (median)")
+  rename(farm_type=`Farm type`)%>% 
+  rename(Lower=`95% CI (lower limit)`,
+         Upper=`95% CI (upper limit)`,
+         Median=`Average (median)`) %>% 
+  data.frame()
 
+test<-nitrogen_data %>%
+  pivot_longer(
+    cols = Median:Upper,
+    names_to = "Estimate",
+    values_to="value") %>%  
+  mutate(value=janitor::round_half_up(value, 2))
 
 
 nitrogenUI<- function(id) {
@@ -34,8 +52,8 @@ nitrogenUI<- function(id) {
           "Nitrogen use efficiency" = "nue"
         ), selected = "n_balance"),
         
-        ),
-
+      ),
+      
       mainPanel(
         id = ns("mainpanel"),
         width = 9,
@@ -53,7 +71,7 @@ nitrogenUI<- function(id) {
           tabPanel("Data Table",
                    DTOutput(ns("data_table")),
                    downloadButton(ns("downloadData"), "Download Data"),
-                   generateFBSTableFooter(),
+                   generateNitrogenTableFooter(),
                    value = ns("data"))
         )
       )
@@ -62,36 +80,27 @@ nitrogenUI<- function(id) {
 }
 
 
-
-
-# # ###server####
-nitrogenServer <- function(id) {
+nitrogenServer<- function(id) {
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
-
+    
     # Reactive expression that returns the chart data based on n_type
     chart_data <-  reactive({
-        nitrogen_data
-      })
-    
-    unit_map <- c(
-      "n_balance" = "kg N surplus/ha",
-      "nue" = "%"
-    )
-
-    # Reactive tooltip unit text
-    
-    tooltip_unit <- reactive({
-      req(input$n_type)
-      unit_map[[input$n_type]]
+      nitrogen_data
     })
+    
     
     table_data <- reactive({
       req(input$n_type)
       
-     nitrogen_data %>%
+      nitrogen_data %>%
         dplyr::filter(n_type == input$n_type) %>% 
-       mutate(value=janitor::round_half_up(value, 2))
+        pivot_longer(
+          cols = Median:Upper,
+          names_to = "Estimate",
+          values_to="value") %>%  
+        mutate(value=janitor::round_half_up(value, 2)) %>% 
+        rename(Measure=n_type)
     })
     
     download_data <- reactive({
@@ -99,46 +108,52 @@ nitrogenServer <- function(id) {
       
       nitrogen_data %>%
         dplyr::filter(n_type == input$n_type) %>% 
+        pivot_longer(
+          cols = Median:Upper,
+          names_to = "Estimate",
+          values_to="value") %>% 
+      mutate(value=janitor::round_half_up(value, 2)) %>% 
         rename("Farm type" = farm_type,
                Year=year,
-              Value=value) %>% 
-        select(Measure, `Farm type`, Year, Value)
+               Value=value,
+               Measure=n_type) %>%         
+        select(Measure, `Farm type`, Year, Estimate, Value)
     })
     
-   
+    
     # Function to get filtered chart data reactive for a given farm_type index
     get_filtered_chart_data <- function(chart_data, farm_type_index) {
       reactive({
         req(input$n_type)
-
+        
         data <- chart_data() %>%
           filter(
             n_type == input$n_type,
             farm_type == farm_types[farm_type_index]
           )
-
-  
+        
+        
         data
       })
     }
-
+    
     # Render UI for each chart based on filtered data availability
     renderChartUI <- function(chart_id, farm_type_index, n_type) {
       filtered_chart_data <- get_filtered_chart_data(chart_data, farm_type_index)
-
+      
       output[[paste0("chart", farm_type_index)]] <- renderUI({
         data <- filtered_chart_data()
-       
+        
             nitrogenline_ChartUI(ns(paste0("nitrogen_line_chart", farm_type_index)))
-          
+        
       })
-
+      
     }
-
+    
     # Server logic to render charts and respond to input changes
     renderChartServer <- function(line_id, farm_type_index) {
       filtered_chart_data <- get_filtered_chart_data(chart_data, farm_type_index)
-
+      
       observeEvent(
         {
           list(
@@ -158,8 +173,7 @@ nitrogenServer <- function(id) {
             "n_balance" = "kg N surplus/ha",
             "nue" = "%"
           )
-          
-          
+     
           df <- filtered_chart_data()
           
           chart_title <- paste0(
@@ -168,61 +182,57 @@ nitrogenServer <- function(id) {
             min(df$year), " to ", max(df$year)
           )
           
-          yaxis_title <- paste0(
+          yaxistitle <- paste0(
             unit_map[input$n_type]
             
           )
           
-
+          
+          
           {
-           nitrogenline_ChartServer(
+            nitrogenline_ChartServer(
               id = line_id,
               chart_data = filtered_chart_data,
               title =  chart_title,
-              yAxisTitle = yaxis_title,
-              xAxisTitle = "",
-              footer = nitrogen_footer,
-              x_col = "year",
-              y_col= "value",
-              unit = tooltip_unit
+              yaxistitle = yaxistitle
             )
           }
         },
         # ignoreNULL = TRUE,
         # ignoreInit = FALSE
-
+        
       )
     }
-
+    
     # Loop to initialize UI and server for each farm type
     for (i in seq_along(farm_types)) {
       local({
         farm_type_index <- i
-
+        
         renderChartUI(nitrogen_line_chart, farm_type_index)
         
-        renderChartServer( line_id = paste0("nitrogen_line_chart", farm_type_index),
-                          farm_type_index = farm_type_index
+        renderChartServer(line_id = paste0("nitrogen_line_chart", farm_type_index),
+                           farm_type_index = farm_type_index
         )
         
       })
     }
-
+    
     # Render data table with conditional columns based on in_out_type
     output$data_table <- renderDT({
       
       df <- table_data()
       
       df %>%
-        select(Measure, farm_type, year, value) %>%
+        select(Measure, farm_type, year, Estimate, value) %>%
         datatable(
-          colnames = c("Measure", "Farm type", "Year", "Value"),
+          colnames = c("Measure", "Farm type", "Year", "Estimate", "Value"),
           options = list(pageLength = 20, scrollX = TRUE)
         )
     })
     
-      
-
+    
+    
     # Download handler for CSV export of table data
     output$downloadData <- downloadHandler(
       filename = function() {
@@ -235,24 +245,23 @@ nitrogenServer <- function(id) {
   })
 }
 
-# check for empty data:
 
 #
 ## Testing module --------
-source(here("testing", "test_multibarchart_function.R"))
+
 source(here("utility", "util_updates.R"))
 source(here("utility", "util_functions.R"))
 source(here("utility", "hc_theme.R"))
 source(here("utility", "util_options.R"))
-source(here("charts_tables_functions", "nitrogen_function_line_chart.R"))
-#source(here("testing", "test_fbs_function_line_chart.R"))
+
+
 
 
 
 content_demo <- function() {
   ui <- fluidPage(nitrogenUI("test"))
   server <- function(input, output, session) {
-      nitrogenServer("test")
+    nitrogenServer("test")
   }
   shinyApp(ui, server)
 }
@@ -260,4 +269,3 @@ content_demo <- function() {
 
 #
 content_demo()
-

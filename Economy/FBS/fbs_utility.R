@@ -49,14 +49,6 @@ year_levels <- c("2012-13", "2013-14", "2014-15", "2015-16", "2016-17",
 
 
 
-# function to get numeric format for agri_env/nitrogen years  
-nitrogen_year_levels <- c("2019-20", "2020-21", 
-                 "2021-22", "2022-23", "2023-24", "2024-25")
-
-
-
-
-
 
 
   # categories
