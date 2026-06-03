@@ -1,5 +1,5 @@
 # File: module_FBS.R
-
+#source(here("Economy/FBS/fbs_data_process.R"))
 
 ###UI#####
 CostOutUI <- function(id) {
@@ -59,7 +59,7 @@ CostOutUI <- function(id) {
         tabsetPanel(
           id = ns("tabs"),
           tabPanel("All farms", uiOutput(ns("chart1")), value = ns("all_farms")),
-          tabPanel("Cereal", uiOutput(ns("chart2")), value = ns("cereal")),
+          tabPanel("Cereals", uiOutput(ns("chart2")), value = ns("cereals")),
           tabPanel("General cropping", uiOutput(ns("chart3")), value = ns("general_cropping")),
           tabPanel("Dairy", uiOutput(ns("chart4")), value = ns("dairy")),
           tabPanel("LFA sheep", uiOutput(ns("chart5")), value = ns("lfa_sheep")),
@@ -117,7 +117,7 @@ CostOutServer <- function(id) {
     # Reactive expression for filtered table data with formatted numeric columns
     table_data <- reactive({
       req(input$in_out_type, selected_years())
-       
+      
       data <- chart_data() %>%
         filter(input_output_type == input$in_out_type) %>%
         #filter(farm_type == selected_tab) %>%  # Adjust farm_type as needed
@@ -188,8 +188,8 @@ CostOutServer <- function(id) {
       })
     }
     
-   
-      
+    
+    
     # Render UI for each chart based on filtered data availability
     renderChartUI <- function(chart_id, farm_type_index) {
       filtered_chart_data <- get_filtered_chart_data(chart_data, farm_type_index)
@@ -207,7 +207,7 @@ CostOutServer <- function(id) {
         }
       })
       
-     
+      
     }
     
     # Server logic to render charts and respond to input changes
@@ -231,7 +231,7 @@ CostOutServer <- function(id) {
           chart_title <- paste0(
             farm_types[farm_type_index], ": ",
             if(input$in_out_type %in% c("output", "costs")){input$in_out_type} else # Outputs or Costs
-              {gsub("Average", "", (head(filtered_chart_data()$Measure[filtered_chart_data()$input_output_type == input$in_out_type], n =1 )))}, # Long name for measure, select last row for only one title to appear!
+            {gsub("Average", "", (head(filtered_chart_data()$Measure[filtered_chart_data()$input_output_type == input$in_out_type], n =1 )))}, # Long name for measure, select last row for only one title to appear!
             " ", 
             if (length(years_sorted) == 1) {
               years_sorted[1]
@@ -291,24 +291,22 @@ CostOutServer <- function(id) {
     # Render data table with conditional columns based on in_out_type
     output$data_table <- renderDT({
       
-   
-     
-       data <- table_data()
       
-
-    
-    
+      
+      data <- table_data()
+      
+      
       if (input$in_out_type %in% c("output", "costs")) {
         data <- data %>%
           select(Measure, farm_type, input_output_type, year, value) |> 
           mutate(
             input_output_type = sub("^([a-z])", "\\U\\1", tolower(input_output_type), perl = TRUE)
           )
-        col_names <- c("Measure", "Main Farm Type", "Output or Cost Category", "Year", "Value")
+        col_names <- c("Measure", "Farm Type", "Output or Cost Category", "Year", "Value")
       } else {
         data <- data %>%
           select(Measure, farm_type, year, value)
-        col_names <- c("Measure", "Main Farm Type", "Year", "Value")
+        col_names <- c("Measure", "Farm Type", "Year", "Value")
       }
       
       datatable(
@@ -318,7 +316,6 @@ CostOutServer <- function(id) {
       )
     })
     
-    # Download handler for CSV export of table data
     data_download <- reactive({
       table_data() |> 
         select(Measure, farm_type, year, value) |> 
@@ -351,9 +348,9 @@ CostOutServer <- function(id) {
 # source(here("utility", "hc_theme.R"))
 # source(here("utility", "util_options.R"))
 # #source(here("testing", "test_fbs_function_line_chart.R"))
-# # 
-# # 
-# # 
+# 
+# 
+# 
 # content_demo <- function() {
 #   ui <- fluidPage(CostOutUI("test"))
 #   server <- function(input, output, session) {
@@ -361,6 +358,5 @@ CostOutServer <- function(id) {
 #   }
 #   shinyApp(ui, server)
 # }
-# 
-# content_demo()
 
+content_demo()
