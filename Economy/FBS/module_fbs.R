@@ -117,7 +117,7 @@ CostOutServer <- function(id) {
     # Reactive expression for filtered table data with formatted numeric columns
     table_data <- reactive({
       req(input$in_out_type, selected_years())
-       
+      
       data <- chart_data() %>%
         filter(input_output_type == input$in_out_type) %>%
         #filter(farm_type == selected_tab) %>%  # Adjust farm_type as needed
@@ -188,8 +188,8 @@ CostOutServer <- function(id) {
       })
     }
     
-   
-      
+    
+    
     # Render UI for each chart based on filtered data availability
     renderChartUI <- function(chart_id, farm_type_index) {
       filtered_chart_data <- get_filtered_chart_data(chart_data, farm_type_index)
@@ -207,7 +207,7 @@ CostOutServer <- function(id) {
         }
       })
       
-     
+      
     }
     
     # Server logic to render charts and respond to input changes
@@ -231,7 +231,7 @@ CostOutServer <- function(id) {
           chart_title <- paste0(
             farm_types[farm_type_index], ": ",
             if(input$in_out_type %in% c("output", "costs")){input$in_out_type} else # Outputs or Costs
-              {gsub("Average", "", (head(filtered_chart_data()$Measure[filtered_chart_data()$input_output_type == input$in_out_type], n =1 )))}, # Long name for measure, select last row for only one title to appear!
+            {gsub("Average", "", (head(filtered_chart_data()$Measure[filtered_chart_data()$input_output_type == input$in_out_type], n =1 )))}, # Long name for measure, select last row for only one title to appear!
             " ", 
             if (length(years_sorted) == 1) {
               years_sorted[1]
@@ -291,11 +291,11 @@ CostOutServer <- function(id) {
     # Render data table with conditional columns based on in_out_type
     output$data_table <- renderDT({
       
-   
-     
-       data <- table_data()
       
-    
+      
+      data <- table_data()
+      
+      
       if (input$in_out_type %in% c("output", "costs")) {
         data <- data %>%
           select(Measure, farm_type, input_output_type, year, value) |> 
@@ -318,23 +318,23 @@ CostOutServer <- function(id) {
     
     data_download <- reactive({
       table_data() |> 
-      select(Measure, farm_type, year, value) |> 
-      rename (Year = year, `Farm type` = farm_type, Value = value)
-      })
+        select(Measure, farm_type, year, value) |> 
+        rename (Year = year, `Farm type` = farm_type, Value = value)
+    })
     
     # Download handler for CSV export of table data
     output$downloadData <-
-
-      downloadHandler(
       
-
-      filename = function() {
-        paste("Farm_level_output_costs_", Sys.Date(), ".csv", sep = "")
-      },
-      content = function(file) {
-        write.csv(data_download(), file, row.names = FALSE)
-      }
-    )
+      downloadHandler(
+        
+        
+        filename = function() {
+          paste("Farm_level_output_costs_", Sys.Date(), ".csv", sep = "")
+        },
+        content = function(file) {
+          write.csv(data_download(), file, row.names = FALSE)
+        }
+      )
   })
 }
 
@@ -360,4 +360,3 @@ CostOutServer <- function(id) {
 # }
 
 content_demo()
-

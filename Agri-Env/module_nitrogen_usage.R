@@ -1,238 +1,271 @@
-# Load the data
-load("Data/module_2023.RData")  # Assuming nitrogen_400 and nitrogen_250 are loaded from this file
+load("Data/n_balance.Rda")
+load("Data/nue.Rda")
 
-# Transform the data, filtering out "All respondents"
-nitrogen_400_long <-  nitrogen_400 %>%
-  filter(Region != "All respondents") %>%
-  pivot_longer(cols = -Region, names_to = "variable", values_to = "value") %>%
-  mutate(value = as.numeric(value)) %>%
-  rename(region = Region)
+source(here("charts_tables_functions", "nitrogen_function_line_chart.R"))
 
-
-nitrogen_250_long <-  nitrogen_250 %>%
-  filter(Region != "All respondents") %>%
-  pivot_longer(cols = -Region, names_to = "variable", values_to = "value") %>%
-  mutate(value = as.numeric(value)) %>%
-  rename(region = Region)
-
-
-# Ensure that national_data_400 and national_data_250 are data frames
-national_data_400 <- as.data.frame(
-  nitrogen_400 %>%
-    filter(Region == "All respondents") %>%
-    select(-Region) %>%
-    pivot_longer(cols = everything(), names_to = "variable", values_to = "value")
-)
-
-national_data_250 <- as.data.frame(
-  nitrogen_250 %>%
-    filter(Region == "All respondents") %>%
-    select(-Region) %>%
-    pivot_longer(cols = everything(), names_to = "variable", values_to = "value")
-)
-
-# Now use these data frames directly in your UI function
-
-
-# List of variables for radio buttons
-variables_nitrogen <- colnames(nitrogen_400)[-1]
+n_balance<-table_5_df %>% 
+  mutate(n_type="n_balance") %>% 
+  pivot_longer(
+    cols = `2019-20`:fbs_current_year,
+    names_to = "year",
+    values_to="value") %>% 
+  tidyr::pivot_wider(
+    names_from = Measure,
+    values_from = value)
 
 
 
+nue<-table_6_df %>% 
+  mutate(n_type="nue") %>% 
+  pivot_longer(
+    cols = `2019-20`:fbs_current_year,
+    names_to = "year",
+    values_to="value") %>% 
+  tidyr::pivot_wider(
+    names_from = Measure,
+    values_from = value)
 
 
-valueBoxNitrogenUI <- function(id, title, value, unit) {
-  numeric_value <- as.numeric(value) # Ensure the value is numeric
-  formatted_value <- format_number(numeric_value)
-  
-  box(
-    class = "value-box",
-    title = NULL,
-    width = 12,
-    solidHeader = TRUE,
-    div(
-      style = "display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100%; padding: 5px;",  # Center content vertically and horizontally
-      div(
-        style = "font-size: 14px; font-weight: bold; margin-bottom: 15px; text-align: center;",  # Adjusted title style and added margin for vertical gap
-        h5(class = "value-box-title", title)
-      ),
-      div(
-        style = "text-align: center;",  # Center the value and unit together
-        h3(HTML(formatted_value), style = "font-size: 24px; font-weight: bold; margin: 0;"),  # Main value centered
-        div(style = "font-size: 16px; font-weight: normal; margin-top: 5px;", unit)  # Unit placed below the value, also centered
-      )
-    ),
-    style = "border: 1px solid white; background-color: transparent; box-shadow: none; display: flex; align-items: center; justify-content: center;"  # Center the entire content of the box
-  )
-}
+nitrogen_data<-dplyr::bind_rows(n_balance, nue) %>% 
+  rename(farm_type=`Farm type`)%>% 
+  rename(Lower=`95% CI (lower limit)`,
+         Upper=`95% CI (upper limit)`,
+         Median=`Average (median)`) %>% 
+  data.frame()
 
-nitrogenUI <- function(id) {
+test<-nitrogen_data %>%
+  pivot_longer(
+    cols = Median:Upper,
+    names_to = "Estimate",
+    values_to="value") %>%  
+  mutate(value=janitor::round_half_up(value, 2))
+
+
+nitrogenUI<- function(id) {
   ns <- NS(id)
-  sidebarLayout(
-    sidebarPanel(
-      width = 3,
-      uiOutput(ns("sidebar_ui"))
-    ),
-    mainPanel(
-      width = 9,
-      tabsetPanel(
-        id = ns("tabs"),
-        tabPanel("Nitrogen Application (400 kg/ha cap)",
-                 fluidRow(
-                   column(width = 4,
-                          valueBoxNitrogenUI(ns("total_nitrogen_400"), "Total nitrogen applied", 
-                                             national_data_400[national_data_400$variable == "Total nitrogen", "value"], "kg"),
-                          p(style = "color: white;", "/"),
-                          valueBoxNitrogenUI(ns("total_holdings_400"), "Total holdings", 
-                                             national_data_400[national_data_400$variable == "Holdings", "value"], "holdings"),
-                          p(style = "color: white;", "/"),
-                          valueBoxNitrogenUI(ns("total_application_rate_400"), "Average application rate", 
-                                             national_data_400[national_data_400$variable == "Application rate", "value"], "kg / hectares"),
-                          p(style = "color: white;", "/"),
-                          valueBoxNitrogenUI(ns("average_mixed_sward_400"), "Average mixed sward per holding", 
-                                             national_data_400[national_data_400$variable == "Average mixed sward area per holding", "value"], "ha"),
-                          p(style = "color: white;", "/"),
-                          valueBoxNitrogenUI(ns("average_grassland_400"), "Average grassland area per holding", 
-                                             national_data_400[national_data_400$variable == "Average grassland area per holding", "value"], "ha")
-                   ),
-                   column(width = 8,
-                          mapRegionsUI(ns("map_400"))
-                   )
-                 ),
-                 value = "map_400"
-        ),
-        tabPanel("Nitrogen Application (250 kg/ha cap)",
-                 fluidRow(
-                   column(width = 4,
-                          valueBoxNitrogenUI(ns("total_nitrogen_250"), "Total nitrogen applied", 
-                                             national_data_250[national_data_250$variable == "Total nitrogen", "value"], "kg"),
-                          p(style = "color: white;", "/"),
-                          valueBoxNitrogenUI(ns("total_holdings_250"), "Total holdings", 
-                                             national_data_250[national_data_250$variable == "Holdings", "value"], "holdings"),
-                          p(style = "color: white;", "/"),
-                          valueBoxNitrogenUI(ns("total_application_rate_250"), "Total application rate", 
-                                             national_data_250[national_data_250$variable == "Application rate", "value"], "kg / hectare"),
-                          p(style = "color: white;", "/"),
-                          valueBoxNitrogenUI(ns("average_mixed_sward_250"), "Average mixed sward per holding", 
-                                             national_data_250[national_data_250$variable == "Average mixed sward area per holding", "value"], "hectare"),
-                          p(style = "color: white;", "/"),
-                          valueBoxNitrogenUI(ns("average_grassland_250"), "Average grassland area per holding", 
-                                             national_data_250[national_data_250$variable == "Average grassland area per holding", "value"], "hectare")
-                   ),
-                   column(width = 8,
-                          mapRegionsUI(ns("map_250"))
-                   )
-                 ),
-                 value = "map_250"
-        ),
-        tabPanel("Data Table", 
-                 DTOutput(ns("data_table")),
-                 downloadButton(ns("downloadData"), "Download Data"), 
-                 value = "data_table"
-        ),
-        footer = generate2023ModuleTableFooter()  
+  tagList(
+    sidebarLayout(
+      sidebarPanel(
+        width = 3,
+        selectInput(ns("n_type"), "Measure", choices = c(
+          "Nitrogen balance" = "n_balance",        
+          "Nitrogen use efficiency" = "nue"
+        ), selected = "n_balance"),
+        
+      ),
+      
+      mainPanel(
+        id = ns("mainpanel"),
+        width = 9,
+        tabsetPanel(
+          id = ns("tabs"),
+          tabPanel("All farms", uiOutput(ns("chart1")), value = ns("all_farms")),
+          tabPanel("Cereal", uiOutput(ns("chart2")), value = ns("cereal")),
+          tabPanel("General cropping", uiOutput(ns("chart3")), value = ns("general_cropping")),
+          tabPanel("Dairy", uiOutput(ns("chart4")), value = ns("dairy")),
+          tabPanel("LFA sheep", uiOutput(ns("chart5")), value = ns("lfa_sheep")),
+          tabPanel("LFA cattle", uiOutput(ns("chart6")), value = ns("lfa_cattle")),
+          tabPanel("LFA cattle and sheep", uiOutput(ns("chart7")), value = ns("lfa_cattle_sheep")),
+          tabPanel("Lowland cattle and sheep", uiOutput(ns("chart8")), value = ns("lowland_cattle_sheep")),
+          tabPanel("Mixed", uiOutput(ns("chart9")), value = ns("mixed")),
+          tabPanel("Data Table",
+                   DTOutput(ns("data_table")),
+                   downloadButton(ns("downloadData"), "Download Data"),
+                   generateNitrogenTableFooter(),
+                   value = ns("data"))
+        )
       )
     )
   )
 }
 
 
-
-nitrogenServer <- function(id) {
+nitrogenServer<- function(id) {
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
     
-    output$sidebar_ui <- renderUI({
-      req(input$tabs)
-      if (input$tabs == "map_400") {
-        radioButtons(ns("variable_400"), "Select Variable", choices = variables_nitrogen)
-      } else if (input$tabs == "map_250") {
-        radioButtons(ns("variable_250"), "Select Variable", choices = variables_nitrogen)
-      } else if (input$tabs == "data_table") {
-        radioButtons(ns("data_source"), "Choose data to show:", choices = c("400 kg/ha cap", "250 kg/ha cap"))
-      }
+    # Reactive expression that returns the chart data based on n_type
+    chart_data <-  reactive({
+      nitrogen_data
     })
     
-    mapRegionsServer(
-      id = "map_400",
-      data = reactive({
-        req(input$variable_400)
-        nitrogen_400_long %>%
-          filter(variable == input$variable_400)
-      }),
-      unit = "kg",
-      footer = '<div style="font-size: 16px; font-weight: bold;"><a href="https://www.gov.scot/publications/results-from-the-scottish-agricultural-census-module-june-2023/" target="_blank">Source: Scottish Agricultural Census: Module June 2023</a></div>',
-      variable = reactive(input$variable_400),
-      title = paste("Nitrogen usage (400 kg/ha cap) by region in Scotland in 2023"),
-      legend_title = "Kilograms of nitrogen"
-        )
     
-    mapRegionsServer(
-      id = "map_250",
-      data = reactive({
-        req(input$variable_250)
-        nitrogen_250_long %>%
-          filter(variable == input$variable_250)
-      }),
-      unit = "kg",
-      footer = '<div style="font-size: 16px; font-weight: bold;"><a href="https://www.gov.scot/publications/results-from-the-scottish-agricultural-census-module-june-2023/" target="_blank">Source: Scottish Agricultural Census: Module June 2023</a></div>',
-      variable = reactive(input$variable_250),
-      title = paste("Nitrogen usage (250 kg/ha cap) by region in Scotland in 2023"),
-      legend_title = "Kilograms of nitrogen"
-    )
-    
-    output$data_table <- renderDT({
-      req(input$data_source)
+    table_data <- reactive({
+      req(input$n_type)
       
-      if (input$data_source == "400 kg/ha cap") {
-        datatable(
-          nitrogen_400 %>%
-            mutate(across(where(is.numeric) & !contains("Year"), comma)),
-          options = list(
-            scrollX = TRUE,     # Enable horizontal scrolling
-            pageLength = 20     # Show 20 entries by default
-          )
-        )
-      } else if (input$data_source == "250 kg/ha cap") {
-        datatable(
-          nitrogen_250 %>%
-            mutate(across(where(is.numeric) & !contains("Year"), comma)),
-          options = list(
-            scrollX = TRUE,     # Enable horizontal scrolling
-            pageLength = 20     # Show 20 entries by default
-          )
-        )
-      }
+      nitrogen_data %>%
+        dplyr::filter(n_type == input$n_type) %>% 
+        pivot_longer(
+          cols = Median:Upper,
+          names_to = "Estimate",
+          values_to="value") %>%  
+        mutate(value=janitor::round_half_up(value, 2)) %>% 
+        rename(Measure=n_type)
+    })
+    
+    download_data <- reactive({
+      req(input$n_type)
+      
+      nitrogen_data %>%
+        dplyr::filter(n_type == input$n_type) %>% 
+        pivot_longer(
+          cols = Median:Upper,
+          names_to = "Estimate",
+          values_to="value") %>% 
+      mutate(value=janitor::round_half_up(value, 2)) %>% 
+        rename("Farm type" = farm_type,
+               Year=year,
+               Value=value,
+               Measure=n_type) %>%         
+        select(Measure, `Farm type`, Year, Estimate, Value)
     })
     
     
+    # Function to get filtered chart data reactive for a given farm_type index
+    get_filtered_chart_data <- function(chart_data, farm_type_index) {
+      reactive({
+        req(input$n_type)
+        
+        data <- chart_data() %>%
+          filter(
+            n_type == input$n_type,
+            farm_type == farm_types[farm_type_index]
+          )
+        
+        
+        data
+      })
+    }
+    
+    # Render UI for each chart based on filtered data availability
+    renderChartUI <- function(chart_id, farm_type_index, n_type) {
+      filtered_chart_data <- get_filtered_chart_data(chart_data, farm_type_index)
+      
+      output[[paste0("chart", farm_type_index)]] <- renderUI({
+        data <- filtered_chart_data()
+        
+            nitrogenline_ChartUI(ns(paste0("nitrogen_line_chart", farm_type_index)))
+        
+      })
+      
+    }
+    
+    # Server logic to render charts and respond to input changes
+    renderChartServer <- function(line_id, farm_type_index) {
+      filtered_chart_data <- get_filtered_chart_data(chart_data, farm_type_index)
+      
+      observeEvent(
+        {
+          list(
+            input$n_type,
+            input$data_type
+          )
+        },
+        {
+          req(input$n_type)
+          
+          title_map <- c(
+            "n_balance" = "Nitrogen balance",
+            "nue" = "Nitrogen use efficiency"
+          )
+          
+          unit_map <- c(
+            "n_balance" = "kg N surplus/ha",
+            "nue" = "%"
+          )
+     
+          df <- filtered_chart_data()
+          
+          chart_title <- paste0(
+            farm_types[farm_type_index], ": ",
+            title_map[input$n_type], ", ",
+            min(df$year), " to ", max(df$year)
+          )
+          
+          yaxistitle <- paste0(
+            unit_map[input$n_type]
+            
+          )
+          
+          
+          
+          {
+            nitrogenline_ChartServer(
+              id = line_id,
+              chart_data = filtered_chart_data,
+              title =  chart_title,
+              yaxistitle = yaxistitle
+            )
+          }
+        },
+        # ignoreNULL = TRUE,
+        # ignoreInit = FALSE
+        
+      )
+    }
+    
+    # Loop to initialize UI and server for each farm type
+    for (i in seq_along(farm_types)) {
+      local({
+        farm_type_index <- i
+        
+        renderChartUI(nitrogen_line_chart, farm_type_index)
+        
+        renderChartServer(line_id = paste0("nitrogen_line_chart", farm_type_index),
+                           farm_type_index = farm_type_index
+        )
+        
+      })
+    }
+    
+    # Render data table with conditional columns based on in_out_type
+    output$data_table <- renderDT({
+      
+      df <- table_data()
+      
+      df %>%
+        select(Measure, farm_type, year, Estimate, value) %>%
+        datatable(
+          colnames = c("Measure", "Farm type", "Year", "Estimate", "Value"),
+          options = list(pageLength = 20, scrollX = TRUE)
+        )
+    })
+    
+    
+    
+    # Download handler for CSV export of table data
     output$downloadData <- downloadHandler(
       filename = function() {
-        if (input$data_source == "400 kg/ha cap") {
-          paste("nitrogen_data_400", Sys.Date(), ".csv", sep = "")
-        } else {
-          paste("nitrogen_data_250", Sys.Date(), ".csv", sep = "")
-        }
+        paste("Nitrogen_", Sys.Date(), ".csv", sep = "")
       },
       content = function(file) {
-        if (input$data_source == "400 kg/ha cap") {
-          write.csv(nitrogen_400, file, row.names = FALSE)
-        } else {
-          write.csv(nitrogen_250, file, row.names = FALSE)
-        }
+        write.csv(download_data(), file, row.names = FALSE)
       }
     )
   })
 }
 
-# Test the module
+
+#
+## Testing module --------
+
+source(here("utility", "util_updates.R"))
+source(here("utility", "util_functions.R"))
+source(here("utility", "hc_theme.R"))
+source(here("utility", "util_options.R"))
+
+
+
+
+
 content_demo <- function() {
-  ui <- fluidPage(nitrogenUI("nitrogen_map_test"))
+  ui <- fluidPage(nitrogenUI("test"))
   server <- function(input, output, session) {
-    nitrogenServer("nitrogen_map_test")
+    nitrogenServer("test")
   }
   shinyApp(ui, server)
 }
 
-# Uncomment the line below to run the test
-# content_demo()
+
+#
+content_demo()

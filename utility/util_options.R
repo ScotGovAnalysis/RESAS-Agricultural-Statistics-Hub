@@ -43,6 +43,8 @@ source(here("Economy/FBS", "fbs_utility.R"))
 # Load TIFF options
 source(here("Economy/TIFF", "tiff_utility.R"))
 
+# Load FBS options
+source(here("Agri-Env", "nitrogen_utility.R"))
 
 # Highchart options
 hcoptslang <- getOption("highcharter.lang")

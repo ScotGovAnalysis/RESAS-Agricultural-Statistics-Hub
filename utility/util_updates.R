@@ -51,7 +51,17 @@ fbs_footer <- HTML(
   )
 )
 
-
+nitrogen_footer <- HTML(
+  paste0(
+    ' <div style="font-size: 16px; font-weight: bold; margin-top: 8px;">
+       <a href="',
+    "https://www.gov.scot/scottish-agriculture-greenhouse-gas-emissions-nitrogen-use-2024-25/",
+    '" target="_blank">
+         Source: Scottish agriculture greenhouse gas emissions and nitrogen use:  ', fbs_current_year, '
+       </a>
+     </div>'
+  )
+)
 
 tiff_footer <- '<div style="font-size: 16px; font-weight: bold;"> <a href="https://www.gov.scot/publications/total-income-from-farming-estimates-2025/">Source: Total income from farming estimates: 2025</a></div>'
 
@@ -157,7 +167,7 @@ generate2025ModuleTableFooter <- function() {
   )
 }
 
-# Function to generate the census data table footer with a light grey background
+# Function to generate the fbs data table footer with a light grey background
 generateFBSTableFooter <- function() {
   div(
     style = "background-color: #f0f0f0; padding: 15px; border-radius: 5px; margin-top: 20px;",
@@ -177,6 +187,8 @@ generateFBSTableFooter <- function() {
   )
 }
 
+
+
 generatetiffTableFooter <- function() {
   div(
     style = "background-color: #f0f0f0; padding: 15px; border-radius: 5px; margin-top: 20px;",
@@ -195,3 +207,22 @@ generatetiffTableFooter <- function() {
   )
 }
 
+# Function to generate the nitrogen data table footer with a light grey background
+generateNitrogenTableFooter <- function() {
+  div(
+    style = "background-color: #f0f0f0; padding: 15px; border-radius: 5px; margin-top: 20px;",
+    "This data is sourced from ",
+    tags$a(
+      href = "https://www.gov.scot/publications/scottish-agriculture-greenhouse-gas-emissions-nitrogen-use-2024-25/",
+      paste0(
+        "Scottish agriculture greenhouse gas emissions and nitrogen use: ", 
+        ghg_current_year,
+        " which was published on ", 
+        ghg_pub_date, 
+        "."
+      )
+    ),
+    tags$br(),
+    "Full data tables and detailed analysis are available within the full report."
+  )
+}

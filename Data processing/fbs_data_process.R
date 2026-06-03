@@ -107,7 +107,7 @@ fbs_data$farm_type <- gsub("Lowland", "Lowland cattle and sheep", fbs_data$farm_
 
   #farm types
 farm_types <- c("All farms",
-             "Cereals",
+             "Cereal",
              "General cropping",
              "Dairy",
              "LFA sheep",
@@ -181,7 +181,7 @@ nfi <-ag_hub$NFI |> filter(Prices == "Real") |>
   mutate(Measure = "Net farm income") |> # add measure col before binding
   pivot_longer(-c(Measure, `Farm type`), names_to = "year", values_to = "value")
 
-nfi$`Farm type` <- gsub("Cereal", "Cereals", nfi$`Farm type`) # change cereal to cereals
+# nfi$`Farm type` <- gsub("Cereal", "Cereals", nfi$`Farm type`) # change cereal to cereals
 
 # same for farm business income
 fbi <-ag_hub$FBI |> filter(Prices == "Real") |> 
@@ -189,7 +189,7 @@ fbi <-ag_hub$FBI |> filter(Prices == "Real") |>
   mutate(Measure = "Farm business income") |> # add measure col before binding
   pivot_longer(-c(Measure, `Farm type`), names_to = "year", values_to = "value")
 
-fbi$`Farm type` <- gsub("Cereal", "Cereals", fbi$`Farm type`) # change cereal to cereals
+# fbi$`Farm type` <- gsub("Cereal", "Cereals", fbi$`Farm type`) # change cereal to cereals
 
 # bind
 fbs_income <- rbind(fbs_income, nfi, fbi) |> 
