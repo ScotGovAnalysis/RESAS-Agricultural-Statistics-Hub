@@ -59,7 +59,7 @@ CostOutUI <- function(id) {
         tabsetPanel(
           id = ns("tabs"),
           tabPanel("All farms", uiOutput(ns("chart1")), value = ns("all_farms")),
-          tabPanel("Cereals", uiOutput(ns("chart2")), value = ns("cereals")),
+          tabPanel("Cereal", uiOutput(ns("chart2")), value = ns("cereal")),
           tabPanel("General cropping", uiOutput(ns("chart3")), value = ns("general_cropping")),
           tabPanel("Dairy", uiOutput(ns("chart4")), value = ns("dairy")),
           tabPanel("LFA sheep", uiOutput(ns("chart5")), value = ns("lfa_sheep")),
@@ -342,6 +342,7 @@ CostOutServer <- function(id) {
 
 # 
 ## Testing module --------
+## remember to comment out when finished - otherwise will get a "hc_theme" error message when running app
 # source(here("testing", "test_multibarchart_function.R"))
 # source(here("utility", "util_updates.R"))
 # source(here("utility", "util_functions.R"))

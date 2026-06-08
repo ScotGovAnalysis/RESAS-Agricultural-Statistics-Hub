@@ -20,7 +20,7 @@ source("charts_tables_functions/function_economy_summary.R")
 source("charts_tables_functions/fbs_function_line_chart.R")
 source("charts_tables_functions/function_constituencies_map.R")
 source("charts_tables_functions/function_unitary_authorities_map.R")
-
+source("charts_tables_functions/nitrogen_function_line_chart.R")
 
 
 ### Load module scripts

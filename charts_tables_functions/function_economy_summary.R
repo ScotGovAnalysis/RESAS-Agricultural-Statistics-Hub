@@ -139,10 +139,10 @@ output$valueBox <- renderUI({
     })
     
     
-    observe({
-      print(head(data()))
-    })
-    
+    # observe({
+    #   print(head(data()))
+    # })
+    # 
   
     
   })

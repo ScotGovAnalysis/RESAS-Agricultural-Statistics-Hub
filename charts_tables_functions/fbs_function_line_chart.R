@@ -120,12 +120,12 @@ fbsline_ChartServer <- function(id, chart_data, title, yAxisTitle, xAxisTitle, u
         ) %>%
           transmute(x = x, y = .data[[y_col]]) %>%
           mutate(x = as.character(x), y = as.numeric(y))
-        
-        if (all(is.na(complete_series$y))) {
-          message(paste("Skipping group", g, "- no data"))
-          return(NULL)
-        }
-        
+        # 
+        # if (all(is.na(complete_series$y))) {
+        #   message(paste("Skipping group", g, "- no data"))
+        #   return(NULL)
+        # }
+
         valid_points <- complete_series %>% filter(!is.na(y))
         if (nrow(valid_points) == 1) {
           padded_series <- tibble(
@@ -134,14 +134,14 @@ fbsline_ChartServer <- function(id, chart_data, title, yAxisTitle, xAxisTitle, u
           )
           complete_series <- padded_series
         }
-        
+
         # print(paste("Group:", g))
         # print(complete_series)
-        # 
-        color_to_use <- if (!is.null(colors[[g]])) colors[[g]] else NULL
+        # # 
+        # color_to_use <- if (!is.null(colors[[g]])) colors[[g]] else NULL
         
         hc <<- hc %>%
-          hc_add_series(name = g, data = list_parse2(complete_series), color = color_to_use)
+          hc_add_series(name = g, data = list_parse2(complete_series), color = colors[[g]])
       })
       
       

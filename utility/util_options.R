@@ -36,12 +36,16 @@ load(here("Data", "oilseed_combined_long.RData"))
 load(here("Data", "oilseed_tiff_data_long.RData"))
 load(here("Data", "constituency_data.RData"))
 load(here("Data", "unitauth_data.RData"))
+load(here("Data", "n_balance.Rda"))
+load(here("Data", "nue.Rda"))
 
 # Load FBS options
 source(here("Economy/FBS", "fbs_utility.R"))
-
+source(here("Agri-Env", "nitrogen_utility.R"))
 # Load TIFF options
 source(here("Economy/TIFF", "tiff_utility.R"))
+
+
 
 
 # Highchart options

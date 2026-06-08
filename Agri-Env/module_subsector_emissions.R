@@ -59,7 +59,7 @@ subsectorEmissionsUI <- function(id) {
                               class = "footer-text", 
                               style = "font-size: 16px; font-weight: bold; text-align: left; margin-top: 5px;",
                               HTML(
-                                '<a href="https://www.gov.scot/publications/scottish-agriculture-greenhouse-gas-emissions-and-nitrogen-use-2024-25/" target="_blank">Source: Scottish agriculture greenhouse gas emissions and nitrogen use 2024-25</a>, analysis based on results of the <a href="https://www.gov.scot/publications/scottish-greenhouse-gas-statistics-2024/" target="_blank">Scottish Greenhouse Gas Statistics 2024</a>.'
+                                '<a href="https://www.gov.scot/collections/scottish-agriculture-greenhouse-gas-emissions-and-nitrogen-use/" target="_blank">Source: Scottish agriculture greenhouse gas emissions and nitrogen use 2024-25</a>, analysis based on results of the <a href="https://www.gov.scot/publications/scottish-greenhouse-gas-statistics-2024/" target="_blank">Scottish Greenhouse Gas Statistics 2024</a>.'
                               )
                             )
                      )

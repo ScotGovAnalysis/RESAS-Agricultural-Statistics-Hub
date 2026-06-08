@@ -15,7 +15,7 @@ schema <- "farmbusinesssurvey2025"
 
 
 farm_types <- c("All farms",
-                "Cereals",
+                "Cereal",
                 "General cropping", 
                 "Dairy",
                 "LFA sheep", 
