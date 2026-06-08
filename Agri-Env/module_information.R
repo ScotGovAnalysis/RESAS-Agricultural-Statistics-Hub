@@ -41,7 +41,7 @@ informationUI <- function(id) {
         p("A greenhouse gas is a gas which absorbs infrared radiation emitted from the surface of the Earth, helping to retain a portion of that energy in the atmosphere as heat."),
         tags$div(style = "font-size: 18px; font-weight: bold;", "LULUCF:"),
         p("Estimates of emissions and removals from land use, land use change and forestry (LULUCF) depend critically on assumptions made on the rate of loss or gain of carbon in Scotland’s carbon-rich soils. In Scotland, LULUCF activities, taken as a whole, acts as a slight source in recent years although acted as a net sink between 2009-2017, absorbing more greenhouse gas emissions than it releases."),
-        tags$div(style = "font-size: 18px; font-weight: bold;", "Methane (CH<sub>4</sub>):"),
+        tags$div(style = "font-size: 18px; font-weight: bold;", "Methane (CH4):"),
         p("Methane is a greenhouse gas that is around 28 times more potent in the atmosphere than CO₂ over a 100-year time horizon. Main sources include agriculture and landfill."),
         tags$div(style = "font-size: 18px; font-weight: bold;", "Metric tonne of carbon dioxide equivalent (MtCO₂e):"),
         p("Provides an estimate of total GHG emissions taking into account the different effects that different gases have on climate change, known as their global warming potential (GWP)."),

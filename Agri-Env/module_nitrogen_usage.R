@@ -1,7 +1,7 @@
 n_balance<-table_5_df %>% 
   mutate(n_type="n_balance") %>% 
   pivot_longer(
-    cols = `2019-20`:`2023-24`,
+    cols = `2019-20`:fbs_current_year,
     names_to = "year",
     values_to="value") %>% 
   tidyr::pivot_wider(
@@ -12,7 +12,7 @@ n_balance<-table_5_df %>%
 nue<-table_6_df %>% 
   mutate(n_type="nue") %>% 
   pivot_longer(
-    cols = `2019-20`:`2023-24`,
+    cols = `2019-20`:fbs_current_year,
     names_to = "year",
     values_to="value") %>% 
   tidyr::pivot_wider(
@@ -205,10 +205,10 @@ nitrogenServer<- function(id) {
           
           yrange <- switch(
             input$n_type,
-            "n_balance" = c(-16,max(df$Upper)),
+            "n_balance" = c(-15,max(df$Upper)),
             "nue" = c(0, max(df$Upper))
           )
-          
+
           
           {
             nitrogenline_ChartServer(
@@ -281,14 +281,14 @@ nitrogenServer<- function(id) {
 # 
 # 
 # 
-# content_demo <- function() {
-#   ui <- fluidPage(nitrogenUI("test"))
-#   server <- function(input, output, session) {
-#     nitrogenServer("test")
-#   }
-#   shinyApp(ui, server)
-# }
-# 
-# 
-# #
-# content_demo()
+content_demo <- function() {
+  ui <- fluidPage(nitrogenUI("test"))
+  server <- function(input, output, session) {
+    nitrogenServer("test")
+  }
+  shinyApp(ui, server)
+}
+
+
+#
+content_demo()
