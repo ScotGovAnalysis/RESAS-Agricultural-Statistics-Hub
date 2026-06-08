@@ -205,8 +205,8 @@ nitrogenServer<- function(id) {
           
           yrange <- switch(
             input$n_type,
-            "n_balance" = c(-20,380),
-            "nue" = c(0, 110)
+            "n_balance" = c(-16,max(df$Upper)),
+            "nue" = c(0, max(df$Upper))
           )
           
           
