@@ -17,7 +17,6 @@ oilseedUI <- function(id) {
         )
       ),
       
-      
       # ===================== CONSTITUENCY MAP =====================
       conditionalPanel(
         condition = "input.tabsetPanel === 'Constituency Map'",
@@ -40,7 +39,6 @@ oilseedUI <- function(id) {
         )
       ),
       
-      
       # ===================== TIME SERIES =====================
       conditionalPanel(
         condition = "input.tabsetPanel === 'Time Series'",
@@ -61,20 +59,7 @@ oilseedUI <- function(id) {
           selected = c("Winter Oilseed Rape","Spring Oilseed Rape")
         )
       ),
-      
-      # ===================== AREA CHART =====================
-      conditionalPanel(
-        condition = "input.tabsetPanel === 'Area Chart'",
-        ns = ns,
-        selectizeInput(
-          ns("area_variables"),   
-          "Click within the box to select variables",
-          choices = unique(oilseed_data$`Crop/Land use`),
-          selected  = c("Winter Oilseed Rape","Spring Oilseed Rape"),
-          multiple = TRUE,
-          options = list(plugins = list('remove_button'))
-        )
-      ),
+
       # ===================== DATA TABLE =====================
       conditionalPanel(
         condition = "input.tabsetPanel === 'Data Table'",
@@ -90,6 +75,7 @@ oilseedUI <- function(id) {
         )
       )
     ),
+    
     # ===================== MAIN PANEL =====================
     mainPanel(
       width = 9,
@@ -99,7 +85,6 @@ oilseedUI <- function(id) {
         tabPanel("Constituency Map", mapConstituenciesUI(ns("map_con"))),
         tabPanel("Local Authority Map", mapUnitaryUI(ns("map_uni"))),
         tabPanel("Time Series", lineChartUI(ns("line"))),
-        tabPanel("Area Chart", areaChartUI(ns("area"))),
         tabPanel("Data Table", 
                  DTOutput(ns("table")),
                  downloadButton(ns("downloadData"), "Download Data"),
@@ -186,33 +171,6 @@ oilseedServer <- function(id) {
       variable = reactive(input$variable_uni),
       title = paste("Oilseed distribution by local authority in", census_year),
       legend_title = "Area (hectares)"
-    )
-    
-    
-    # ===================== AREA CHART =====================
-    area_chart_data <- reactive({
-      req(input$area_variables)   
-      oilseed_data %>%
-        filter(`Crop/Land use` %in% input$area_variables) %>%
-        pivot_longer(
-          cols = -`Crop/Land use`,
-          names_to = "year",
-          values_to = "value"
-        ) %>%
-        mutate(year = as.numeric(year)) %>%   
-        arrange(year)                         
-    })
-    
-    areaChartServer(
-      id = "area",
-      chart_data = area_chart_data,
-      title = "Area used to grow oilseed in Scotland over time",
-      yAxisTitle = "Area of oilseed (1,000 hectares)",
-      xAxisTitle = "Year",
-      unit = "hectares",
-      footer = census_footer,
-      x_col = "year",
-      y_col = "value"
     )
     
     # ===================== TIME SERIES =====================

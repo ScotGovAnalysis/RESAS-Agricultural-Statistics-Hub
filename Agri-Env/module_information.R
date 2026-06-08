@@ -14,7 +14,7 @@ informationUI <- function(id) {
       tags$div(
         style = "margin-top: 20px;",
         tags$div(style = "font-size: 18px; font-weight: bold;", "Scottish Greenhouse Gas Statistics"),
-        p(HTML('Official estimates of greenhouse gas emissions are available in the <a href="https://www.gov.scot/publications/scottish-greenhouse-gas-statistics-2023/documents/" target="_blank">Scottish Greenhouse Gas Statistics 2023</a> publication.')),
+        p(HTML('Official estimates of greenhouse gas emissions are available in the <a href="https://www.gov.scot/publications/scottish-greenhouse-gas-statistics-2024" target="_blank">Scottish Greenhouse Gas Statistics 2024</a> publication.')),
         tags$div(
           style = "margin-top: 20px;",
           tags$div(style = "font-size: 18px; font-weight: bold;", "British Survey of Fertiliser Practice Report"),
@@ -35,18 +35,18 @@ informationUI <- function(id) {
       tags$div(style = "font-size: 24px; font-weight: bold; margin-top: 40px;", "Glossary:"),  # Bigger and bold title
       tags$div(
         style = "margin-top: 20px;",
-        tags$div(style = "font-size: 18px; font-weight: bold;", "Carbon dioxide (CO2):"),
+        tags$div(style = "font-size: 18px; font-weight: bold;", "Carbon dioxide (CO₂):"),
         p("Carbon dioxide is one of the main gases responsible for climate change. It is mostly emitted through the oxidation of carbon in fossil fuels, e.g. burning coal."),
         tags$div(style = "font-size: 18px; font-weight: bold;", "Greenhouse gas:"),
         p("A greenhouse gas is a gas which absorbs infrared radiation emitted from the surface of the Earth, helping to retain a portion of that energy in the atmosphere as heat."),
         tags$div(style = "font-size: 18px; font-weight: bold;", "LULUCF:"),
         p("Estimates of emissions and removals from land use, land use change and forestry (LULUCF) depend critically on assumptions made on the rate of loss or gain of carbon in Scotland’s carbon-rich soils. In Scotland, LULUCF activities, taken as a whole, acts as a slight source in recent years although acted as a net sink between 2009-2017, absorbing more greenhouse gas emissions than it releases."),
-        tags$div(style = "font-size: 18px; font-weight: bold;", "Methane (CH4):"),
-        p("Methane is a greenhouse gas that is around 28 times more potent in the atmosphere than CO2 over a 100-year time horizon. Main sources include agriculture and landfill."),
+        tags$div(style = "font-size: 18px; font-weight: bold;", "Methane (CH<sub>4</sub>):"),
+        p("Methane is a greenhouse gas that is around 28 times more potent in the atmosphere than CO₂ over a 100-year time horizon. Main sources include agriculture and landfill."),
         tags$div(style = "font-size: 18px; font-weight: bold;", "Metric tonne of carbon dioxide equivalent (MtCO₂e):"),
         p("Provides an estimate of total GHG emissions taking into account the different effects that different gases have on climate change, known as their global warming potential (GWP)."),
-        tags$div(style = "font-size: 18px; font-weight: bold;", "Nitrous oxide (N2O):"),
-        p("Nitrous oxide is a greenhouse gas that is around 265 times more potent in the atmosphere than CO2 over a 100-year time horizon. The main source is agricultural soil.")
+        tags$div(style = "font-size: 18px; font-weight: bold;", "Nitrous oxide (N₂O):"),
+        p("Nitrous oxide is a greenhouse gas that is around 265 times more potent in the atmosphere than CO₂ over a 100-year time horizon. The main source is agricultural soil.")
       )
     )
   )

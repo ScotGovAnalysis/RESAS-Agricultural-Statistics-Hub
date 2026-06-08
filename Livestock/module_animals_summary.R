@@ -103,13 +103,13 @@ animalsSummaryServer <- function(id) {
 
 
 
-# Testing module
-content_demo <- function() {
-  ui <- fluidPage(animalsSummaryUI("summary_animals_test"))
-  server <- function(input, output, session) {
-    animalsSummaryServer("summary_animals_test")
-  }
-  shinyApp(ui, server)
-}
-
-content_demo()
+# # Testing module
+# content_demo <- function() {
+#   ui <- fluidPage(animalsSummaryUI("summary_animals_test"))
+#   server <- function(input, output, session) {
+#     animalsSummaryServer("summary_animals_test")
+#   }
+#   shinyApp(ui, server)
+# }
+# 
+# content_demo()

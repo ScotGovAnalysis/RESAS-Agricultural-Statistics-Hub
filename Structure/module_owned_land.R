@@ -91,13 +91,13 @@ ownedLandServer <- function(id) {
   })
 }
 
-# Testing module
-content_demo <- function() {
-  ui <- fluidPage(ownedLandUI("owned_land_test"))
-  server <- function(input, output, session) {
-    ownedLandServer("owned_land_test")
-  }
-  shinyApp(ui, server)
-}
-
-content_demo()
+# # Testing module
+# content_demo <- function() {
+#   ui <- fluidPage(ownedLandUI("owned_land_test"))
+#   server <- function(input, output, session) {
+#     ownedLandServer("owned_land_test")
+#   }
+#   shinyApp(ui, server)
+# }
+# 
+# content_demo()

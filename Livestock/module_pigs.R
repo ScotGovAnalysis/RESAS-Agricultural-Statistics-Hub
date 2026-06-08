@@ -42,7 +42,7 @@ pigsUI <- function(id) {
           ))
       ),
       conditionalPanel(
-        condition = "input.tabsetPanel === 'Time Series' || input.tabsetPanel === 'Area Chart'",
+        condition = "input.tabsetPanel === 'Time Series'",
         ns = ns,
         selectizeInput(
           ns("timeseries_variables"),
@@ -82,7 +82,6 @@ pigsUI <- function(id) {
         tabPanel("Constituency Map", mapConstituenciesUI(ns("map_con"))),
         tabPanel("Local Authority Map", mapUnitaryUI(ns("map_uni"))),
         tabPanel("Time Series", lineChartUI(ns("line"), note_type = 2)),
-        tabPanel("Area Chart", areaChartUI(ns("area"), note_type = 2)),
         tabPanel("Data Table", 
                  DTOutput(ns("table")),
                  downloadButton(ns("downloadData"), "Download Data"),
@@ -183,17 +182,6 @@ pigsServer <- function(id) {
         mutate(value = as.numeric(value))  # Ensure value is numeric
       filtered_data
     })
-    
-    areaChartServer(
-      id = "area",
-      chart_data = chart_data,
-      title = "Number of pigs by category over time",
-      yAxisTitle = "Number of pigs (1,000)",
-      xAxisTitle = "Year",
-      footer = census_footer,
-      x_col = "year",
-      y_col = "value"
-    )
     
     lineChartServer(
       id = "line",
@@ -318,13 +306,13 @@ pigsServer <- function(id) {
 }
 
 
-#Testing module
-pigs_demo <- function() {
-ui <- fluidPage(pigsUI("pigs_test"))
-server <- function(input, output, session) {
-pigsServer("pigs_test")
-}
-shinyApp(ui, server)
-}
- 
-pigs_demo()
+# #Testing module
+# pigs_demo <- function() {
+#   ui <- fluidPage(pigsUI("pigs_test"))
+#   server <- function(input, output, session) {
+#     pigsServer("pigs_test")
+#   }
+#   shinyApp(ui, server)
+# }
+#  
+# pigs_demo()

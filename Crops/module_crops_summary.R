@@ -101,14 +101,14 @@ cropsSummaryServer <- function(id) {
 }
 
 
-
-# Testing module
-content_demo <- function() {
-  ui <- fluidPage(cropsSummaryUI("summary_crops_test"))
-  server <- function(input, output, session) {
-    cropsSummaryServer("summary_crops_test")
-  }
-  shinyApp(ui, server)
-}
-
-content_demo()
+# 
+# # Testing module
+# content_demo <- function() {
+#   ui <- fluidPage(cropsSummaryUI("summary_crops_test"))
+#   server <- function(input, output, session) {
+#     cropsSummaryServer("summary_crops_test")
+#   }
+#   shinyApp(ui, server)
+# }
+# 
+# content_demo()

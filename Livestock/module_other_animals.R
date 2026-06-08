@@ -351,13 +351,13 @@ otherAnimalsServer <- function(id) {
   )
 }
 
-# Testing module
-other_animals_demo <- function() {
-  ui <- fluidPage(otherAnimalsUI("other_animals_test"))
-  server <- function(input, output, session) {
-    otherAnimalsServer("other_animals_test")
-  }
-  shinyApp(ui, server)
-}
-
-other_animals_demo()
+# # Testing module
+# other_animals_demo <- function() {
+#   ui <- fluidPage(otherAnimalsUI("other_animals_test"))
+#   server <- function(input, output, session) {
+#     otherAnimalsServer("other_animals_test")
+#   }
+#   shinyApp(ui, server)
+# }
+# 
+# other_animals_demo()

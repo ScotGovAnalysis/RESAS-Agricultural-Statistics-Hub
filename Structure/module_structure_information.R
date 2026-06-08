@@ -64,15 +64,15 @@ structureInformationServer <- function(id) {
     # If you want to add any server-side logic, you can include it here
   })
 }
-
-# Testing the module
-structureInformationDemo <- function() {
-  ui <- fluidPage(structureInformationUI("structure_information_test"))
-  server <- function(input, output, session) {
-    structureInformationServer("structure_information_test")
-  }
-  shinyApp(ui, server)
-}
+# 
+# # Testing the module
+# structureInformationDemo <- function() {
+#   ui <- fluidPage(structureInformationUI("structure_information_test"))
+#   server <- function(input, output, session) {
+#     structureInformationServer("structure_information_test")
+#   }
+#   shinyApp(ui, server)
+# }
 
 # Uncomment the line below to run the test
 # structureInformationDemo()

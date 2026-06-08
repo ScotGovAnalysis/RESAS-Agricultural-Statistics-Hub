@@ -1,7 +1,7 @@
 n_balance<-table_5_df %>% 
   mutate(n_type="n_balance") %>% 
   pivot_longer(
-    cols = `2019-20`:fbs_current_year,
+    cols = `2019-20`:`2023-24`,
     names_to = "year",
     values_to="value") %>% 
   tidyr::pivot_wider(
@@ -12,7 +12,7 @@ n_balance<-table_5_df %>%
 nue<-table_6_df %>% 
   mutate(n_type="nue") %>% 
   pivot_longer(
-    cols = `2019-20`:fbs_current_year,
+    cols = `2019-20`:`2023-24`,
     names_to = "year",
     values_to="value") %>% 
   tidyr::pivot_wider(

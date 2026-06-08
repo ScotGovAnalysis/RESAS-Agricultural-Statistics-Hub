@@ -142,13 +142,13 @@ totalnumberofvehiclesServer <- function(id) {
     )
   })
 }
-# Testing function for the entire module
-totalnumberofvehiclesDemo <- function() {
-  ui <- fluidPage(totalnumberofvehiclesUI("total_number_of_vehicles_demo"))
-  server <- function(input, output, session) {
-    totalnumberofvehiclesServer("total_number_of_vehicles_demo")
-  }
-  shinyApp(ui, server)
-}
-
-totalnumberofvehiclesDemo()
+# # Testing function for the entire module
+# totalnumberofvehiclesDemo <- function() {
+#   ui <- fluidPage(totalnumberofvehiclesUI("total_number_of_vehicles_demo"))
+#   server <- function(input, output, session) {
+#     totalnumberofvehiclesServer("total_number_of_vehicles_demo")
+#   }
+#   shinyApp(ui, server)
+# }
+# 
+# totalnumberofvehiclesDemo()

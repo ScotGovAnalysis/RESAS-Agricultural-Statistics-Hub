@@ -163,13 +163,13 @@ manureServer <- function(id) {
 
 
 # Test the module
-content_demo <- function() {
-  ui <- fluidPage(manureUI("manure_map_test"))
-  server <- function(input, output, session) {
-    manureServer("manure_map_test")
-  }
-  shinyApp(ui, server)
-}
+# content_demo <- function() {
+#   ui <- fluidPage(manureUI("manure_map_test"))
+#   server <- function(input, output, session) {
+#     manureServer("manure_map_test")
+#   }
+#   shinyApp(ui, server)
+# }
 
 # Uncomment the line below to run the test
 #content_demo()

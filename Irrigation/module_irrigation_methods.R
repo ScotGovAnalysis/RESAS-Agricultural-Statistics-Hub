@@ -98,11 +98,11 @@ chart_data <- reactive({
   })
 }
     
-content_demo <- function() {
-  ui <- fluidPage(irrigationmethodsUI("irrigation_methods_test"))
-  server <- function(input, output, session) {
-    irrigationmethodsServer("irrigation_methods_test")
-  }
-  shinyApp(ui, server)
-}
-content_demo()
+# content_demo <- function() {
+#   ui <- fluidPage(irrigationmethodsUI("irrigation_methods_test"))
+#   server <- function(input, output, session) {
+#     irrigationmethodsServer("irrigation_methods_test")
+#   }
+#   shinyApp(ui, server)
+# }
+# content_demo()

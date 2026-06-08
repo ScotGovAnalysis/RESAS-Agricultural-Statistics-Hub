@@ -358,13 +358,13 @@ occupiersServer <- function(id) {
 
 
 
-# Testing module
-content_demo <- function() {
-  ui <- fluidPage(occupiersUI("occupiers_map_test"))
-  server <- function(input, output, session) {
-    occupiersServer("occupiers_map_test")
-  }
-  shinyApp(ui, server)
-}
-
-content_demo()
+# # Testing module
+# content_demo <- function() {
+#   ui <- fluidPage(occupiersUI("occupiers_map_test"))
+#   server <- function(input, output, session) {
+#     occupiersServer("occupiers_map_test")
+#   }
+#   shinyApp(ui, server)
+# }
+# 
+# content_demo()
