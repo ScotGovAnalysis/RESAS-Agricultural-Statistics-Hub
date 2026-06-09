@@ -29,6 +29,13 @@ agri_total <- national_total |> filter(Industry == "Agriculture") |>
   select(Subsector, Year, Value)
 
 subsector_total <- rbind(subsector_total, agri_total)
+
+#arrange highest to lowest for bar chart
+
+subs_tot <- colSums(subsector_source[,-1]) |>   
+  sort(decreasing = T)
+subsector_source <- subsector_source |>
+  select(Source, names(subs_tot))
 # save
 save(national_total, subsector_total, subsector_source, agri_total, agri_gas, file = "Data/ghg_data.RData")
 

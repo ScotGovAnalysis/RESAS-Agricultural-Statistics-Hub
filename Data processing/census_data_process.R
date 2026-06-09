@@ -640,13 +640,19 @@ save(
 
 #### Module 2025 Data ####
 irrigation_drought_flood_protection <- irrigation_drought_flood_protection %>%
-  filter(if_any(everything(), ~ grepl("[A-Za-z]", .)))
+  filter(if_any(everything(), ~ grepl("[A-Za-z]", .))) %>% 
+  filter(!(`Irrigation, drought or flood protection measure` %in% c(
+    "Number of holdings that responded", "Total responses")))
+
+irrigation_methods <- irrigation_methods %>% 
+  filter(!(`Irrigation practice` %in% c(
+    "Number of holdings that responded", "Total responses")))
+
 save(
   irrigation_methods,
   irrigation_drought_flood_protection,
   file = "Data/irrigation_2025.RData"
 )
-
 
 
 # Constituency ----
