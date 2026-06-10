@@ -4,29 +4,6 @@ library(here)
 library(plotly)
 
 
-load("Data/n_balance.Rda")
-load("Data/nue.Rda")
-
-# 
-# n_balance<-table_5_df %>% 
-#   mutate(n_type="n_balance") %>% 
-#   pivot_longer(
-#     cols = `2019-20`:fbs_current_year,
-#     names_to = "year",
-#     values_to="value")
-# 
-# 
-# nue<-table_6_df %>% 
-#   mutate(n_type="nue") %>% 
-#   pivot_longer(
-#     cols = `2019-20`:fbs_current_year,
-#     names_to = "year",
-#     values_to="value")
-# 
-# nitrogen_data<-dplyr::bind_rows(n_balance, nue) %>% 
-#   rename(farm_type=`Farm type`) %>% 
-#   filter(Measure=="Average (median)")
-
 nitrogenline_ChartUI <- function(id, n_type = NULL) {
   ns <- NS(id)
   

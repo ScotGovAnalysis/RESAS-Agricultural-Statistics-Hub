@@ -1,38 +1,3 @@
-n_balance<-table_5_df %>% 
-  mutate(n_type="n_balance") %>% 
-  pivot_longer(
-    cols = `2019-20`:fbs_current_year,
-    names_to = "year",
-    values_to="value") %>% 
-  tidyr::pivot_wider(
-    names_from = Measure,
-    values_from = value)
-
-
-nue<-table_6_df %>% 
-  mutate(n_type="nue") %>% 
-  pivot_longer(
-    cols = `2019-20`:fbs_current_year,
-    names_to = "year",
-    values_to="value") %>% 
-  tidyr::pivot_wider(
-    names_from = Measure,
-    values_from = value)
-
-
-nitrogen_data<-dplyr::bind_rows(n_balance, nue) %>% 
-  rename(farm_type=`Farm type`)%>% 
-  rename(Lower=`95% CI (lower limit)`,
-         Upper=`95% CI (upper limit)`,
-         Median=`Average (median)`) %>% 
-  data.frame()
-
-test<-nitrogen_data %>%
-  pivot_longer(
-    cols = Median:Upper,
-    names_to = "Estimate",
-    values_to="value") %>%  
-  mutate(value=janitor::round_half_up(value, 2))
 
 
 nitrogenUI<- function(id) {

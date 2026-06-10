@@ -36,8 +36,8 @@ load(here("Data", "oilseed_combined_long.RData"))
 load(here("Data", "oilseed_tiff_data_long.RData"))
 load(here("Data", "constituency_data.RData"))
 load(here("Data", "unitauth_data.RData"))
-load(here("Data", "n_balance.Rda"))
-load(here("Data", "nue.Rda"))
+load(here("Data", "nitrogen_data.Rda"))
+
 
 # Load FBS options
 source(here("Economy/FBS", "fbs_utility.R"))
