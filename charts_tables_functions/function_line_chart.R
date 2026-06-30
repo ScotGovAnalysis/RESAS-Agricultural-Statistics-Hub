@@ -25,7 +25,8 @@ lineChartUI <- function(id, note_type = 1) {
   
   tagList(
     htmlOutput(ns("title")),
-    highchartOutput(ns("line_chart")),
+    withSpinner(highchartOutput(ns("line_chart")), 
+      color = getOption("spinner.color", default = "#374f66")),
     htmlOutput(ns("footer")),
     div(
       class = "note",

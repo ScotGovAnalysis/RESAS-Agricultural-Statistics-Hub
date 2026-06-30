@@ -20,7 +20,8 @@ mapUnitaryUI <- function(id) {
     mainPanel(
       width = 12,  # Ensures the main panel uses full width
       htmlOutput(ns("title")),
-      highchartOutput(ns("map_uni"), height = "75vh", width = "100%"),  # Set width to 100% for full utilization
+      withSpinner(highchartOutput(ns("map_uni"), height = "75vh", width = "100%"),  # Set width to 100% for full utilization
+      color = getOption("spinner.color", default = "#374f66")),
       htmlOutput(ns("footer")),
       div(
         class = "note",

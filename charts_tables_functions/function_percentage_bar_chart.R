@@ -2,7 +2,8 @@ percentageBarChartUI <- function(id, chart_height = 300) {
   ns <- NS(id)
   tagList(
     htmlOutput(ns("title")),
-    highchartOutput(ns("bar_chart"), height = paste0(chart_height, "px"))
+    withSpinner(highchartOutput(ns("bar_chart"), height = paste0(chart_height, "px")),
+    color = getOption("spinner.color", default = "#374f66"))
   )
 }
 percentageBarChartServer <- function(id, chart_data, title, yAxisTitle, xAxisTitle, x_col, y_col, unit = "") {
