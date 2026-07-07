@@ -96,16 +96,12 @@ ui <- fluidPage(
    # tags$link(rel = "stylesheet", type = "text/css", href = "styles.css"),
     
     # Analytics
-   HTML("<script src='https://cc.cdn.civiccomputing.com/8/cookieControl-8.x.min.js'></script>"),
-   HTML("<script async src='https://www.googletagmanager.com/gtag/js?id=G-PXBPFFZ1RL'></script>"),
-   tags$script(src = "cookie_control.js"),
-   
-    # includeHTML("utility/google-analytics.html"),
-    # tags$script(HTML("
-    #   $(document).on('click', 'a[data-value=\"home\"]', function() {
-    #     history.pushState(null, '', '/AgStatsHub');
-    #   });
-    # "))
+    includeHTML("utility/google-analytics.html"),
+    tags$script(HTML("
+      $(document).on('click', 'a[data-value=\"home\"]', function() {
+        history.pushState(null, '', '/AgStatsHub');
+      });
+    "))
   ),
   
 
