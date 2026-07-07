@@ -19,7 +19,8 @@ areaChartUI <- function(id, note_type = 1) {
   
   tagList(
     htmlOutput(ns("title")),
-    highchartOutput(ns("area_chart")),
+    withSpinner(highchartOutput(ns("area_chart")),
+      color = getOption("spinner.color", default = "#374f66")),
     htmlOutput(ns("footer")),
     div(
       class = "note",

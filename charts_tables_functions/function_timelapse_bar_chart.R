@@ -32,7 +32,8 @@ timelapseBarChartUI <- function(id) {
                         actionButton(ns("playPause"), "", icon = icon("play"), class = "btn btn-primary")
           ))
         ),
-        highchartOutput(ns("chart"), height = "500px")
+        withSpinner(highchartOutput(ns("chart"), height = "500px"),
+          color = getOption("spinner.color", default = "#374f66"))
     ),
     htmlOutput(ns("footer")),
     div(

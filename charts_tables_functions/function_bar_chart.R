@@ -4,7 +4,8 @@ barChartUI <- function(id) {
   ns <- NS(id)
   tagList(
     htmlOutput(ns("title")),
-    highchartOutput(ns("bar_chart")),
+    withSpinner(highchartOutput(ns("bar_chart")),
+      color = getOption("spinner.color", default = "#374f66")),
     htmlOutput(ns("footer")),
     div(
       class = "note",

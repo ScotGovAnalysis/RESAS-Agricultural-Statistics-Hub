@@ -33,7 +33,8 @@ nitrogenline_ChartUI <- function(id, n_type = NULL) {
   
   tagList(
     htmlOutput(ns("title")),
-    plotlyOutput(ns("nitrogen_line_chart")),
+    withSpinner(plotlyOutput(ns("nitrogen_line_chart")),
+      color = getOption("spinner.color", default = "#374f66")),
     # note_content,
     htmlOutput(ns("footer")),
     div(

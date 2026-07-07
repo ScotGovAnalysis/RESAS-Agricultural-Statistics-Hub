@@ -97,7 +97,10 @@ chartUI <- function(id) {
     title = uiOutput(ns("chartTitle")),
     width = 12,
     solidHeader = TRUE,
-    div(class = "box-content", highchartOutput(ns("chartOutput"), height = "300px"))
+    div(class = "box-content",
+        withSpinner(highchartOutput(ns("chartOutput")), 
+          color = getOption("spinner.color", default = "#374f66")),
+        height = "300px")
   )
 }
 

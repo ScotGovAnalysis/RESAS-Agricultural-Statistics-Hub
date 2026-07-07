@@ -30,7 +30,8 @@ fbsline_ChartUI <- function(id, in_out_type = NULL) {
   
   tagList(
     htmlOutput(ns("title")),
-    highchartOutput(ns("fbsline_chart")),
+    withSpinner(highchartOutput(ns("fbsline_chart")),
+      color = getOption("spinner.color", default = "#374f66")),
     note_content,
     htmlOutput(ns("footer")),
     div(

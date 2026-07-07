@@ -2,7 +2,8 @@
 doubleBarChartUI <- function(id) {
   ns <- NS(id)
   tagList(
-    highchartOutput(ns("doubleBarChart"))
+    withSpinner(highchartOutput(ns("doubleBarChart")),
+                color = getOption("spinner.color", default = "#374f66"))
   )
 }
 
