@@ -11,18 +11,18 @@
 
 # Year of census data - some years need manually updated, breakdown server in emissions
 
-census_year <- 2025
+census_year <- 2026
 
 emissions_year <- 2024
 
 fbs_year <-2024-25 
 
-last_update <- "9 June 2026"
+last_update <- "8 October 2026"
 
 #emissions_year 
 
 #some footers need manually updated - e.g. poultry - run print_code and search for 2022 / 2023 to find issues
-census_footer <- '<div style="font-size: 16px; font-weight: bold;"><a href="https://www.gov.scot/publications/results-from-the-scottish-agricultural-census-june-2025/">Source: Scottish Agricultural Census: June 2025</a></div>'
+census_footer <- '<div style="font-size: 16px; font-weight: bold;"><a href="https://www.gov.scot/publications/results-from-the-scottish-agricultural-census-june-2026/">Source: Scottish Agricultural Census: June 2026</a></div>'
 cereal_oilseed_footer <- '<div style="font-size: 16px; font-weight: bold;"><a href="https://www.gov.scot/collections/scottish-cereal-harvest-estimates/">Source: Scottish cereal harvest: estimates</a></div>'
 
 

@@ -74,7 +74,7 @@ library(purrr)
 #########################################
 
 # Define file path
-file_path <- "Data/June Agricultural Census 2025 Data tables.xlsx"
+file_path <- "Data/June Agricultural Census 2026 - Main data tables.xlsx"
 
 
 
@@ -89,24 +89,23 @@ table_names <- c(
   "number_of_poultry" = "Table_6",
   "number_of_other_livestock" = "Table_7",
   "occupiers_employees" = "Table_8",
-  "occupiers_sex" = "Table_9",
-  "occupiers_age_gender" = "Table_10",
-  "legal_responsibility" = "Table_11",
-  "owned_rented_land" = "Table_12",
-  "farm_type" = "Table_13",
-  "agricultural_area_lfa" = "Table_14",
-  "holdings_crops_grass_subregion" = "Table_15",
-  "crops_grass_area_subregion" = "Table_16",
-  "holdings_livestock_region_subregion" = "Table_17",
-  "livestock_subregion" = "Table_18",
-  "holdings_occupiers_employees_subregion" = "Table_19",
-  "occupiers_employees_subregion" = "Table_20",
-  "holdings_region_subregion_farm_type" = "Table_21",
-  "agricultural_area_region_subregion_farm_type" = "Table_22",
-  "holdings_area_size_band_farm_type" = "Table_23",
-  "agricultural_area_area_size_band_farm_type" = "Table_24",
-  "irrigation_methods" = "Module_2025_Table_1",
-  "irrigation_drought_flood_protection" = "Module_2025_Table_2"
+  
+  "occupiers_sex" = "Table_10",
+  "occupiers_age_gender" = "Table_11",
+  "legal_responsibility" = "Table_12",
+  "owned_rented_land" = "Table_13",
+  "farm_type" = "Table_14",
+  "agricultural_area_lfa" = "Table_15",
+  "holdings_crops_grass_subregion" = "Table_16",
+  "crops_grass_area_subregion" = "Table_17",
+  "holdings_livestock_region_subregion" = "Table_18",
+  "livestock_subregion" = "Table_19",
+  "holdings_occupiers_employees_subregion" = "Table_20",
+  "occupiers_employees_subregion" = "Table_21",
+  "holdings_region_subregion_farm_type" = "Table_22",
+  "agricultural_area_region_subregion_farm_type" = "Table_23",
+  "holdings_area_size_band_farm_type" = "Table_24",
+  "agricultural_area_area_size_band_farm_type" = "Table_25"
 )
 # Function to remove rows until the first occurrence of "Source:" in the first column
 remove_until_source <- function(data) {
@@ -187,18 +186,18 @@ for (table in names(table_names)) {
   assign(table, cleaned_data)
 }
 
-# Change Sole Right Grazing to Rough Grazing
-crops_grass_area_subregion <- crops_grass_area_subregion %>%
-  mutate(`Land use by category` = if_else(`Land use by category` == "Sole Right Grazing", "Rough Grazing", `Land use by category`))
-
-holdings_crops_grass_subregion <- holdings_crops_grass_subregion %>%
-  mutate(`Land use by category` = if_else(`Land use by category` == "Sole Right Grazing", "Rough Grazing", `Land use by category`))
+# Change Sole Right Grazing to Rough grazing
+# crops_grass_area_subregion <- crops_grass_area_subregion %>%
+#   mutate(`Land use by category` = if_else(`Land use by category` == "Sole Right Grazing", "Rough grazing", `Land use by category`))
+# 
+# holdings_crops_grass_subregion <- holdings_crops_grass_subregion %>%
+#   mutate(`Land use by category` = if_else(`Land use by category` == "Sole Right Grazing", "Rough grazing", `Land use by category`))
 
 # Remove % change column
 owned_rented_land <- owned_rented_land %>%
-  select(-`% Change 2025 to 2024`)
+  select(-`% Change 2026 to 2025`)
 occupiers_employees <- occupiers_employees %>%
-  select(-`% Change 2025 to 2024`)
+  select(-`% Change 2026 to 2025`)
 
 # Save all tables to an RData file
 save(list = names(table_names), file = "Data/census_data.RData")
@@ -240,11 +239,11 @@ names(vegetables_bulbs_fruit_area) <- names(vegetables_bulbs_fruit_area) %>%
 
 # Preprocess and round the summary crops data
 crops_summary_data <- agricultural_area_hectares %>%
-  select(-`% Change 2025 to 2024`) %>%
-  filter(`Crop/Land use` %in% c("Total Combine Harvested Crops", "Total Crops For Stockfeeding",
-                                "Vegetables For Human Consumption", "Soft Fruit")) %>%
+  select(-`% Change 2026 to 2025`) %>%
+  filter(`Crop/land use` %in% c("Total combine harvested crops", "Total crops for stockfeeding",
+                                "Vegetables for human consumptioncrops", "Soft Fruit")) %>%
   pivot_longer(
-    cols = -`Crop/Land use`,
+    cols = -`Crop/land use`,
     names_to = "Year",
     values_to = "Value"
   ) %>%
@@ -258,46 +257,46 @@ crops_summary_data <- agricultural_area_hectares %>%
   )
 
 land_use_data <- agricultural_area_hectares %>% 
-  select(-`% Change 2025 to 2024`) %>%
-  filter(`Crop/Land use` %in% c("Total Crops, Fallow, And Set-Aside", "Total Grass", 
-                                "Rough Grazing", "Total Sole Right Agricultural Area", "Common Grazings"))
+  select(-`% Change 2026 to 2025`) %>%
+  filter(`Crop/land use` %in% c("Total crops, fallow, and set-aside", "Total grass", 
+                                "Rough grazing", "Total sole right agricultural area", "Common grazings"))
 
 
 land_use_subregion <- crops_grass_area_subregion %>%
-  filter(`Land use by category` %in% c("Total Agricultural Area", "Total Sole Right Agricultural Area", "Total Grass and Rough Grazing", 
-                                       "Sole Right Grazing", "Total Crops, Fallow, And Set-Aside", "Common Grazings", "Other Land (including Woodland)"))
+  filter(`Land use by category` %in% c("Total agricultural area", "Total sole right agricultural area", "Total grass and Rough grazing", 
+                                       "Rough grazing", "Total crops, fallow, and set-aside", "Common grazings", "Other land (including woodland)"))
 
 
 # Subset for cereals data
 cereals_data <- agricultural_area_hectares %>%
-  select(-`% Change 2025 to 2024`) %>%
-  filter(`Crop/Land use` %in% c("Wheat", "Triticale", "Winter Barley", "Spring Barley", "Barley Total", 
-                                "Winter Oats", "Spring Oats", "Oats Total", "Rye", "Mixed Grain", 
+  select(-`% Change 2026 to 2025`) %>%
+  filter(`Crop/land use` %in% c("Wheat", "Triticale", "Winter barley", "Spring barley", "Barley total", 
+                                "Winter Oats", "Spring Oats", "Oats total", "Rye", "Mixed grain", 
                                 "Total Cereals"))
 
 # Subset for oilseeds data
 oilseed_data <- agricultural_area_hectares %>%
-  select(-`% Change 2025 to 2024`) %>%
-  filter(`Crop/Land use` %in% c("Winter Oilseed Rape", "Spring Oilseed Rape", "Linseed", "Total Oilseeds")) %>%
+  select(-`% Change 2026 to 2025`) %>%
+  filter(`Crop/land use` %in% c("Winter oilseed rape", "Spring oilseed rape", "Linseed", "Total oilseeds")) %>%
   mutate(`2025` = round(`2025`, 0))
 
 # Subset for potatoes data
 potatoes_data <- agricultural_area_hectares %>%
-  select(-`% Change 2025 to 2024`) %>%
-  filter(`Crop/Land use` %in% c("Seed Potatoes", "Ware Potatoes", "Total Potatoes")) %>%
+  select(-`% Change 2026 to 2025`) %>%
+  filter(`Crop/land use` %in% c("Seed potatoes", "Ware potatoes", "Total potatoes")) %>%
   mutate(`2025` = round(`2025`, 0))
 
 # Subset for beans data
 beans_data <- agricultural_area_hectares %>%
-  select(-`% Change 2025 to 2024`) %>%
-  filter(`Crop/Land use` %in% c("Protein Peas", "Field Beans")) %>%
+  select(-`% Change 2026 to 2025`) %>%
+  filter(`Crop/land use` %in% c("Protein peas", "Field beans")) %>%
   mutate(`2025` = round(`2025`, 0))
 
 # Subset for animal feed data
 stockfeeding_data <- agricultural_area_hectares %>%
-  select(-`% Change 2025 to 2024`) %>%
-  filter(`Crop/Land use` %in% c("Turnips/Swedes", "Kale/Cabbage", "Maize", "Rape", "Fodder Beet", 
-                                "Lupins", "Other Crops For Stockfeeding", "Total Crops For Stockfeeding"))
+  select(-`% Change 2026 to 2025`) %>%
+  filter(`Crop/land use` %in% c("Turnips/swedes", "Kale/cabbage", "Maize", "Rape", "Fodder beet", 
+                                "Lupins", "Other crops for stockfeeding", "Total crops for stockfeeding"))
 
 
 stockfeeding_data <- stockfeeding_data %>%
@@ -305,11 +304,11 @@ stockfeeding_data <- stockfeeding_data %>%
 
 # Subset for human vegetables data
 human_vegetables_data <- vegetables_bulbs_fruit_area %>%
-  select(-`% Change 2025 to 2024`) %>%
+  select(-`% Change 2026 to 2025`) %>%
   filter(`Vegetables and fruits for human consumption` %in% c(
     "Peas For Canning, Freezing Or Drying",
     "Beans For Canning, Freezing Or Drying",
-    "Turnips/Swedes",
+    "Turnips/swedes",
     "Calabrese",
     "Cauliflower",
     "Carrots",
@@ -320,7 +319,7 @@ human_vegetables_data <- vegetables_bulbs_fruit_area %>%
 
 # Subset for soft fruit data
 fruit_data <- vegetables_bulbs_fruit_area %>%
-  select(-`% Change 2025 to 2024`) %>%
+  select(-`% Change 2026 to 2025`) %>%
   filter(`Vegetables and fruits for human consumption` %in% c(
     "Strawberries Grown In The Open",
     "Raspberries Grown In The Open",
@@ -346,17 +345,17 @@ fruit_data <- vegetables_bulbs_fruit_area %>%
 cereals_subregion <- crops_grass_area_subregion %>%
   filter(`Land use by category` %in% c(
     "Wheat",
-    "Winter Barley",
-    "Spring Barley",
-    "Barley Total",
-    "Oats and Mixed Grain"
+    "Winter barley",
+    "Spring barley",
+    "Barley total",
+    "Oats and mixed grain"
   )) %>%
   mutate(across(where(is.numeric), ~ round(.x, 0)))
 
 # Subset for oilseed_subregion
 oilseed_subregion <- crops_grass_area_subregion %>%
   filter(`Land use by category` %in% c(
-    "Oilseeds (including Linseed)"
+    "Oilseeds (including linseed)"
   )) %>%
   mutate(across(where(is.numeric), ~ round(.x, 0)))
 
@@ -370,28 +369,28 @@ potatoes_subregion <- crops_grass_area_subregion %>%
 # Subset for beans_subregion
 beans_subregion <- crops_grass_area_subregion %>%
   filter(`Land use by category` %in% c(
-    "Peas and Beans for Combining"
+    "Peas and beans for combining"
   )) %>%
   mutate(across(where(is.numeric), ~ round(.x, 0)))
 
 # Subset for stockfeeding_subregion
 stockfeeding_subregion <- crops_grass_area_subregion %>%
   filter(`Land use by category` %in% c(
-    "Stockfeeding Crops"
+    "Stockfeeding crops"
   )) %>%
   mutate(across(where(is.numeric), ~ round(.x, 0)))
 
 # Subset for human_veg_subregion
 human_vegetables_subregion <- crops_grass_area_subregion %>%
   filter(`Land use by category` %in% c(
-    "Vegetables For Human Consumption"
+    "Vegetables for human consumption"
   )) %>%
   mutate(across(where(is.numeric), ~ round(.x, 0)))
 
 # Subset for fruit_subregion
 fruit_subregion <- crops_grass_area_subregion %>%
   filter(`Land use by category` %in% c(
-    "Orchard and Soft Fruit"
+    "Orchard and soft fruit"
   )) %>%
   mutate(across(where(is.numeric), ~ round(.x, 0)))
 
@@ -424,19 +423,19 @@ load("Data/census_data.RData")
 
 # Remove % change columns
 number_of_cattle <- number_of_cattle %>%
-  select(-`% Change 2025 to 2024`)
+  select(-`% Change 2026 to 2025`)
 
 number_of_sheep <- number_of_sheep %>%
-  select(-`% Change 2025 to 2024`)
+  select(-`% Change 2026 to 2025`)
 
 number_of_pigs <- number_of_pigs %>%
-  select(-`% Change 2025 to 2024`)
+  select(-`% Change 2026 to 2025`)
 
 number_of_poultry <- number_of_poultry %>% 
-  select(-`% Change 2025 to 2024`)
+  select(-`% Change 2026 to 2025`)
 
 number_of_other_livestock <- number_of_other_livestock %>%
-  select(-`% Change 2025 to 2024`)
+  select(-`% Change 2026 to 2025`)
 
 # Convert the wide format data into long format using pivot_longer
 number_of_pigs_long <- number_of_pigs %>%
@@ -587,55 +586,55 @@ save(list = names(data_frames), file = "module_2023.RData", envir = list2env(dat
 
 
 
-# subset for total vehicle numbers
-total_number_vehicles_data <- number_of_ag_mach_fuel_type %>%
-  select(`Agricultural machinery`, `All fuel types`) %>%
-  filter(`Agricultural machinery` %in% c("All-terrain vehicle (ATV)/Quads", "Combine harvesters",
-                                "Other lifting equipment (such as wheeled loaders, diggers and fork-lifts)",
-                                "Side-by-side utility vehicles", "Self-propelled sprayers", "Telescopic material handlers (such as telehandlers)",
-                                "All tractors", "All agricultural machinery"))
-
-# subset by farm type
-ag_mach_farm_type_data <- number_of_ag_mach_farm_type %>%
-  select(`Main farm type`, `All tractors`, `Combine harvesters`,
-         `Self-propelled sprayers`, `Telescopic material handlers`,
-         `All-terrain vehicle/Quads`, `Side-by-side utility vehicles`,
-         `Other lifting equipment`) %>%
-  filter(`Main farm type` %in% c("General cropping", "General cropping; forage", "LFA cattle and sheep",
-                                 "Mixed holdings", "Non-LFA cattle and sheep", "Specialist cereals",
-                                 "Specialist dairy", "Specialist horticulture & permanent crops",
-                                 "Specialist pigs", "Specialist poultry", "Unclassified", "Unknown"))
-# subset by ownership
-ag_mach_ownership_data <- number_of_ag_mach_ownership %>%
-  select(-`All ownership status`) %>%
-  filter(`Agricultural machinery` %in% c("All-terrain vehicle (ATV)/Quads", "Combine harvesters",
-                                         "Side-by-side utility vehicles", "Self-propelled sprayers", "Telescopic material handlers (such as telehandlers)",
-                                         "All tractors"))
-ag_mach_ownership_data <- ag_mach_ownership_data %>%
-  pivot_longer(cols = -`Agricultural machinery`, names_to = "Status", values_to = "Value") # Pivot wider to turn category rows into columns
-ag_mach_ownership_data <- ag_mach_ownership_data %>%
-  pivot_wider(names_from = `Agricultural machinery`, values_from = Value)
-
-
-# subset by fuel
-ag_mach_fuel_data <- number_of_ag_mach_fuel_type %>%
-  select(-`All fuel types`) %>%
-  filter(`Agricultural machinery` %in% c("All-terrain vehicle (ATV)/Quads", "Combine harvesters", "Other lifting equipment (such as wheeled loaders, diggers and fork-lifts)",
-                                         "Side-by-side utility vehicles", "Self-propelled sprayers", "Telescopic material handlers (such as telehandlers)",
-                                         "All tractors"))
-ag_mach_fuel_data <- ag_mach_fuel_data %>%
-  pivot_longer(cols = -`Agricultural machinery`, names_to = "Fuel type", values_to = "Value") # Pivot wider to turn category rows into columns
-ag_mach_fuel_data <- ag_mach_fuel_data %>%
-  pivot_wider(names_from = `Agricultural machinery`, values_from = Value)
-
-# Saving all the subsets to an RData file
-save(
-  total_number_vehicles_data,
-  ag_mach_farm_type_data,
-  ag_mach_ownership_data,
-  ag_mach_fuel_data,
-  file = "vehicle_data.RData"
-)
+# # subset for total vehicle numbers
+# total_number_vehicles_data <- number_of_ag_mach_fuel_type %>%
+#   select(`Agricultural machinery`, `All fuel types`) %>%
+#   filter(`Agricultural machinery` %in% c("All-terrain vehicle (ATV)/Quads", "Combine harvesters",
+#                                 "Other lifting equipment (such as wheeled loaders, diggers and fork-lifts)",
+#                                 "Side-by-side utility vehicles", "Self-propelled sprayers", "Telescopic material handlers (such as telehandlers)",
+#                                 "All tractors", "All agricultural machinery"))
+# 
+# # subset by farm type
+# ag_mach_farm_type_data <- number_of_ag_mach_farm_type %>%
+#   select(`Main farm type`, `All tractors`, `Combine harvesters`,
+#          `Self-propelled sprayers`, `Telescopic material handlers`,
+#          `All-terrain vehicle/Quads`, `Side-by-side utility vehicles`,
+#          `Other lifting equipment`) %>%
+#   filter(`Main farm type` %in% c("General cropping", "General cropping; forage", "LFA cattle and sheep",
+#                                  "Mixed holdings", "Non-LFA cattle and sheep", "Specialist cereals",
+#                                  "Specialist dairy", "Specialist horticulture & permanent crops",
+#                                  "Specialist pigs", "Specialist poultry", "Unclassified", "Unknown"))
+# # subset by ownership
+# ag_mach_ownership_data <- number_of_ag_mach_ownership %>%
+#   select(-`All ownership status`) %>%
+#   filter(`Agricultural machinery` %in% c("All-terrain vehicle (ATV)/Quads", "Combine harvesters",
+#                                          "Side-by-side utility vehicles", "Self-propelled sprayers", "Telescopic material handlers (such as telehandlers)",
+#                                          "All tractors"))
+# ag_mach_ownership_data <- ag_mach_ownership_data %>%
+#   pivot_longer(cols = -`Agricultural machinery`, names_to = "Status", values_to = "Value") # Pivot wider to turn category rows into columns
+# ag_mach_ownership_data <- ag_mach_ownership_data %>%
+#   pivot_wider(names_from = `Agricultural machinery`, values_from = Value)
+# 
+# 
+# # subset by fuel
+# ag_mach_fuel_data <- number_of_ag_mach_fuel_type %>%
+#   select(-`All fuel types`) %>%
+#   filter(`Agricultural machinery` %in% c("All-terrain vehicle (ATV)/Quads", "Combine harvesters", "Other lifting equipment (such as wheeled loaders, diggers and fork-lifts)",
+#                                          "Side-by-side utility vehicles", "Self-propelled sprayers", "Telescopic material handlers (such as telehandlers)",
+#                                          "All tractors"))
+# ag_mach_fuel_data <- ag_mach_fuel_data %>%
+#   pivot_longer(cols = -`Agricultural machinery`, names_to = "Fuel type", values_to = "Value") # Pivot wider to turn category rows into columns
+# ag_mach_fuel_data <- ag_mach_fuel_data %>%
+#   pivot_wider(names_from = `Agricultural machinery`, values_from = Value)
+# 
+# # Saving all the subsets to an RData file
+# save(
+#   total_number_vehicles_data,
+#   ag_mach_farm_type_data,
+#   ag_mach_ownership_data,
+#   ag_mach_fuel_data,
+#   file = "vehicle_data.RData"
+# )
 
 
 #### Module 2025 Data ####
@@ -656,310 +655,310 @@ save(
 
 
 # Constituency ----
-
-xlsx_path <- "Data/constituency_data.xlsx"
-
-# Get sheet names
-sheets <- excel_sheets(xlsx_path)
-
-# Read each sheet into a named list of tibbles
-wb_list <- map(sheets, ~ read_excel(xlsx_path, sheet = .x, na = "c"))
-names(wb_list) <- sheets
-
-safe_names <- make.names(names(wb_list))              # base R safe names
-safe_names <- str_replace_all(safe_names, "\\.", "_") # turn dots into underscores
-
-# Assign to the current environment (or specify .GlobalEnv)
-list2env(setNames(wb_list, safe_names), envir = .GlobalEnv)
+# 
+# xlsx_path <- "Data/constituency_data.xlsx"
+# 
+# # Get sheet names
+# sheets <- excel_sheets(xlsx_path)
+# 
+# # Read each sheet into a named list of tibbles
+# wb_list <- map(sheets, ~ read_excel(xlsx_path, sheet = .x, na = "c"))
+# names(wb_list) <- sheets
+# 
+# safe_names <- make.names(names(wb_list))              # base R safe names
+# safe_names <- str_replace_all(safe_names, "\\.", "_") # turn dots into underscores
+# 
+# # Assign to the current environment (or specify .GlobalEnv)
+# list2env(setNames(wb_list, safe_names), envir = .GlobalEnv)
 
 # Remove units from column names
-names(constituency_crops_area) <- names(constituency_crops_area) %>% 
-  str_replace_all(" \\(Hectares\\)", "")
-names(constituency_workforce_numbers) <- names(constituency_workforce_numbers) %>% 
-  str_replace_all(" \\(Number\\)", "")
-names(constituency_livestock_numbers) <- names(constituency_livestock_numbers) %>% 
-  str_replace_all(" \\(Number\\)", "")
+# names(constituency_crops_area) <- names(constituency_crops_area) %>% 
+#   str_replace_all(" \\(Hectares\\)", "")
+# names(constituency_workforce_numbers) <- names(constituency_workforce_numbers) %>% 
+#   str_replace_all(" \\(Number\\)", "")
+# names(constituency_livestock_numbers) <- names(constituency_livestock_numbers) %>% 
+#   str_replace_all(" \\(Number\\)", "")
 
 # subsetting
-land_use_constituency <- constituency_crops_area %>%
-  rename(`Common Grazings` = `Sole Right Grazing`) %>% 
-  select(Constituency, 
-         `Total Crops, Fallow, And Set-Aside`, 
-         `Total Grass and Rough Grazing`,
-         `Other Land (including woodland)`,
-         `Total Sole Right Agricultural Area`,
-         `Common Grazings`) %>%
-  pivot_longer(cols = -Constituency, names_to = "land use", values_to = "value") %>%
-  mutate(value = as.numeric(value)) %>% 
-  pivot_wider(names_from  = Constituency, values_from = value)
-
-
-workforce_constituency <- constituency_workforce_numbers %>%
-  select(Constituency, `Regular Full-Time Staff Total`,
-         `Regular Part-Time Staff Total`, `Total Casual And Seasonal Staff`,
-         `Total Workforce (including occupiers)`) %>%
-  pivot_longer(cols = -Constituency, names_to = "workforce", values_to = "value") %>%
-  mutate(value = as.numeric(value)) %>% 
-  pivot_wider(names_from  = Constituency, values_from = value)
-
-occupiers_constituency <- constituency_workforce_numbers %>%
-  select(Constituency, `Total Working Occupiers`, `Occupiers Not Working On The Holding`) %>%
-  pivot_longer(cols = -Constituency, names_to = "occupier", values_to = "value") %>%
-  mutate(value = as.numeric(value)) %>% 
-  pivot_wider(names_from  = Constituency, values_from = value)
-
-cattle_constituency <- constituency_livestock_numbers %>%
-  select(Constituency, `Total Cattle`, `Total Female Dairy Cattle`,
-         `Total Female Beef Cattle`, `Total Male Cattle`,
-         `Total Calves`) %>%
-  pivot_longer(cols = -Constituency, names_to = "livestock", values_to = "value") %>%
-  mutate(value = as.numeric(value)) %>% 
-  pivot_wider(names_from  = Constituency, values_from = value)
-
-sheep_constituency <- constituency_livestock_numbers %>%
-  select(Constituency, `Total Sheep`, `Ewes for breeding`,
-         `Other sheep 1 year and over for breeding`, `Rams for service`,
-         `Lambs`) %>%
-  pivot_longer(cols = -Constituency, names_to = "livestock", values_to = "value") %>%
-  mutate(value = as.numeric(value)) %>% 
-  pivot_wider(names_from  = Constituency, values_from = value)
-
-pigs_constituency <- constituency_livestock_numbers %>%
-  select(Constituency, `Total Pigs`, `Female pigs breeding herd`,
-         `All other non-breeding pigs`) %>%
-  pivot_longer(cols = -Constituency, names_to = "livestock", values_to = "value") %>%
-  mutate(value = as.numeric(value)) %>% 
-  pivot_wider(names_from  = Constituency, values_from = value)
-
-poultry_constituency <- constituency_livestock_numbers %>%
-  select(Constituency, `Total Poultry`, `Fowls for producing eggs`,
-         `Fowls for breeding`, `Broilers and other table fowls and other poultry`) %>%
-  pivot_longer(cols = -Constituency, names_to = "livestock", values_to = "value") %>%
-  mutate(value = as.numeric(value)) %>% 
-  pivot_wider(names_from  = Constituency, values_from = value)
-
-other_animals_constituency <- constituency_livestock_numbers %>%
-  select(Constituency, `Goats and kids`, `Deer`, `Horses`,
-         `Donkeys`, `Camelids`, `Beehives`) %>%
-  pivot_longer(cols = -Constituency, names_to = "livestock", values_to = "value") %>%
-  mutate(value = as.numeric(value)) %>% 
-  pivot_wider(names_from  = Constituency, values_from = value)
-
-cereals_constituency <- constituency_crops_area %>%
-  select(Constituency, `Wheat`, `Winter Barley`, 
-         `Spring Barley`, `Oats and mixed grain`) %>%
-  pivot_longer(cols = -Constituency, names_to = "crop", values_to = "value") %>%
-  mutate(value = as.numeric(value)) %>% 
-  pivot_wider(names_from  = Constituency, values_from = value)
-
-oilseeds_constituency <- constituency_crops_area %>%
-  select(Constituency, `Oilseeds (Including Linseed)`) %>%
-  pivot_longer(cols = -Constituency, names_to = "crop", values_to = "value") %>%
-  mutate(value = as.numeric(value)) %>% 
-  pivot_wider(names_from  = Constituency, values_from = value)
-
-potatoes_constituency <- constituency_crops_area %>%
-  select(Constituency, `Potatoes`) %>%
-  pivot_longer(cols = -Constituency, names_to = "crop", values_to = "value") %>%
-  mutate(value = as.numeric(value)) %>% 
-  pivot_wider(names_from  = Constituency, values_from = value)
-
-peas_beans_constituency <- constituency_crops_area %>%
-  select(Constituency, `Peas and Beans for Combining`) %>%
-  pivot_longer(cols = -Constituency, names_to = "crop", values_to = "value") %>%
-  mutate(value = as.numeric(value)) %>% 
-  pivot_wider(names_from  = Constituency, values_from = value)
-
-stockfeeding_constituency <- constituency_crops_area %>%
-  select(Constituency, `Stockfeeding Crops`) %>%
-  pivot_longer(cols = -Constituency, names_to = "crop", values_to = "value") %>%
-  mutate(value = as.numeric(value)) %>% 
-  pivot_wider(names_from  = Constituency, values_from = value)
-
-vegetables_constituency <- constituency_crops_area %>%
-  select(Constituency, `Vegetables For Human Consumption`) %>%
-  pivot_longer(cols = -Constituency, names_to = "crop", values_to = "value") %>%
-  mutate(value = as.numeric(value)) %>% 
-  pivot_wider(names_from  = Constituency, values_from = value)
-
-fruit_constituency <- constituency_crops_area %>%
-  select(Constituency, `Orchard and soft fruit`) %>%
-  pivot_longer(cols = -Constituency, names_to = "crop", values_to = "value") %>%
-  mutate(value = as.numeric(value)) %>% 
-  pivot_wider(names_from  = Constituency, values_from = value)
-
-save(
-  land_use_constituency,
-  workforce_constituency,
-  occupiers_constituency,
-  cattle_constituency,
-  sheep_constituency,
-  pigs_constituency,
-  poultry_constituency,
-  other_animals_constituency,
-  cereals_constituency,
-  oilseeds_constituency,
-  potatoes_constituency,
-  peas_beans_constituency,
-  stockfeeding_constituency,
-  vegetables_constituency,
-  fruit_constituency,
-  
-  file = "Data/constituency_data.RData"
-)
+# land_use_constituency <- constituency_crops_area %>%
+#   rename(`Common grazings` = `Sole Right Grazing`) %>% 
+#   select(Constituency, 
+#          `Total crops, fallow, and set-aside`, 
+#          `Total grass and Rough grazing`,
+#          `Other land (including woodland)`,
+#          `Total sole right agricultural area`,
+#          `Common grazings`) %>%
+#   pivot_longer(cols = -Constituency, names_to = "land use", values_to = "value") %>%
+#   mutate(value = as.numeric(value)) %>% 
+#   pivot_wider(names_from  = Constituency, values_from = value)
+# 
+# 
+# workforce_constituency <- constituency_workforce_numbers %>%
+#   select(Constituency, `Regular Full-Time Staff Total`,
+#          `Regular Part-Time Staff Total`, `Total Casual And Seasonal Staff`,
+#          `Total Workforce (including occupiers)`) %>%
+#   pivot_longer(cols = -Constituency, names_to = "workforce", values_to = "value") %>%
+#   mutate(value = as.numeric(value)) %>% 
+#   pivot_wider(names_from  = Constituency, values_from = value)
+# 
+# occupiers_constituency <- constituency_workforce_numbers %>%
+#   select(Constituency, `Total Working Occupiers`, `Occupiers Not Working On The Holding`) %>%
+#   pivot_longer(cols = -Constituency, names_to = "occupier", values_to = "value") %>%
+#   mutate(value = as.numeric(value)) %>% 
+#   pivot_wider(names_from  = Constituency, values_from = value)
+# 
+# cattle_constituency <- constituency_livestock_numbers %>%
+#   select(Constituency, `Total Cattle`, `Total Female Dairy Cattle`,
+#          `Total Female Beef Cattle`, `Total Male Cattle`,
+#          `Total Calves`) %>%
+#   pivot_longer(cols = -Constituency, names_to = "livestock", values_to = "value") %>%
+#   mutate(value = as.numeric(value)) %>% 
+#   pivot_wider(names_from  = Constituency, values_from = value)
+# 
+# sheep_constituency <- constituency_livestock_numbers %>%
+#   select(Constituency, `Total Sheep`, `Ewes for breeding`,
+#          `Other sheep 1 year and over for breeding`, `Rams for service`,
+#          `Lambs`) %>%
+#   pivot_longer(cols = -Constituency, names_to = "livestock", values_to = "value") %>%
+#   mutate(value = as.numeric(value)) %>% 
+#   pivot_wider(names_from  = Constituency, values_from = value)
+# 
+# pigs_constituency <- constituency_livestock_numbers %>%
+#   select(Constituency, `Total Pigs`, `Female pigs breeding herd`,
+#          `All other non-breeding pigs`) %>%
+#   pivot_longer(cols = -Constituency, names_to = "livestock", values_to = "value") %>%
+#   mutate(value = as.numeric(value)) %>% 
+#   pivot_wider(names_from  = Constituency, values_from = value)
+# 
+# poultry_constituency <- constituency_livestock_numbers %>%
+#   select(Constituency, `Total Poultry`, `Fowls for producing eggs`,
+#          `Fowls for breeding`, `Broilers and other table fowls and other poultry`) %>%
+#   pivot_longer(cols = -Constituency, names_to = "livestock", values_to = "value") %>%
+#   mutate(value = as.numeric(value)) %>% 
+#   pivot_wider(names_from  = Constituency, values_from = value)
+# 
+# other_animals_constituency <- constituency_livestock_numbers %>%
+#   select(Constituency, `Goats and kids`, `Deer`, `Horses`,
+#          `Donkeys`, `Camelids`, `Beehives`) %>%
+#   pivot_longer(cols = -Constituency, names_to = "livestock", values_to = "value") %>%
+#   mutate(value = as.numeric(value)) %>% 
+#   pivot_wider(names_from  = Constituency, values_from = value)
+# 
+# cereals_constituency <- constituency_crops_area %>%
+#   select(Constituency, `Wheat`, `Winter barley`, 
+#          `Spring barley`, `Oats and mixed grain`) %>%
+#   pivot_longer(cols = -Constituency, names_to = "crop", values_to = "value") %>%
+#   mutate(value = as.numeric(value)) %>% 
+#   pivot_wider(names_from  = Constituency, values_from = value)
+# 
+# oilseeds_constituency <- constituency_crops_area %>%
+#   select(Constituency, `Oilseeds (including linseed)`) %>%
+#   pivot_longer(cols = -Constituency, names_to = "crop", values_to = "value") %>%
+#   mutate(value = as.numeric(value)) %>% 
+#   pivot_wider(names_from  = Constituency, values_from = value)
+# 
+# potatoes_constituency <- constituency_crops_area %>%
+#   select(Constituency, `Potatoes`) %>%
+#   pivot_longer(cols = -Constituency, names_to = "crop", values_to = "value") %>%
+#   mutate(value = as.numeric(value)) %>% 
+#   pivot_wider(names_from  = Constituency, values_from = value)
+# 
+# peas_beans_constituency <- constituency_crops_area %>%
+#   select(Constituency, `Peas and beans for combining`) %>%
+#   pivot_longer(cols = -Constituency, names_to = "crop", values_to = "value") %>%
+#   mutate(value = as.numeric(value)) %>% 
+#   pivot_wider(names_from  = Constituency, values_from = value)
+# 
+# stockfeeding_constituency <- constituency_crops_area %>%
+#   select(Constituency, `Stockfeeding crops`) %>%
+#   pivot_longer(cols = -Constituency, names_to = "crop", values_to = "value") %>%
+#   mutate(value = as.numeric(value)) %>% 
+#   pivot_wider(names_from  = Constituency, values_from = value)
+# 
+# vegetables_constituency <- constituency_crops_area %>%
+#   select(Constituency, `Vegetables for human consumptioncrops`) %>%
+#   pivot_longer(cols = -Constituency, names_to = "crop", values_to = "value") %>%
+#   mutate(value = as.numeric(value)) %>% 
+#   pivot_wider(names_from  = Constituency, values_from = value)
+# 
+# fruit_constituency <- constituency_crops_area %>%
+#   select(Constituency, `Orchard and soft fruit`) %>%
+#   pivot_longer(cols = -Constituency, names_to = "crop", values_to = "value") %>%
+#   mutate(value = as.numeric(value)) %>% 
+#   pivot_wider(names_from  = Constituency, values_from = value)
+# 
+# save(
+#   land_use_constituency,
+#   workforce_constituency,
+#   occupiers_constituency,
+#   cattle_constituency,
+#   sheep_constituency,
+#   pigs_constituency,
+#   poultry_constituency,
+#   other_animals_constituency,
+#   cereals_constituency,
+#   oilseeds_constituency,
+#   potatoes_constituency,
+#   peas_beans_constituency,
+#   stockfeeding_constituency,
+#   vegetables_constituency,
+#   fruit_constituency,
+#   
+#   file = "Data/constituency_data.RData"
+# )
 
 
 # Local Authority ----
-
-xlsx_path <- "Data/unitary_authority_data.xlsx"
-
-# Get sheet names
-sheets <- excel_sheets(xlsx_path)
-
-# Read each sheet into a named list of tibbles
-wb_list <- map(sheets, ~ read_excel(xlsx_path, sheet = .x, na = "c"))
-names(wb_list) <- sheets
-
-safe_names <- make.names(names(wb_list))              # base R safe names
-safe_names <- str_replace_all(safe_names, "\\.", "_") # turn dots into underscores
-
-# Assign to the current environment (or specify .GlobalEnv)
-list2env(setNames(wb_list, safe_names), envir = .GlobalEnv)
-
-# Remove units from column names
-names(unitary_crops_area) <- names(unitary_crops_area) %>% 
-  str_replace_all(" \\(Hectares\\)", "")
-names(unitary_workforce_numbers) <- names(unitary_workforce_numbers) %>% 
-  str_replace_all(" \\(Number\\)", "")
-names(unitary_livestock_numbers) <- names(unitary_livestock_numbers) %>% 
-  str_replace_all(" \\(Number\\)", "")
-
-# subsetting
-
-land_use_unitauth <- unitary_crops_area %>%
-  rename(`Common Grazings` = `Sole Right Grazing`) %>% 
-  select(unitauth, 
-         `Total Crops, Fallow, And Set-Aside`, 
-         `Total Grass and Rough Grazing`,
-         `Other Land (including woodland)`,
-         `Total Sole Right Agricultural Area`,
-         `Common Grazings`) %>%
-  pivot_longer(cols = -unitauth, names_to = "land use", values_to = "value") %>%
-  mutate(value = as.numeric(value)) %>% 
-  pivot_wider(names_from  = unitauth, values_from = value) %>%
-  select(-`All`)
-
-
-workforce_unitauth <- unitary_workforce_numbers %>%
-  select(unitauth, `Regular Full-Time Staff Total`,
-         `Regular Part-Time Staff Total`, `Total Casual And Seasonal Staff`,
-         `Total Workforce (including occupiers)`) %>%
-  pivot_longer(cols = -unitauth, names_to = "workforce", values_to = "value") %>%
-  mutate(value = as.numeric(value)) %>% 
-  pivot_wider(names_from  = unitauth, values_from = value)
-
-occupiers_unitauth <- unitary_workforce_numbers %>%
-  select(unitauth, `Total Working Occupiers`, `Occupiers Not Working On The Holding`) %>%
-  pivot_longer(cols = -unitauth, names_to = "occupier", values_to = "value") %>%
-  mutate(value = as.numeric(value)) %>% 
-  pivot_wider(names_from  = unitauth, values_from = value)
-
-cattle_unitauth <- unitary_livestock_numbers %>%
-  select(unitauth, `Total Cattle`, `Total Female Dairy Cattle`,
-         `Total Female Beef Cattle`, `Total Male Cattle`,
-         `Total Calves`) %>%
-  pivot_longer(cols = -unitauth, names_to = "livestock", values_to = "value") %>%
-  mutate(value = as.numeric(value)) %>% 
-  pivot_wider(names_from  = unitauth, values_from = value)
-
-sheep_unitauth <- unitary_livestock_numbers %>%
-  select(unitauth, `Total Sheep`, `Ewes for breeding`,
-         `Other sheep 1 year and over for breeding`, `Rams for service`,
-         `Lambs`) %>%
-  pivot_longer(cols = -unitauth, names_to = "livestock", values_to = "value") %>%
-  mutate(value = as.numeric(value)) %>% 
-  pivot_wider(names_from  = unitauth, values_from = value)
-
-pigs_unitauth <- unitary_livestock_numbers %>%
-  select(unitauth, `Total Pigs`, `Female pigs breeding herd`,
-         `All other non-breeding pigs`) %>%
-  pivot_longer(cols = -unitauth, names_to = "livestock", values_to = "value") %>%
-  mutate(value = as.numeric(value)) %>% 
-  pivot_wider(names_from  = unitauth, values_from = value)
-
-poultry_unitauth <- unitary_livestock_numbers %>%
-  select(unitauth, `Total Poultry`, `Fowls for producing eggs`,
-         `Fowls for breeding`, `Broilers and other table fowls and other poultry`) %>%
-  pivot_longer(cols = -unitauth, names_to = "livestock", values_to = "value") %>%
-  mutate(value = as.numeric(value)) %>% 
-  pivot_wider(names_from  = unitauth, values_from = value)
-
-other_animals_unitauth <- unitary_livestock_numbers %>%
-  select(unitauth, `Goats and kids`, `Deer`, `Horses`,
-         `Donkeys`, `Camelids`, `Beehives`) %>%
-  pivot_longer(cols = -unitauth, names_to = "livestock", values_to = "value") %>%
-  mutate(value = as.numeric(value)) %>% 
-  pivot_wider(names_from  = unitauth, values_from = value)
-
-cereals_unitauth <- unitary_crops_area %>%
-  select(unitauth, `Wheat`, `Winter Barley`, 
-         `Spring Barley`, `Oats and mixed grain`) %>%
-  pivot_longer(cols = -unitauth, names_to = "crop", values_to = "value") %>%
-  mutate(value = as.numeric(value)) %>% 
-  pivot_wider(names_from  = unitauth, values_from = value)
-
-oilseeds_unitauth <- unitary_crops_area %>%
-  select(unitauth, `Oilseeds (Including Linseed)`) %>%
-  pivot_longer(cols = -unitauth, names_to = "crop", values_to = "value") %>%
-  mutate(value = as.numeric(value)) %>% 
-  pivot_wider(names_from  = unitauth, values_from = value)
-
-potatoes_unitauth <- unitary_crops_area %>%
-  select(unitauth, `Potatoes`) %>%
-  pivot_longer(cols = -unitauth, names_to = "crop", values_to = "value") %>%
-  mutate(value = as.numeric(value)) %>% 
-  pivot_wider(names_from  = unitauth, values_from = value)
-
-peas_beans_unitauth <- unitary_crops_area %>%
-  select(unitauth, `Peas and Beans for Combining`) %>%
-  pivot_longer(cols = -unitauth, names_to = "crop", values_to = "value") %>%
-  mutate(value = as.numeric(value)) %>% 
-  pivot_wider(names_from  = unitauth, values_from = value)
-
-stockfeeding_unitauth <- unitary_crops_area %>%
-  select(unitauth, `Stockfeeding Crops`) %>%
-  pivot_longer(cols = -unitauth, names_to = "crop", values_to = "value") %>%
-  mutate(value = as.numeric(value)) %>% 
-  pivot_wider(names_from  = unitauth, values_from = value)
-
-vegetables_unitauth <- unitary_crops_area %>%
-  select(unitauth, `Vegetables For Human Consumption`) %>%
-  pivot_longer(cols = -unitauth, names_to = "crop", values_to = "value") %>%
-  mutate(value = as.numeric(value)) %>% 
-  pivot_wider(names_from  = unitauth, values_from = value)
-
-fruit_unitauth <- unitary_crops_area %>%
-  select(unitauth, `Orchard and soft fruit`) %>%
-  pivot_longer(cols = -unitauth, names_to = "crop", values_to = "value") %>%
-  mutate(value = as.numeric(value)) %>% 
-  pivot_wider(names_from  = unitauth, values_from = value)
-
-save(
-  land_use_unitauth,
-  workforce_unitauth,
-  occupiers_unitauth,
-  cattle_unitauth,
-  sheep_unitauth,
-  pigs_unitauth,
-  poultry_unitauth,
-  other_animals_unitauth,
-  cereals_unitauth,
-  oilseeds_unitauth,
-  potatoes_unitauth,
-  peas_beans_unitauth,
-  stockfeeding_unitauth,
-  vegetables_unitauth,
-  fruit_unitauth,
-  
-  file = "Data/unitauth_data.RData"
-)
+# 
+# xlsx_path <- "Data/unitary_authority_data.xlsx"
+# 
+# # Get sheet names
+# sheets <- excel_sheets(xlsx_path)
+# 
+# # Read each sheet into a named list of tibbles
+# wb_list <- map(sheets, ~ read_excel(xlsx_path, sheet = .x, na = "c"))
+# names(wb_list) <- sheets
+# 
+# safe_names <- make.names(names(wb_list))              # base R safe names
+# safe_names <- str_replace_all(safe_names, "\\.", "_") # turn dots into underscores
+# 
+# # Assign to the current environment (or specify .GlobalEnv)
+# list2env(setNames(wb_list, safe_names), envir = .GlobalEnv)
+# 
+# # Remove units from column names
+# names(unitary_crops_area) <- names(unitary_crops_area) %>% 
+#   str_replace_all(" \\(Hectares\\)", "")
+# names(unitary_workforce_numbers) <- names(unitary_workforce_numbers) %>% 
+#   str_replace_all(" \\(Number\\)", "")
+# names(unitary_livestock_numbers) <- names(unitary_livestock_numbers) %>% 
+#   str_replace_all(" \\(Number\\)", "")
+# 
+# # subsettig
+# 
+# land_use_unitauth <- unitary_crops_area %>%
+#   rename(`Common grazings` = `Sole Right Grazing`) %>% 
+#   select(unitauth, 
+#          `Total crops, fallow, and set-aside`, 
+#          `Total grass and Rough grazing`,
+#          `Other land (including woodland)`,
+#          `Total sole right agricultural area`,
+#          `Common grazings`) %>%
+#   pivot_longer(cols = -unitauth, names_to = "land use", values_to = "value") %>%
+#   mutate(value = as.numeric(value)) %>% 
+#   pivot_wider(names_from  = unitauth, values_from = value) %>%
+#   select(-`All`)
+# 
+# 
+# workforce_unitauth <- unitary_workforce_numbers %>%
+#   select(unitauth, `Regular Full-Time Staff Total`,
+#          `Regular Part-Time Staff Total`, `Total Casual And Seasonal Staff`,
+#          `Total Workforce (including occupiers)`) %>%
+#   pivot_longer(cols = -unitauth, names_to = "workforce", values_to = "value") %>%
+#   mutate(value = as.numeric(value)) %>% 
+#   pivot_wider(names_from  = unitauth, values_from = value)
+# 
+# occupiers_unitauth <- unitary_workforce_numbers %>%
+#   select(unitauth, `Total Working Occupiers`, `Occupiers Not Working On The Holding`) %>%
+#   pivot_longer(cols = -unitauth, names_to = "occupier", values_to = "value") %>%
+#   mutate(value = as.numeric(value)) %>% 
+#   pivot_wider(names_from  = unitauth, values_from = value)
+# 
+# cattle_unitauth <- unitary_livestock_numbers %>%
+#   select(unitauth, `Total Cattle`, `Total Female Dairy Cattle`,
+#          `Total Female Beef Cattle`, `Total Male Cattle`,
+#          `Total Calves`) %>%
+#   pivot_longer(cols = -unitauth, names_to = "livestock", values_to = "value") %>%
+#   mutate(value = as.numeric(value)) %>% 
+#   pivot_wider(names_from  = unitauth, values_from = value)
+# 
+# sheep_unitauth <- unitary_livestock_numbers %>%
+#   select(unitauth, `Total Sheep`, `Ewes for breeding`,
+#          `Other sheep 1 year and over for breeding`, `Rams for service`,
+#          `Lambs`) %>%
+#   pivot_longer(cols = -unitauth, names_to = "livestock", values_to = "value") %>%
+#   mutate(value = as.numeric(value)) %>% 
+#   pivot_wider(names_from  = unitauth, values_from = value)
+# 
+# pigs_unitauth <- unitary_livestock_numbers %>%
+#   select(unitauth, `Total Pigs`, `Female pigs breeding herd`,
+#          `All other non-breeding pigs`) %>%
+#   pivot_longer(cols = -unitauth, names_to = "livestock", values_to = "value") %>%
+#   mutate(value = as.numeric(value)) %>% 
+#   pivot_wider(names_from  = unitauth, values_from = value)
+# 
+# poultry_unitauth <- unitary_livestock_numbers %>%
+#   select(unitauth, `Total Poultry`, `Fowls for producing eggs`,
+#          `Fowls for breeding`, `Broilers and other table fowls and other poultry`) %>%
+#   pivot_longer(cols = -unitauth, names_to = "livestock", values_to = "value") %>%
+#   mutate(value = as.numeric(value)) %>% 
+#   pivot_wider(names_from  = unitauth, values_from = value)
+# 
+# other_animals_unitauth <- unitary_livestock_numbers %>%
+#   select(unitauth, `Goats and kids`, `Deer`, `Horses`,
+#          `Donkeys`, `Camelids`, `Beehives`) %>%
+#   pivot_longer(cols = -unitauth, names_to = "livestock", values_to = "value") %>%
+#   mutate(value = as.numeric(value)) %>% 
+#   pivot_wider(names_from  = unitauth, values_from = value)
+# 
+# cereals_unitauth <- unitary_crops_area %>%
+#   select(unitauth, `Wheat`, `Winter barley`, 
+#          `Spring barley`, `Oats and mixed grain`) %>%
+#   pivot_longer(cols = -unitauth, names_to = "crop", values_to = "value") %>%
+#   mutate(value = as.numeric(value)) %>% 
+#   pivot_wider(names_from  = unitauth, values_from = value)
+# 
+# oilseeds_unitauth <- unitary_crops_area %>%
+#   select(unitauth, `Oilseeds (including linseed)`) %>%
+#   pivot_longer(cols = -unitauth, names_to = "crop", values_to = "value") %>%
+#   mutate(value = as.numeric(value)) %>% 
+#   pivot_wider(names_from  = unitauth, values_from = value)
+# 
+# potatoes_unitauth <- unitary_crops_area %>%
+#   select(unitauth, `Potatoes`) %>%
+#   pivot_longer(cols = -unitauth, names_to = "crop", values_to = "value") %>%
+#   mutate(value = as.numeric(value)) %>% 
+#   pivot_wider(names_from  = unitauth, values_from = value)
+# 
+# peas_beans_unitauth <- unitary_crops_area %>%
+#   select(unitauth, `Peas and beans for combining`) %>%
+#   pivot_longer(cols = -unitauth, names_to = "crop", values_to = "value") %>%
+#   mutate(value = as.numeric(value)) %>% 
+#   pivot_wider(names_from  = unitauth, values_from = value)
+# 
+# stockfeeding_unitauth <- unitary_crops_area %>%
+#   select(unitauth, `Stockfeeding crops`) %>%
+#   pivot_longer(cols = -unitauth, names_to = "crop", values_to = "value") %>%
+#   mutate(value = as.numeric(value)) %>% 
+#   pivot_wider(names_from  = unitauth, values_from = value)
+# 
+# vegetables_unitauth <- unitary_crops_area %>%
+#   select(unitauth, `Vegetables for human consumptioncrops`) %>%
+#   pivot_longer(cols = -unitauth, names_to = "crop", values_to = "value") %>%
+#   mutate(value = as.numeric(value)) %>% 
+#   pivot_wider(names_from  = unitauth, values_from = value)
+# 
+# fruit_unitauth <- unitary_crops_area %>%
+#   select(unitauth, `Orchard and soft fruit`) %>%
+#   pivot_longer(cols = -unitauth, names_to = "crop", values_to = "value") %>%
+#   mutate(value = as.numeric(value)) %>% 
+#   pivot_wider(names_from  = unitauth, values_from = value)
+# 
+# save(
+#   land_use_unitauth,
+#   workforce_unitauth,
+#   occupiers_unitauth,
+#   cattle_unitauth,
+#   sheep_unitauth,
+#   pigs_unitauth,
+#   poultry_unitauth,
+#   other_animals_unitauth,
+#   cereals_unitauth,
+#   oilseeds_unitauth,
+#   potatoes_unitauth,
+#   peas_beans_unitauth,
+#   stockfeeding_unitauth,
+#   vegetables_unitauth,
+#   fruit_unitauth,
+#   
+#   file = "Data/unitauth_data.RData"
+# )
