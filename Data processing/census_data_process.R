@@ -470,9 +470,13 @@ total_animals$Year <- as.numeric(total_animals$Year)
 # save total animals 
 save(total_animals, file = "Data/total_animals.RData")
 
+legal_responsibility <- legal_responsibility %>%
+  filter(Measure %in% c("Holdings (number)", "Total sole right agricultural area (hectares)")) %>%
+  pivot_longer(cols = -Measure,
+               names_to = "Legal responsibility",
+               values_to = "Value")
 
-
-
+save(legal_responsibility, file = "Data/legal_responsibility.RData")
 
 ################################################################################
 
