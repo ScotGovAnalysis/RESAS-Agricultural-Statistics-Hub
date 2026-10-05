@@ -15,15 +15,15 @@ fruitUI <- function(id) {
         )
       ),
       
-      conditionalPanel(
-        condition = "input.tabsetPanel === 'Constituency Map'",
-        ns = ns,
-        radioButtons(
-          ns("variable_con"), 
-          "Select Variable", 
-          choices = unique(fruit_constituency$crop)
-        )
-      ),    
+      # conditionalPanel(
+      #   condition = "input.tabsetPanel === 'Constituency Map'",
+      #   ns = ns,
+      #   radioButtons(
+      #     ns("variable_con"), 
+      #     "Select Variable", 
+      #     choices = unique(fruit_constituency$crop)
+      #   )
+      # ),    
       
       conditionalPanel(
         condition = "input.tabsetPanel === 'Local Authority Map'",
@@ -64,7 +64,7 @@ fruitUI <- function(id) {
           "Select Data to Display",
           choices = c("Agricultural Region Data" = "map",
                       "Time Series Data" = "timeseries",
-                      "Constituency Data" = "map_con",
+                      # "Constituency Data" = "map_con",
                       "Local Authority Data" = "map_uni"),
           selected = "map"
         )
@@ -75,7 +75,7 @@ fruitUI <- function(id) {
       tabsetPanel(
         id = ns("tabsetPanel"),
         tabPanel("Agricultural Region Map", mapUI(ns("map"))),
-        tabPanel("Constituency Map", mapConstituenciesUI(ns("map_con"))),
+        # tabPanel("Constituency Map", mapConstituenciesUI(ns("map_con"))),
         tabPanel("Local Authority Map", mapUnitaryUI(ns("map_uni"))),
         tabPanel("Time Series", lineChartUI(ns("line"), note_type = 2)),
         tabPanel("Data Table", 
@@ -114,32 +114,32 @@ fruitServer <- function(id) {
     
     
     # ===================== CONSTITUENCY MAP =====================
-    fruit_const_map <- reactive({
-      fruit_constituency %>%        
-        mutate(across(everything(), as.character)) %>%
-        pivot_longer(
-          cols = -`crop`,
-          names_to = "constituency",
-          values_to = "value"
-        ) %>% 
-        mutate(
-          value = if_else(is.na(value), NA_real_, as.numeric(value))
-        )
-    })
-    
-    mapConstituenciesServer(
-      id = "map_con",
-      data = reactive({
-        req(input$variable_con)
-        fruit_const_map() %>% filter(`crop` == input$variable_con)
-      }),
-      unit = "hectares",
-      footer = census_footer,
-      variable = reactive(input$variable_con),
-      title = paste("Fruit crops distribution by 2026 Scottish Parliamentary Constituency"),
-      legend_title = "Area (hectares)"
-    )
-    
+    # fruit_const_map <- reactive({
+    #   fruit_constituency %>%        
+    #     mutate(across(everything(), as.character)) %>%
+    #     pivot_longer(
+    #       cols = -`crop`,
+    #       names_to = "constituency",
+    #       values_to = "value"
+    #     ) %>% 
+    #     mutate(
+    #       value = if_else(is.na(value), NA_real_, as.numeric(value))
+    #     )
+    # })
+    # 
+    # mapConstituenciesServer(
+    #   id = "map_con",
+    #   data = reactive({
+    #     req(input$variable_con)
+    #     fruit_const_map() %>% filter(`crop` == input$variable_con)
+    #   }),
+    #   unit = "hectares",
+    #   footer = census_footer,
+    #   variable = reactive(input$variable_con),
+    #   title = paste("Fruit crops distribution by 2026 Scottish Parliamentary Constituency"),
+    #   legend_title = "Area (hectares)"
+    # )
+    # 
     # ===================== LOCAL AUTHORITY MAP =====================
     fruit_uni_map <- reactive({
       fruit_unitauth %>%        
@@ -221,14 +221,14 @@ fruitServer <- function(id) {
                      },
                      
                      # -------------------
-                     # 3. Constituency Table
-                     # -------------------
-                     "map_con" = {
-                       fruit_constituency %>%
-                         rename(`Land use by category` = `crop`) %>%
-                         mutate(across(where(is.numeric), comma))
-                     },
-                     
+                     # # 3. Constituency Table
+                     # # -------------------
+                     # "map_con" = {
+                     #   fruit_constituency %>%
+                     #     rename(`Land use by category` = `crop`) %>%
+                     #     mutate(across(where(is.numeric), comma))
+                     # },
+                     # 
                      
                      # -------------------
                      # 4. Local authority table
@@ -265,7 +265,7 @@ fruitServer <- function(id) {
         switch(input$table_data,
                "map" = paste0("Fruit_Agricultural_Region_Data_", Sys.Date(), ".csv"),
                "timeseries" = paste0("Fruit_Timeseries_Data_", Sys.Date(), ".csv"),
-               "map_con" = paste0("Fruit_Constituency_Data_", Sys.Date(), ".csv"),
+               # "map_con" = paste0("Fruit_Constituency_Data_", Sys.Date(), ".csv"),
                "map_uni" = paste0("Fruit_Local_Authority_Data_", Sys.Date(), ".csv"),
                
                # fallback
@@ -296,11 +296,11 @@ fruitServer <- function(id) {
                           # pivot_wider(names_from = year, values_from = value)
                        },
                        
-                       # ---- Constituency ----
-                       "map_con" = {
-                         fruit_constituency
-                       },
-                       
+                       # # ---- Constituency ----
+                       # "map_con" = {
+                       #   fruit_constituency
+                       # },
+                       # 
                        # ---- Local authority ----
                        "map_uni" = {
                          fruit_unitauth
@@ -314,12 +314,12 @@ fruitServer <- function(id) {
   )
 }
 
-# fruit_demo <- function() {
-#   ui <- fluidPage(fruitUI("fruit_test"))
-#   server <- function(input, output, session) {
-#     fruitServer("fruit_test")
-#   }
-#   shinyApp(ui, server)
-# }
-# 
-# fruit_demo()
+fruit_demo <- function() {
+  ui <- fluidPage(fruitUI("fruit_test"))
+  server <- function(input, output, session) {
+    fruitServer("fruit_test")
+  }
+  shinyApp(ui, server)
+}
+
+fruit_demo()

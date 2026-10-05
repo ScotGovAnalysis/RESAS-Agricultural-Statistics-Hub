@@ -321,24 +321,24 @@ human_vegetables_data <- vegetables_bulbs_fruit_area %>%
 fruit_data <- vegetables_bulbs_fruit_area %>%
   select(-`% Change 2026 to 2025`) %>%
   filter(`Vegetables and fruits for human consumption` %in% c(
-    "Strawberries Grown In The Open",
-    "Raspberries Grown In The Open",
-    "Blueberries Grown In The Open",
-    "Blackcurrants And Other Fruit Grown In The Open",
-    "Total Soft Fruit Grown In The Open",
-    "Tomatoes Grown Under Cover",
-    "Strawberries Grown Under Cover",
-    "Raspberries Grown Under Cover",
-    "Blueberries Grown Under Cover",
-    "Other Fruit Grown Under Cover",
-    "Vegetables Grown Under Cover",
-    "Strawberries Grown In Open/Under Cover",
-    "Raspberries Grown In Open/Under Cover",
-    "Blackcurrants Grown In Open/Under Cover",
-    "Blueberries Grown In Open/Under Cover",
-    "Tomatoes Grown In Open/Under Cover",
-    "Other Fruit Grown In Open/Under Cover",
-    "Total Soft Fruit"
+    "Strawberries grown in the open",
+    "Raspberries grown in the open",
+    "Blueberries grown in the open",
+    "Blackcurrants and other fruit grown in the open",
+    "Total soft fruit grown in the open",
+    "Tomatoes grown under cover",
+    "Strawberries grown under cover",
+    "Raspberries grown under cover",
+    "Blueberries grown under cover",
+    "Other fruit grown under cover",
+    "Vegetables grown under cover",
+    "Strawberries grown in open/under cover",
+    "Raspberries grown in open/under cover",
+    "Blackcurrants grown in open/under cover",
+    "Blueberries grown in open/under cover",
+    "Tomatoes grown in open/under cover",
+    "Other fruit grown in open/under cover",
+    "Total soft fruit"
   )) %>%
   mutate(`2025` = round(`2025`, 0))
 # Subset for cereals_subregion

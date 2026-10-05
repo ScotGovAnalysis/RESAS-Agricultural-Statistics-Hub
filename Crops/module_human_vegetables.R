@@ -15,15 +15,15 @@ humanVegetablesUI <- function(id) {
         )
       ),     
       
-      conditionalPanel(
-        condition = "input.tabsetPanel === 'Constituency Map'",
-        ns = ns,
-        radioButtons(
-          ns("variable_con"), 
-          "Select Variable", 
-          choices = unique(vegetables_constituency$crop)
-        )
-      ),     
+      # conditionalPanel(
+      #   condition = "input.tabsetPanel === 'Constituency Map'",
+      #   ns = ns,
+      #   radioButtons(
+      #     ns("variable_con"), 
+      #     "Select Variable", 
+      #     choices = unique(vegetables_constituency$crop)
+      #   )
+      # ),     
       
       conditionalPanel(
         condition = "input.tabsetPanel === 'Local Authority Map'",
@@ -60,7 +60,7 @@ humanVegetablesUI <- function(id) {
           "Select Data to Display",
           choices = c("Agricultural Region Data" = "map", 
                       "Time Series Data" = "timeseries",
-                      "Constituency Data" = "map_con",
+                      # "Constituency Data" = "map_con",
                       "Local Authority Data" = "map_uni"),
           selected = "map"
         )
@@ -71,7 +71,7 @@ humanVegetablesUI <- function(id) {
       tabsetPanel(
         id = ns("tabsetPanel"),
         tabPanel("Agricultural Region Map", mapUI(ns("map"))),
-        tabPanel("Constituency Map", mapConstituenciesUI(ns("map_con"))),
+        # tabPanel("Constituency Map", mapConstituenciesUI(ns("map_con"))),
         tabPanel("Local Authority Map", mapUnitaryUI(ns("map_uni"))),
         tabPanel("Time Series", lineChartUI(ns("line"))),
         tabPanel("Data Table", 
@@ -109,32 +109,32 @@ humanVegetablesServer <- function(id) {
     )
     
     # ===================== CONSTITUENCY MAP =====================
-    veg_const_map <- reactive({
-      vegetables_constituency %>%       
-        mutate(across(everything(), as.character)) %>%
-        pivot_longer(
-          cols = -`crop`,
-          names_to = "constituency",
-          values_to = "value"
-        ) %>% 
-        mutate(
-          value = if_else(is.na(value), NA_real_, as.numeric(value))
-        )
-    })
-    
-    mapConstituenciesServer(
-      id = "map_con",
-      data = reactive({
-        req(input$variable_con)
-        veg_const_map() %>% filter(`crop` == input$variable_con)
-      }),
-      unit = "hectares",
-      footer = census_footer,
-      variable = reactive(input$variable_con),
-      title = paste("Vegetables for human consumption crops distribution by 2026 Scottish Parliamentary Constituency"),
-      legend_title = "Area (hectares)"
-    )
-    
+    # veg_const_map <- reactive({
+    #   vegetables_constituency %>%       
+    #     mutate(across(everything(), as.character)) %>%
+    #     pivot_longer(
+    #       cols = -`crop`,
+    #       names_to = "constituency",
+    #       values_to = "value"
+    #     ) %>% 
+    #     mutate(
+    #       value = if_else(is.na(value), NA_real_, as.numeric(value))
+    #     )
+    # })
+    # 
+    # mapConstituenciesServer(
+    #   id = "map_con",
+    #   data = reactive({
+    #     req(input$variable_con)
+    #     veg_const_map() %>% filter(`crop` == input$variable_con)
+    #   }),
+    #   unit = "hectares",
+    #   footer = census_footer,
+    #   variable = reactive(input$variable_con),
+    #   title = paste("Vegetables for human consumption crops distribution by 2026 Scottish Parliamentary Constituency"),
+    #   legend_title = "Area (hectares)"
+    # )
+    # 
     # ===================== LOCAL AUTHORITY MAP =====================
     veg_uni_map <- reactive({
       vegetables_unitauth %>%       
@@ -213,14 +213,14 @@ humanVegetablesServer <- function(id) {
                      },
                      
                      # -------------------
-                     # 3. Constituency Table
-                     # -------------------
-                     "map_con" = {
-                       vegetables_constituency %>%
-                         rename(`Land use by category` = `crop`) %>%
-                         mutate(across(where(is.numeric), comma))
-                     },
-                     
+                     # # 3. Constituency Table
+                     # # -------------------
+                     # "map_con" = {
+                     #   vegetables_constituency %>%
+                     #     rename(`Land use by category` = `crop`) %>%
+                     #     mutate(across(where(is.numeric), comma))
+                     # },
+                     # 
                      # -------------------
                      # 4. Local authority table
                      # -------------------
@@ -256,7 +256,7 @@ humanVegetablesServer <- function(id) {
         switch(input$table_data,
                "map" = paste0("Vegetables_Agricultural_Region_Data_", Sys.Date(), ".csv"),
                "timeseries" = paste0("Vegetables_Timeseries_Data_", Sys.Date(), ".csv"),
-               "map_con" = paste0("Vegetables_Constituency_Data_", Sys.Date(), ".csv"),
+               # "map_con" = paste0("Vegetables_Constituency_Data_", Sys.Date(), ".csv"),
                "map_uni" = paste0("Vegetables_Local_Authority_Data_", Sys.Date(), ".csv"),
                
                # fallback
@@ -288,10 +288,10 @@ humanVegetablesServer <- function(id) {
                        },
                        
                        # ---- Constituency ----
-                       "map_con" = {
-                         vegetables_constituency
-                       },
-                       
+                       # "map_con" = {
+                       #   vegetables_constituency
+                       # },
+                       # 
                        # ---- Local authority ----
                        "map_uni" = {
                          vegetables_unitauth
@@ -306,11 +306,11 @@ humanVegetablesServer <- function(id) {
 }
 
 
-# human_vegetables_demo <- function() {
-#   ui <- fluidPage(humanVegetablesUI("human_vegetables_test"))
-#   server <- function(input, output, session) {
-#     humanVegetablesServer("human_vegetables_test")
-#   }
-#   shinyApp(ui, server)
-# }
-# human_vegetables_demo()
+human_vegetables_demo <- function() {
+  ui <- fluidPage(humanVegetablesUI("human_vegetables_test"))
+  server <- function(input, output, session) {
+    humanVegetablesServer("human_vegetables_test")
+  }
+  shinyApp(ui, server)
+}
+human_vegetables_demo()

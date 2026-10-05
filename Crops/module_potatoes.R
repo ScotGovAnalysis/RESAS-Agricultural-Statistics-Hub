@@ -15,16 +15,16 @@ potatoesUI <- function(id) {
         )
       ),
       # ===================== CONSTITUENCY MAP =====================
-      conditionalPanel(
-        condition = "input.tabsetPanel === 'Constituency Map'",
-        ns = ns,
-        radioButtons(
-          ns("variable_con"), 
-          "Select Variable", 
-          choices = unique(potatoes_constituency$crop)
-        )
-      ),
-      
+      # conditionalPanel(
+      #   condition = "input.tabsetPanel === 'Constituency Map'",
+      #   ns = ns,
+      #   radioButtons(
+      #     ns("variable_con"), 
+      #     "Select Variable", 
+      #     choices = unique(potatoes_constituency$crop)
+      #   )
+      # ),
+      # 
       # ===================== LOCAL AUTHORITY MAP =====================
       conditionalPanel(
         condition = "input.tabsetPanel === 'Local Authority Map'",
@@ -42,10 +42,10 @@ potatoesUI <- function(id) {
         checkboxGroupInput(
           ns("timeseries_variables"),
           "Select Time Series Variables",
-          choices = unique(potatoes_data$`Crop/Land use`),
+          choices = unique(potatoes_data$`Crop/land use`),
           selected = c(
-            "Ware Potatoes",
-            "Seed Potatoes"
+            "Ware potatoes",
+            "Seed potatoes"
           )
         )
       ),
@@ -57,7 +57,7 @@ potatoesUI <- function(id) {
           "Select Data to Display",
           choices = c("Agricultural Region Data" = "map", 
                       "Time Series Data" = "timeseries",
-                      "Constituency Data" = "map_con",
+                      # "Constituency Data" = "map_con",
                       "Local Authority Data" = "map_uni"),
           selected = "map"
         )
@@ -68,7 +68,7 @@ potatoesUI <- function(id) {
       tabsetPanel(
         id = ns("tabsetPanel"),
         tabPanel("Agricultural Region Map", mapUI(ns("map"))),
-        tabPanel("Constituency Map", mapConstituenciesUI(ns("map_con"))),
+        # tabPanel("Constituency Map", mapConstituenciesUI(ns("map_con"))),
         tabPanel("Local Authority Map", mapUnitaryUI(ns("map_uni"))),
         tabPanel("Time Series", lineChartUI(ns("line"))),
         tabPanel("Data Table", 
@@ -104,33 +104,33 @@ potatoesServer <- function(id) {
       legend_title = "Area (hectares)"
     )
     
-    # ===================== CONSTITUENCY MAP =====================
-    potato_const_map <- reactive({
-      potatoes_constituency %>%       
-        mutate(across(everything(), as.character)) %>%
-        pivot_longer(
-          cols = -`crop`,
-          names_to = "constituency",
-          values_to = "value"
-        ) %>% 
-        mutate(
-          value = if_else(is.na(value), NA_real_, as.numeric(value))
-        )
-    })
-    
-    mapConstituenciesServer(
-      id = "map_con",
-      data = reactive({
-        req(input$variable_con)
-        potato_const_map() %>% filter(`crop` == input$variable_con)
-      }),
-      unit = "hectares",
-      footer = census_footer,
-      variable = reactive(input$variable_con),
-      title = paste("Potato distribution by 2026 Scottish Parliamentary Constituency"),
-      legend_title = "Area (hectares)"
-    )
-    
+    # # ===================== CONSTITUENCY MAP =====================
+    # potato_const_map <- reactive({
+    #   potatoes_constituency %>%       
+    #     mutate(across(everything(), as.character)) %>%
+    #     pivot_longer(
+    #       cols = -`crop`,
+    #       names_to = "constituency",
+    #       values_to = "value"
+    #     ) %>% 
+    #     mutate(
+    #       value = if_else(is.na(value), NA_real_, as.numeric(value))
+    #     )
+    # })
+    # 
+    # mapConstituenciesServer(
+    #   id = "map_con",
+    #   data = reactive({
+    #     req(input$variable_con)
+    #     potato_const_map() %>% filter(`crop` == input$variable_con)
+    #   }),
+    #   unit = "hectares",
+    #   footer = census_footer,
+    #   variable = reactive(input$variable_con),
+    #   title = paste("Potato distribution by 2026 Scottish Parliamentary Constituency"),
+    #   legend_title = "Area (hectares)"
+    # )
+    # 
     # ===================== LOCAL AUTHORITY MAP =====================
     potato_uni_map <- reactive({
       potatoes_unitauth %>%     
@@ -162,8 +162,8 @@ potatoesServer <- function(id) {
     chart_data <- reactive({
       req(input$timeseries_variables)
       filtered_data <- potatoes_data %>%
-        filter(`Crop/Land use` %in% input$timeseries_variables) %>%
-        pivot_longer(cols = -`Crop/Land use`, names_to = "year", values_to = "value") %>%
+        filter(`Crop/land use` %in% input$timeseries_variables) %>%
+        pivot_longer(cols = -`Crop/land use`, names_to = "year", values_to = "value") %>%
         mutate(year = as.numeric(year))  # Ensure year is numeric
       filtered_data
     })
@@ -204,7 +204,7 @@ potatoesServer <- function(id) {
                      # -------------------
                      "timeseries" = {
                        potatoes_data %>%
-                         pivot_longer(cols = -`Crop/Land use`,
+                         pivot_longer(cols = -`Crop/land use`,
                                       names_to = "year",
                                       values_to = "value") %>%
                          pivot_wider(names_from = year, values_from = value) %>%
@@ -214,12 +214,12 @@ potatoesServer <- function(id) {
                      # -------------------
                      # 3. Constituency Table
                      # -------------------
-                     "map_con" = {
-                       potatoes_constituency %>%
-                         rename(`Land use by category` = `crop`) %>%
-                         mutate(across(where(is.numeric), comma))
-                     },
-                     
+                     # "map_con" = {
+                     #   potatoes_constituency %>%
+                     #     rename(`Land use by category` = `crop`) %>%
+                     #     mutate(across(where(is.numeric), comma))
+                     # },
+                     # 
                      # -------------------
                      # 4. Local authority table
                      # -------------------
@@ -255,7 +255,7 @@ potatoesServer <- function(id) {
         switch(input$table_data,
                "map" = paste0("Potatoes_Agricultural_Region_Map_Data_", Sys.Date(), ".csv"),
                "timeseries" = paste0("Potatoes_Timeseries_Data_", Sys.Date(), ".csv"),
-               "map_con" = paste0("Potatoes_Constituency_Data_", Sys.Date(), ".csv"),
+               # "map_con" = paste0("Potatoes_Constituency_Data_", Sys.Date(), ".csv"),
                "map_uni" = paste0("Potatoes_Local_Authority_Data_", Sys.Date(), ".csv"),
                
                # fallback
@@ -278,18 +278,18 @@ potatoesServer <- function(id) {
                        "timeseries" = {
                          potatoes_data %>%
                            pivot_longer(
-                             cols = -`Crop/Land use`,
+                             cols = -`Crop/land use`,
                              names_to = "year",
                              values_to = "value"
                            )
                        },
                        
-                       # ---- Constituency ----
-                       "map_con" = {
-                         potatoes_constituency
-                       },
-                       
-                       # ---- Local authority ----
+                       # # ---- Constituency ----
+                       # "map_con" = {
+                       #   potatoes_constituency
+                       # },
+                       # 
+                       # # ---- Local authority ----
                        "map_uni" = {
                          potatoes_unitauth
                        }
@@ -302,12 +302,12 @@ potatoesServer <- function(id) {
   )
 }
 
-# potatoes_demo <- function() {
-#   ui <- fluidPage(potatoesUI("potatoes_test"))
-#   server <- function(input, output, session) {
-#     potatoesServer("potatoes_test")
-#   }
-#   shinyApp(ui, server)
-# }
-# 
-# potatoes_demo()
+potatoes_demo <- function() {
+  ui <- fluidPage(potatoesUI("potatoes_test"))
+  server <- function(input, output, session) {
+    potatoesServer("potatoes_test")
+  }
+  shinyApp(ui, server)
+}
+
+potatoes_demo()
