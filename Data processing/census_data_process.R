@@ -440,22 +440,22 @@ number_of_other_livestock <- number_of_other_livestock %>%
 # Convert the wide format data into long format using pivot_longer
 number_of_pigs_long <- number_of_pigs %>%
   pivot_longer(cols = -`Pigs by category`, names_to = "Year", values_to = "Total") %>%
-  filter(`Pigs by category` == "Total Pigs") %>%
-  select(Year, `Total Pigs` = Total)
+  filter(`Pigs by category` == "Total pigs") %>%
+  select(Year, `Total pigs` = Total)
 
 number_of_poultry_long <- number_of_poultry %>%
   pivot_longer(cols = -`Poultry by category`, names_to = "Year", values_to = "Total") %>%
-  filter(`Poultry by category` == "Total Poultry") %>%
-  select(Year, `Total Poultry` = Total)
+  filter(`Poultry by category` == "Total poultry") %>%
+  select(Year, `Total poultry` = Total)
 
 number_of_sheep_long <- number_of_sheep %>%
   pivot_longer(cols = -`Sheep by category`, names_to = "Year", values_to = "Total") %>%
-  filter(`Sheep by category` == "Total Sheep") %>%
-  select(Year, `Total Sheep` = Total)
+  filter(`Sheep by category` == "Total sheep") %>%
+  select(Year, `Total sheep` = Total)
 
 number_of_cattle_long <- number_of_cattle %>%
   pivot_longer(cols = -`Cattle by category`, names_to = "Year", values_to = "Total") %>%
-  filter(`Cattle by category` == "Total Cattle") %>%
+  filter(`Cattle by category` == "Total cattle") %>%
   select(Year, `Total cattle` = Total)
 
 # Merge the dataframes on the 'Year' column
@@ -708,7 +708,7 @@ save(
 #   pivot_wider(names_from  = Constituency, values_from = value)
 # 
 # cattle_constituency <- constituency_livestock_numbers %>%
-#   select(Constituency, `Total Cattle`, `Total Female Dairy Cattle`,
+#   select(Constituency, `Total cattle`, `Total Female Dairy Cattle`,
 #          `Total Female Beef Cattle`, `Total Male Cattle`,
 #          `Total Calves`) %>%
 #   pivot_longer(cols = -Constituency, names_to = "livestock", values_to = "value") %>%
@@ -716,7 +716,7 @@ save(
 #   pivot_wider(names_from  = Constituency, values_from = value)
 # 
 # sheep_constituency <- constituency_livestock_numbers %>%
-#   select(Constituency, `Total Sheep`, `Ewes for breeding`,
+#   select(Constituency, `Total sheep`, `Ewes for breeding`,
 #          `Other sheep 1 year and over for breeding`, `Rams for service`,
 #          `Lambs`) %>%
 #   pivot_longer(cols = -Constituency, names_to = "livestock", values_to = "value") %>%
@@ -724,14 +724,14 @@ save(
 #   pivot_wider(names_from  = Constituency, values_from = value)
 # 
 # pigs_constituency <- constituency_livestock_numbers %>%
-#   select(Constituency, `Total Pigs`, `Female pigs breeding herd`,
+#   select(Constituency, `Total pigs`, `Female pigs breeding herd`,
 #          `All other non-breeding pigs`) %>%
 #   pivot_longer(cols = -Constituency, names_to = "livestock", values_to = "value") %>%
 #   mutate(value = as.numeric(value)) %>% 
 #   pivot_wider(names_from  = Constituency, values_from = value)
 # 
 # poultry_constituency <- constituency_livestock_numbers %>%
-#   select(Constituency, `Total Poultry`, `Fowls for producing eggs`,
+#   select(Constituency, `Total poultry`, `Fowls for producing eggs`,
 #          `Fowls for breeding`, `Broilers and other table fowls and other poultry`) %>%
 #   pivot_longer(cols = -Constituency, names_to = "livestock", values_to = "value") %>%
 #   mutate(value = as.numeric(value)) %>% 
@@ -864,7 +864,7 @@ save(
 #   pivot_wider(names_from  = unitauth, values_from = value)
 # 
 # cattle_unitauth <- unitary_livestock_numbers %>%
-#   select(unitauth, `Total Cattle`, `Total Female Dairy Cattle`,
+#   select(unitauth, `Total cattle`, `Total Female Dairy Cattle`,
 #          `Total Female Beef Cattle`, `Total Male Cattle`,
 #          `Total Calves`) %>%
 #   pivot_longer(cols = -unitauth, names_to = "livestock", values_to = "value") %>%
@@ -872,7 +872,7 @@ save(
 #   pivot_wider(names_from  = unitauth, values_from = value)
 # 
 # sheep_unitauth <- unitary_livestock_numbers %>%
-#   select(unitauth, `Total Sheep`, `Ewes for breeding`,
+#   select(unitauth, `Total sheep`, `Ewes for breeding`,
 #          `Other sheep 1 year and over for breeding`, `Rams for service`,
 #          `Lambs`) %>%
 #   pivot_longer(cols = -unitauth, names_to = "livestock", values_to = "value") %>%
@@ -880,14 +880,14 @@ save(
 #   pivot_wider(names_from  = unitauth, values_from = value)
 # 
 # pigs_unitauth <- unitary_livestock_numbers %>%
-#   select(unitauth, `Total Pigs`, `Female pigs breeding herd`,
+#   select(unitauth, `Total pigs`, `Female pigs breeding herd`,
 #          `All other non-breeding pigs`) %>%
 #   pivot_longer(cols = -unitauth, names_to = "livestock", values_to = "value") %>%
 #   mutate(value = as.numeric(value)) %>% 
 #   pivot_wider(names_from  = unitauth, values_from = value)
 # 
 # poultry_unitauth <- unitary_livestock_numbers %>%
-#   select(unitauth, `Total Poultry`, `Fowls for producing eggs`,
+#   select(unitauth, `Total poultry`, `Fowls for producing eggs`,
 #          `Fowls for breeding`, `Broilers and other table fowls and other poultry`) %>%
 #   pivot_longer(cols = -unitauth, names_to = "livestock", values_to = "value") %>%
 #   mutate(value = as.numeric(value)) %>% 

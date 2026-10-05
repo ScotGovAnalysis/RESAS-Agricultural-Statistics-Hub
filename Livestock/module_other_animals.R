@@ -21,22 +21,22 @@ otherAnimalsUI <- function(id) {
           )
         )
       ),
-      conditionalPanel(
-        condition = "input.tabsetPanel === 'Constituency Map'",
-        ns = ns,
-        radioButtons(
-          ns("variable_con"), 
-          "Select Variable", 
-          choices = c(
-            "Goats and kids" = "Goats and kids",
-            "Deer" = "Deer",
-            "Horses" = "Horses",
-            "Donkeys" = "Donkeys",
-            "Camelids" = "Camelids",
-            "Beehives" = "Beehives"
-          )
-        )
-      ),
+      # conditionalPanel(
+      #   condition = "input.tabsetPanel === 'Constituency Map'",
+      #   ns = ns,
+      #   radioButtons(
+      #     ns("variable_con"), 
+      #     "Select Variable", 
+      #     choices = c(
+      #       "Goats and kids" = "Goats and kids",
+      #       "Deer" = "Deer",
+      #       "Horses" = "Horses",
+      #       "Donkeys" = "Donkeys",
+      #       "Camelids" = "Camelids",
+      #       "Beehives" = "Beehives"
+      #     )
+      #   )
+      # ),
       conditionalPanel(
         condition = "input.tabsetPanel === 'Local Authority Map'",
         ns = ns,
@@ -85,7 +85,7 @@ otherAnimalsUI <- function(id) {
           "Select Data to Display",
           choices = c("Agricultural Region Data" = "map", 
                       "Chart Data" = "timeseries",
-                      "Constituency Data" = "map_con",
+                      # "Constituency Data" = "map_con",
                       "Local Authority Data" = "map_uni"),
           selected = "map"
         )
@@ -96,7 +96,7 @@ otherAnimalsUI <- function(id) {
       tabsetPanel(
         id = ns("tabsetPanel"),
         tabPanel("Agricultural Region Map", mapUI(ns("map"))),
-        tabPanel("Constituency Map", mapConstituenciesUI(ns("map_con"))),
+        # tabPanel("Constituency Map", mapConstituenciesUI(ns("map_con"))),
         tabPanel("Local Authority Map", mapUnitaryUI(ns("map_uni"))),
         tabPanel("Time Series", lineChartUI(ns("line"))),
         tabPanel("Data Table", 
@@ -141,32 +141,32 @@ otherAnimalsServer <- function(id) {
       legend_title = "Number of animals"
     )
     
-    other_const_map <- reactive({
-      other_animals_constituency %>%    
-        mutate(across(everything(), as.character)) %>%
-        pivot_longer(
-          cols = -`livestock`,
-          names_to = "constituency",
-          values_to = "value"
-        ) %>% 
-        mutate(
-          value = if_else(is.na(value), NA_integer_, as.integer(value))
-        )
-    })
-    
-    mapConstituenciesServer(
-      id = "map_con",
-      data = reactive({
-        req(input$variable_con)
-        other_const_map() %>% filter(`livestock` == input$variable_con)
-      }),
-      unit = "number",
-      footer = census_footer,
-      variable = reactive(input$variable_con),
-      title = paste("Other animals distribution by 2026 Scottish Parliamentary Constituency"),
-      legend_title = "Animals (number)"
-    )
-    
+    # other_const_map <- reactive({
+    #   other_animals_constituency %>%    
+    #     mutate(across(everything(), as.character)) %>%
+    #     pivot_longer(
+    #       cols = -`livestock`,
+    #       names_to = "constituency",
+    #       values_to = "value"
+    #     ) %>% 
+    #     mutate(
+    #       value = if_else(is.na(value), NA_integer_, as.integer(value))
+    #     )
+    # })
+    # 
+    # mapConstituenciesServer(
+    #   id = "map_con",
+    #   data = reactive({
+    #     req(input$variable_con)
+    #     other_const_map() %>% filter(`livestock` == input$variable_con)
+    #   }),
+    #   unit = "number",
+    #   footer = census_footer,
+    #   variable = reactive(input$variable_con),
+    #   title = paste("Other animals distribution by 2026 Scottish Parliamentary Constituency"),
+    #   legend_title = "Animals (number)"
+    # )
+    # 
     chart_data <- reactive({
       req(input$timeseries_variables)
       filtered_data <- number_of_other_livestock %>%
@@ -259,13 +259,13 @@ otherAnimalsServer <- function(id) {
                      # -------------------
                      # 3. Constituency Table
                      # -------------------
-                     
-                     "map_con" = {
-                       other_animals_constituency %>%
-                         rename(`Livestock by category` = `livestock`) %>%
-                         mutate(across(where(is.numeric), comma))
-                     },
-                     
+                     # 
+                     # "map_con" = {
+                     #   other_animals_constituency %>%
+                     #     rename(`Livestock by category` = `livestock`) %>%
+                     #     mutate(across(where(is.numeric), comma))
+                     # },
+                     # 
                      
                      # -------------------
                      # 4. Local authority table
@@ -302,7 +302,7 @@ otherAnimalsServer <- function(id) {
         switch(input$table_data,
                "map" = paste0("Other_Animals_Map_Data_", Sys.Date(), ".csv"),
                "timeseries" = paste0("Other_Animals_Timeseries_Data_", Sys.Date(), ".csv"),
-               "map_con" = paste0("Other_Animals_Constituency_Data_", Sys.Date(), ".csv"),
+               # "map_con" = paste0("Other_Animals_Constituency_Data_", Sys.Date(), ".csv"),
                "map_uni" = paste0("Other_Animals_Local_Authority_Data_", Sys.Date(), ".csv"),
                
                # fallback
@@ -333,11 +333,11 @@ otherAnimalsServer <- function(id) {
                            pivot_wider(names_from = year, values_from = value)
                        },
                        
-                       # ---- Constituency ----
-                       "map_con" = {
-                         other_animals_constituency
-                       },
-                       
+                       # # ---- Constituency ----
+                       # "map_con" = {
+                       #   other_animals_constituency
+                       # },
+                       # 
                        # ---- Local authority ----
                        "map_uni" = {
                          other_animals_unitauth
@@ -351,13 +351,13 @@ otherAnimalsServer <- function(id) {
   )
 }
 
-# # Testing module
-# other_animals_demo <- function() {
-#   ui <- fluidPage(otherAnimalsUI("other_animals_test"))
-#   server <- function(input, output, session) {
-#     otherAnimalsServer("other_animals_test")
-#   }
-#   shinyApp(ui, server)
-# }
-# 
-# other_animals_demo()
+# Testing module
+other_animals_demo <- function() {
+  ui <- fluidPage(otherAnimalsUI("other_animals_test"))
+  server <- function(input, output, session) {
+    otherAnimalsServer("other_animals_test")
+  }
+  shinyApp(ui, server)
+}
+
+other_animals_demo()
