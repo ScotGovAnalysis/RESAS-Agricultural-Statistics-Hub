@@ -20,8 +20,8 @@ animalsSummaryUI <- function(id) {
         width = 3,
         div("Adjust the sliders to compare data from different years.", 
             style = "font-size: 14px; font-weight: bold; margin-bottom: 10px;"),
-        sliderInput(ns("summary_current_year_animals"), "Year of interest", min = 2013, max = census_year, value = census_year, step = 1, sep = ""),
-        sliderInput(ns("summary_comparison_year_animals"), "Comparison year", min = 2013, max = census_year, value = census_year - 1, step = 1, sep = "")
+        sliderInput(ns("summary_current_year_animals"), "Year of interest", min = 2016, max = census_year, value = census_year, step = 1, sep = ""),
+        sliderInput(ns("summary_comparison_year_animals"), "Comparison year", min = 2016, max = census_year, value = census_year - 1, step = 1, sep = "")
       ),
       mainPanel(
         id = ns("mainpanel"),
@@ -32,11 +32,11 @@ animalsSummaryUI <- function(id) {
                    value = "Summary_Page",
                    fluidRow(
                      column(width = 6, valueBoxUI(ns("Total cattle")), style = "padding-right: 0; padding-left: 0; padding-bottom: 10px;"),
-                     column(width = 6, valueBoxUI(ns("Total Sheep")), style = "padding-right: 0; padding-left: 0; padding-bottom: 10px;")
+                     column(width = 6, valueBoxUI(ns("Total sheep")), style = "padding-right: 0; padding-left: 0; padding-bottom: 10px;")
                    ),
                    fluidRow(
-                     column(width = 6, valueBoxUI(ns("Total Pigs")), style = "padding-right: 0; padding-left: 0;"),
-                     column(width = 6, valueBoxUI(ns("Total Poultry")), style = "padding-right: 0; padding-left: 0;")
+                     column(width = 6, valueBoxUI(ns("Total pigs")), style = "padding-right: 0; padding-left: 0;"),
+                     column(width = 6, valueBoxUI(ns("Total poultry")), style = "padding-right: 0; padding-left: 0;")
                    ),
                    # Add the footer text
                    div(
@@ -70,9 +70,9 @@ animalsSummaryServer <- function(id) {
     comparison_year <- reactive({ input$summary_comparison_year_animals })
     
     valueBoxServer("Total cattle", full_data_animals, "Animal_Type", reactive("Total cattle"), current_year, comparison_year, "cattle")
-    valueBoxServer("Total Sheep", full_data_animals, "Animal_Type", reactive("Total Sheep"), current_year, comparison_year, "sheep")
-    valueBoxServer("Total Pigs", full_data_animals, "Animal_Type", reactive("Total Pigs"), current_year, comparison_year, "pigs")
-    valueBoxServer("Total Poultry", full_data_animals, "Animal_Type", reactive("Total Poultry"), current_year, comparison_year, "poultry")
+    valueBoxServer("Total sheep", full_data_animals, "Animal_Type", reactive("Total sheep"), current_year, comparison_year, "sheep")
+    valueBoxServer("Total pigs", full_data_animals, "Animal_Type", reactive("Total pigs"), current_year, comparison_year, "pigs")
+    valueBoxServer("Total poultry", full_data_animals, "Animal_Type", reactive("Total poultry"), current_year, comparison_year, "poultry")
     
     # Pivot the data wider
     pivoted_data <- reactive({
@@ -103,13 +103,13 @@ animalsSummaryServer <- function(id) {
 
 
 
-# # Testing module
-# content_demo <- function() {
-#   ui <- fluidPage(animalsSummaryUI("summary_animals_test"))
-#   server <- function(input, output, session) {
-#     animalsSummaryServer("summary_animals_test")
-#   }
-#   shinyApp(ui, server)
-# }
-# 
-# content_demo()
+# Testing module
+content_demo <- function() {
+  ui <- fluidPage(animalsSummaryUI("summary_animals_test"))
+  server <- function(input, output, session) {
+    animalsSummaryServer("summary_animals_test")
+  }
+  shinyApp(ui, server)
+}
+
+content_demo()
