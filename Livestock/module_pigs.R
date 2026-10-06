@@ -29,18 +29,18 @@ pigsUI <- function(id) {
       #       "All other non-breeding pigs" = "All other non-breeding pigs"
       #     ))
       # ),
-      conditionalPanel(
-        condition = "input.tabsetPanel === 'Local Authority Map'",
-        ns = ns,
-        radioButtons(
-          ns("variable_uni"), 
-          "Select Variable", 
-          choices = c(
-            "Total pigs" = "Total pigs",
-            "Female pigs breeding herd" = "Female pigs breeding herd",
-            "All other non-breeding pigs" = "All other non-breeding pigs"
-          ))
-      ),
+      # conditionalPanel(
+      #   condition = "input.tabsetPanel === 'Local Authority Map'",
+      #   ns = ns,
+      #   radioButtons(
+      #     ns("variable_uni"), 
+      #     "Select Variable", 
+      #     choices = c(
+      #       "Total pigs" = "Total pigs",
+      #       "Female pigs breeding herd" = "Female pigs breeding herd",
+      #       "All other non-breeding pigs" = "All other non-breeding pigs"
+      #     ))
+      # ),
       conditionalPanel(
         condition = "input.tabsetPanel === 'Time Series'",
         ns = ns,
@@ -67,9 +67,10 @@ pigsUI <- function(id) {
           ns("table_data"),
           "Select Data to Display",
           choices = c("Agricultural Region Data" = "map", 
-                      "Time Series Data" = "timeseries",
-                      "Constituency Data" = "map_con",
-                      "Local Authority Data" = "map_uni"),
+                      "Time Series Data" = "timeseries"
+                      # "Constituency Data" = "map_con",
+                      # "Local Authority Data" = "map_uni"
+                      ),
           selected = "map"
         )
       )
@@ -80,7 +81,7 @@ pigsUI <- function(id) {
         id = ns("tabsetPanel"),
         tabPanel("Agricultural Region Map", mapUI(ns("map"))),
         # tabPanel("Constituency Map", mapConstituenciesUI(ns("map_con"))),
-        tabPanel("Local Authority Map", mapUnitaryUI(ns("map_uni"))),
+        # tabPanel("Local Authority Map", mapUnitaryUI(ns("map_uni"))),
         tabPanel("Time Series", lineChartUI(ns("line"), note_type = 2)),
         tabPanel("Data Table", 
                  DTOutput(ns("table")),
@@ -146,32 +147,32 @@ pigsServer <- function(id) {
     #   legend_title = "Pigs (number)"
     # )
     
-    pig_uni_map <- reactive({
-      pigs_unitauth %>%
-        mutate(across(everything(), as.character)) %>%
-        pivot_longer(
-          cols = -`livestock`,
-          names_to = "unitauth",
-          values_to = "value"
-        ) %>% 
-        mutate(
-          value = if_else(is.na(value), NA_integer_, as.integer(value))
-        )
-    })
+    # pig_uni_map <- reactive({
+    #   pigs_unitauth %>%
+    #     mutate(across(everything(), as.character)) %>%
+    #     pivot_longer(
+    #       cols = -`livestock`,
+    #       names_to = "unitauth",
+    #       values_to = "value"
+    #     ) %>% 
+    #     mutate(
+    #       value = if_else(is.na(value), NA_integer_, as.integer(value))
+    #     )
+    # })
     
-    mapUnitaryServer(
-      id = "map_uni",
-      data = reactive({
-        req(input$variable_uni)
-        pig_uni_map() %>% filter(`livestock` == input$variable_uni)
-      }),
-      unit = "number",
-      footer = census_footer,
-      variable = reactive(input$variable_uni),
-      title = paste("Pig distribution by Local Authority in", census_year),
-      legend_title = "Pigs (number)"
-    )
-    
+    # mapUnitaryServer(
+    #   id = "map_uni",
+    #   data = reactive({
+    #     req(input$variable_uni)
+    #     pig_uni_map() %>% filter(`livestock` == input$variable_uni)
+    #   }),
+    #   unit = "number",
+    #   footer = census_footer,
+    #   variable = reactive(input$variable_uni),
+    #   title = paste("Pig distribution by Local Authority in", census_year),
+    #   legend_title = "Pigs (number)"
+    # )
+    # 
     chart_data <- reactive({
       req(input$timeseries_variables)
       
@@ -226,11 +227,11 @@ pigsServer <- function(id) {
                      # },
                      # 
                      # ---- Local authority table ----
-                     "map_uni" = {
-                       pigs_unitauth %>% 
-                         rename(`Pigs by category` = `livestock`) %>%
-                         mutate(across(where(is.numeric), comma))
-                     }
+                     # "map_uni" = {
+                     #   pigs_unitauth %>% 
+                     #     rename(`Pigs by category` = `livestock`) %>%
+                     #     mutate(across(where(is.numeric), comma))
+                     # }
       )
       
       # Render the chosen table
@@ -257,7 +258,7 @@ pigsServer <- function(id) {
                "map" = paste0("Pigs_Map_Data_", Sys.Date(), ".csv"),
                "timeseries" = paste0("Pigs_Timeseries_Data_", Sys.Date(), ".csv"),
                # "map_con" = paste0("Pigs_Constituency_Data_", Sys.Date(), ".csv"),
-               "map_uni" = paste0("Pigs_Local_Authority_Data_", Sys.Date(), ".csv"),
+               # "map_uni" = paste0("Pigs_Local_Authority_Data_", Sys.Date(), ".csv"),
                
                # fallback
                paste0("Downloaded_Data_", Sys.Date(), ".csv")
@@ -293,9 +294,9 @@ pigsServer <- function(id) {
                        # },
                        # 
                        # ---- Local authority map ----
-                       "map_uni" = {
-                         pigs_unitauth
-                       }
+                       # "map_uni" = {
+                       #   pigs_unitauth
+                       # }
         )
         
         write.csv(data, file, row.names = FALSE)

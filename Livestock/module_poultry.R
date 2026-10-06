@@ -32,20 +32,20 @@ poultryUI <- function(id) {
       #     )
       #   )
       # ),
-      conditionalPanel(
-        condition = "input.tabsetPanel === 'Local Authority Map'",
-        ns = ns,
-        radioButtons(
-          ns("variable_uni"), 
-          "Select Variable", 
-          choices = c(           
-            "Total poultry" = "Total poultry",
-            "Fowls for producing eggs" = "Fowls for producing eggs",
-            "Fowls for breeding" = "Fowls for breeding",
-            "Broilers, other table fowls and other poultry" = "Broilers, other table fowls and other poultry"
-          )
-        )
-      ),
+      # conditionalPanel(
+      #   condition = "input.tabsetPanel === 'Local Authority Map'",
+      #   ns = ns,
+      #   radioButtons(
+      #     ns("variable_uni"), 
+      #     "Select Variable", 
+      #     choices = c(           
+      #       "Total poultry" = "Total poultry",
+      #       "Fowls for producing eggs" = "Fowls for producing eggs",
+      #       "Fowls for breeding" = "Fowls for breeding",
+      #       "Broilers, other table fowls and other poultry" = "Broilers, other table fowls and other poultry"
+      #     )
+      #   )
+      # ),
       conditionalPanel(
         condition = "input.tabsetPanel === 'Time Series'",
         ns = ns,
@@ -72,9 +72,10 @@ poultryUI <- function(id) {
           ns("table_data"),
           "Select Data to Display",
           choices = c("Agricultural Region Data" = "map", 
-                      "Time Series Data" = "timeseries",
+                      "Time Series Data" = "timeseries"
        #               "Constituency Data" = "map_con",
-                      "Local Authority Data" = "map_uni"),
+                      # "Local Authority Data" = "map_uni"
+       ),
           selected = "map"
         )
       )
@@ -85,7 +86,7 @@ poultryUI <- function(id) {
         id = ns("tabsetPanel"),
         tabPanel("Agricultural Region Map", mapUI(ns("map"))),
         # tabPanel("Constituency Map", mapConstituenciesUI(ns("map_con"))),
-        tabPanel("Local Authority Map", mapUnitaryUI(ns("map_uni"))),
+        # tabPanel("Local Authority Map", mapUnitaryUI(ns("map_uni"))),
         tabPanel("Time Series", lineChartUI(ns("line"), note_type = 2)),
         tabPanel("Data Table", 
                  DTOutput(ns("table")),
@@ -156,31 +157,31 @@ poultryServer <- function(id) {
     #   legend_title = "Poultry (number)"
     # )
     
-    poultry_uni_map <- reactive({
-      poultry_unitauth %>%    
-        mutate(across(everything(), as.character)) %>%
-        pivot_longer(
-          cols = -`livestock`,
-          names_to = "unitauth",
-          values_to = "value"
-        ) %>% 
-        mutate(
-          value = if_else(is.na(value), NA_integer_, as.integer(value))
-        )
-    })
-    
-    mapUnitaryServer(
-      id = "map_uni",
-      data = reactive({
-        req(input$variable_uni)
-        poultry_uni_map() %>% filter(`livestock` == input$variable_uni)
-      }),
-      unit = "number",
-      footer = census_footer,
-      variable = reactive(input$variable_uni),
-      title = paste("Poultry distribution by Local authority in", census_year),
-      legend_title = "Poultry (number)"
-    )
+    # poultry_uni_map <- reactive({
+    #   poultry_unitauth %>%    
+    #     mutate(across(everything(), as.character)) %>%
+    #     pivot_longer(
+    #       cols = -`livestock`,
+    #       names_to = "unitauth",
+    #       values_to = "value"
+    #     ) %>% 
+    #     mutate(
+    #       value = if_else(is.na(value), NA_integer_, as.integer(value))
+    #     )
+    # })
+    # 
+    # mapUnitaryServer(
+    #   id = "map_uni",
+    #   data = reactive({
+    #     req(input$variable_uni)
+    #     poultry_uni_map() %>% filter(`livestock` == input$variable_uni)
+    #   }),
+    #   unit = "number",
+    #   footer = census_footer,
+    #   variable = reactive(input$variable_uni),
+    #   title = paste("Poultry distribution by Local authority in", census_year),
+    #   legend_title = "Poultry (number)"
+    # )
     
     chart_data <- reactive({
       req(input$timeseries_variables)
@@ -244,11 +245,11 @@ poultryServer <- function(id) {
                      # -------------------
                      # 4. Local authority table
                      # -------------------
-                     "map_uni" = {
-                       poultry_unitauth %>% 
-                         rename(`Poultry by category` = `livestock`) %>%
-                         mutate(across(where(is.numeric), comma))                 
-                      }
+                     # "map_uni" = {
+                     #   poultry_unitauth %>% 
+                     #     rename(`Poultry by category` = `livestock`) %>%
+                     #     mutate(across(where(is.numeric), comma))                 
+                     #  }
       )
       
       # -------------------------
@@ -277,7 +278,7 @@ poultryServer <- function(id) {
                "map" = paste0("Poultry_Map_Data_", Sys.Date(), ".csv"),
                "timeseries" = paste0("Poultry_Timeseries_Data_", Sys.Date(), ".csv"),
                # "map_con" = paste0("Poultry_Constituency_Data_", Sys.Date(), ".csv"),
-               "map_uni" = paste0("Poultry_Local_Authority_Data_", Sys.Date(), ".csv"),
+               # "map_uni" = paste0("Poultry_Local_Authority_Data_", Sys.Date(), ".csv"),
                
                # fallback
                paste0("Downloaded_Data_", Sys.Date(), ".csv")
@@ -313,9 +314,9 @@ poultryServer <- function(id) {
                        # },
                        # 
                        # # ---- Local authority ----
-                       "map_uni" = {
-                         poultry_unitauth
-                       }
+                       # "map_uni" = {
+                       #   poultry_unitauth
+                       # }
         )
         
         write.csv(data, file, row.names = FALSE)

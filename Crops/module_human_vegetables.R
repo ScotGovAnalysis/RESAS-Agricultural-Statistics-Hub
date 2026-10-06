@@ -25,16 +25,16 @@ humanVegetablesUI <- function(id) {
       #   )
       # ),     
       
-      conditionalPanel(
-        condition = "input.tabsetPanel === 'Local Authority Map'",
-        ns = ns,
-        radioButtons(
-          ns("variable_uni"), 
-          "Select Variable", 
-          choices = unique(vegetables_unitauth$crop)
-        )
-      ),     
-      
+      # conditionalPanel(
+      #   condition = "input.tabsetPanel === 'Local Authority Map'",
+      #   ns = ns,
+      #   radioButtons(
+      #     ns("variable_uni"), 
+      #     "Select Variable", 
+      #     choices = unique(vegetables_unitauth$crop)
+      #   )
+      # ),     
+      # 
       conditionalPanel(
         condition = "input.tabsetPanel === 'Time Series'",
         ns = ns,
@@ -72,7 +72,7 @@ humanVegetablesUI <- function(id) {
         id = ns("tabsetPanel"),
         tabPanel("Agricultural Region Map", mapUI(ns("map"))),
         # tabPanel("Constituency Map", mapConstituenciesUI(ns("map_con"))),
-        tabPanel("Local Authority Map", mapUnitaryUI(ns("map_uni"))),
+        # tabPanel("Local Authority Map", mapUnitaryUI(ns("map_uni"))),
         tabPanel("Time Series", lineChartUI(ns("line"))),
         tabPanel("Data Table", 
                  DTOutput(ns("table")),
@@ -136,32 +136,32 @@ humanVegetablesServer <- function(id) {
     # )
     # 
     # ===================== LOCAL AUTHORITY MAP =====================
-    veg_uni_map <- reactive({
-      vegetables_unitauth %>%       
-        mutate(across(everything(), as.character)) %>%
-        pivot_longer(
-          cols = -`crop`,
-          names_to = "unitauth",
-          values_to = "value"
-        ) %>% 
-        mutate(
-          value = if_else(is.na(value), NA_real_, as.numeric(value))
-        )
-    })
-    
-    mapUnitaryServer(
-      id = "map_uni",
-      data = reactive({
-        req(input$variable_uni)
-        veg_uni_map() %>% filter(`crop` == input$variable_uni)
-      }),
-      unit = "hectares",
-      footer = census_footer,
-      variable = reactive(input$variable_uni),
-      title = paste("Vegetables for human consumption crops distribution by local authority in", census_year),
-      legend_title = "Area (hectares)"
-    )
-    
+    # veg_uni_map <- reactive({
+    #   vegetables_unitauth %>%       
+    #     mutate(across(everything(), as.character)) %>%
+    #     pivot_longer(
+    #       cols = -`crop`,
+    #       names_to = "unitauth",
+    #       values_to = "value"
+    #     ) %>% 
+    #     mutate(
+    #       value = if_else(is.na(value), NA_real_, as.numeric(value))
+    #     )
+    # })
+    # 
+    # mapUnitaryServer(
+    #   id = "map_uni",
+    #   data = reactive({
+    #     req(input$variable_uni)
+    #     veg_uni_map() %>% filter(`crop` == input$variable_uni)
+    #   }),
+    #   unit = "hectares",
+    #   footer = census_footer,
+    #   variable = reactive(input$variable_uni),
+    #   title = paste("Vegetables for human consumption crops distribution by local authority in", census_year),
+    #   legend_title = "Area (hectares)"
+    # )
+    # 
     chart_data <- reactive({
       req(input$timeseries_variables)
       filtered_data <- human_vegetables_data %>%
@@ -224,11 +224,11 @@ humanVegetablesServer <- function(id) {
                      # -------------------
                      # 4. Local authority table
                      # -------------------
-                     "map_uni" = {
-                       vegetables_unitauth %>%
-                         rename(`Land use by category` = `crop`) %>%
-                         mutate(across(where(is.numeric), comma))
-                     },
+                     # "map_uni" = {
+                     #   vegetables_unitauth %>%
+                     #     rename(`Land use by category` = `crop`) %>%
+                     #     mutate(across(where(is.numeric), comma))
+                     # },
       )
       
       # -------------------------
@@ -257,7 +257,7 @@ humanVegetablesServer <- function(id) {
                "map" = paste0("Vegetables_Agricultural_Region_Data_", Sys.Date(), ".csv"),
                "timeseries" = paste0("Vegetables_Timeseries_Data_", Sys.Date(), ".csv"),
                # "map_con" = paste0("Vegetables_Constituency_Data_", Sys.Date(), ".csv"),
-               "map_uni" = paste0("Vegetables_Local_Authority_Data_", Sys.Date(), ".csv"),
+               # "map_uni" = paste0("Vegetables_Local_Authority_Data_", Sys.Date(), ".csv"),
                
                # fallback
                paste0("Downloaded_Data_", Sys.Date(), ".csv")
@@ -293,9 +293,9 @@ humanVegetablesServer <- function(id) {
                        # },
                        # 
                        # ---- Local authority ----
-                       "map_uni" = {
-                         vegetables_unitauth
-                       }
+                       # "map_uni" = {
+                       #   vegetables_unitauth
+                       # }
         )
         
         write.csv(data, file, row.names = FALSE)

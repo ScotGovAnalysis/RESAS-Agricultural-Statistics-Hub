@@ -26,16 +26,16 @@ beansUI <- function(id) {
       #   )
       # ),
       
-      # ===================== LOCAL AUTHORITY MAP =====================
-      conditionalPanel(
-        condition = "input.tabsetPanel === 'Local Authority Map'",
-        ns = ns,
-        radioButtons(
-          ns("variable_uni"), 
-          "Select Variable", 
-          choices = unique(peas_beans_constituency$crop)
-        )
-      ),
+      # # ===================== LOCAL AUTHORITY MAP =====================
+      # conditionalPanel(
+      #   condition = "input.tabsetPanel === 'Local Authority Map'",
+      #   ns = ns,
+      #   radioButtons(
+      #     ns("variable_uni"), 
+      #     "Select Variable", 
+      #     choices = unique(peas_beans_constituency$crop)
+      #   )
+      # ),
       
       # ===================== TIME SERIES =====================
       
@@ -76,7 +76,7 @@ beansUI <- function(id) {
         id = ns("tabsetPanel"),
         tabPanel("Agricultural Region Map", mapUI(ns("map"))),
      #   tabPanel("Constituency Map", mapConstituenciesUI(ns("map_con"))),
-        tabPanel("Local Authority Map", mapUnitaryUI(ns("map_uni"))),
+        # tabPanel("Local Authority Map", mapUnitaryUI(ns("map_uni"))),
         tabPanel("Time Series", lineChartUI(ns("line"))),
         tabPanel("Data Table", 
                  DTOutput(ns("table")),
@@ -141,19 +141,19 @@ beansServer <- function(id) {
     # )
     
     # ===================== LOCAL AUTHORITY MAP =====================
-    peas_uni_map <- reactive({
-      peas_beans_unitauth %>%        
-        mutate(across(everything(), as.character)) %>%
-        pivot_longer(
-          cols = -`crop`,
-          names_to = "unitauth",
-          values_to = "value"
-        ) %>% 
-        mutate(
-          value = if_else(is.na(value), NA_real_, as.numeric(value))
-        )
-    })
-    
+    # peas_uni_map <- reactive({
+    #   peas_beans_unitauth %>%        
+    #     mutate(across(everything(), as.character)) %>%
+    #     pivot_longer(
+    #       cols = -`crop`,
+    #       names_to = "unitauth",
+    #       values_to = "value"
+    #     ) %>% 
+    #     mutate(
+    #       value = if_else(is.na(value), NA_real_, as.numeric(value))
+    #     )
+    # })
+    # 
     mapUnitaryServer(
       id = "map_uni",
       data = reactive({
@@ -235,11 +235,11 @@ beansServer <- function(id) {
                      # -------------------
                      # 4. Local authority table
                      # -------------------
-                     "map_uni" = {
-                       peas_beans_unitauth %>%
-                         rename(`Crop/land use` = `crop`) %>%
-                         mutate(across(where(is.numeric), comma))
-                     },
+                     # "map_uni" = {
+                     #   peas_beans_unitauth %>%
+                     #     rename(`Crop/land use` = `crop`) %>%
+                     #     mutate(across(where(is.numeric), comma))
+                     # },
       )
       
       # -------------------------
@@ -267,8 +267,8 @@ beansServer <- function(id) {
         switch(input$table_data,
                "map" = paste0("Peas_Beans_Agricultural_Region_Data_", Sys.Date(), ".csv"),
                "timeseries" = paste0("Peas_Beans_Timeseries_Data_", Sys.Date(), ".csv"),
-               "map_con" = paste0("Peas_Beans_Constituency_Data_", Sys.Date(), ".csv"),
-               "map_uni" = paste0("Peas_Beans_Local_Authority_Data_", Sys.Date(), ".csv"),
+               # "map_con" = paste0("Peas_Beans_Constituency_Data_", Sys.Date(), ".csv"),
+               # "map_uni" = paste0("Peas_Beans_Local_Authority_Data_", Sys.Date(), ".csv"),
                
                # fallback
                paste0("Downloaded_Data_", Sys.Date(), ".csv")
@@ -304,9 +304,9 @@ beansServer <- function(id) {
                        # },
                        # 
                        # # ---- Local authority ----
-                       "map_uni" = {
-                         peas_beans_unitauth
-                       }
+                       # "map_uni" = {
+                       #   peas_beans_unitauth
+                       # }
         )
         
         write.csv(data, file, row.names = FALSE)
@@ -324,4 +324,5 @@ beans_demo <- function() {
   }
   shinyApp(ui, server)
 }
+
 beans_demo()

@@ -26,15 +26,15 @@ potatoesUI <- function(id) {
       # ),
       # 
       # ===================== LOCAL AUTHORITY MAP =====================
-      conditionalPanel(
-        condition = "input.tabsetPanel === 'Local Authority Map'",
-        ns = ns,
-        radioButtons(
-          ns("variable_uni"), 
-          "Select Variable", 
-          choices = unique(potatoes_unitauth$crop)
-        )
-      ),
+      # conditionalPanel(
+      #   condition = "input.tabsetPanel === 'Local Authority Map'",
+      #   ns = ns,
+      #   radioButtons(
+      #     ns("variable_uni"), 
+      #     "Select Variable", 
+      #     choices = unique(potatoes_unitauth$crop)
+      #   )
+      # ),
       
       conditionalPanel(
         condition = "input.tabsetPanel === 'Time Series'",
@@ -58,7 +58,7 @@ potatoesUI <- function(id) {
           choices = c("Agricultural Region Data" = "map", 
                       "Time Series Data" = "timeseries",
                       # "Constituency Data" = "map_con",
-                      "Local Authority Data" = "map_uni"),
+                      # "Local Authority Data" = "map_uni"),
           selected = "map"
         )
       )
@@ -69,7 +69,7 @@ potatoesUI <- function(id) {
         id = ns("tabsetPanel"),
         tabPanel("Agricultural Region Map", mapUI(ns("map"))),
         # tabPanel("Constituency Map", mapConstituenciesUI(ns("map_con"))),
-        tabPanel("Local Authority Map", mapUnitaryUI(ns("map_uni"))),
+        # tabPanel("Local Authority Map", mapUnitaryUI(ns("map_uni"))),
         tabPanel("Time Series", lineChartUI(ns("line"))),
         tabPanel("Data Table", 
                  DTOutput(ns("table")),
@@ -132,31 +132,31 @@ potatoesServer <- function(id) {
     # )
     # 
     # ===================== LOCAL AUTHORITY MAP =====================
-    potato_uni_map <- reactive({
-      potatoes_unitauth %>%     
-        mutate(across(everything(), as.character)) %>%
-        pivot_longer(
-          cols = -`crop`,
-          names_to = "unitauth",
-          values_to = "value"
-        ) %>% 
-        mutate(
-          value = if_else(is.na(value), NA_real_, as.numeric(value))
-        )
-    })
-    
-    mapUnitaryServer(
-      id = "map_uni",
-      data = reactive({
-        req(input$variable_uni)
-        potato_uni_map() %>% filter(`crop` == input$variable_uni)
-      }),
-      unit = "hectares",
-      footer = census_footer,
-      variable = reactive(input$variable_uni),
-      title = paste("Potato distribution by local authority in", census_year),
-      legend_title = "Area (hectares)"
-    )
+    # potato_uni_map <- reactive({
+    #   potatoes_unitauth %>%     
+    #     mutate(across(everything(), as.character)) %>%
+    #     pivot_longer(
+    #       cols = -`crop`,
+    #       names_to = "unitauth",
+    #       values_to = "value"
+    #     ) %>% 
+    #     mutate(
+    #       value = if_else(is.na(value), NA_real_, as.numeric(value))
+    #     )
+    # })
+    # 
+    # mapUnitaryServer(
+    #   id = "map_uni",
+    #   data = reactive({
+    #     req(input$variable_uni)
+    #     potato_uni_map() %>% filter(`crop` == input$variable_uni)
+    #   }),
+    #   unit = "hectares",
+    #   footer = census_footer,
+    #   variable = reactive(input$variable_uni),
+    #   title = paste("Potato distribution by local authority in", census_year),
+    #   legend_title = "Area (hectares)"
+    # )
     
     
     chart_data <- reactive({
@@ -223,11 +223,11 @@ potatoesServer <- function(id) {
                      # -------------------
                      # 4. Local authority table
                      # -------------------
-                     "map_uni" = {
-                       potatoes_unitauth %>%
-                         rename(`Land use by category` = `crop`) %>%
-                         mutate(across(where(is.numeric), comma))
-                     },
+                     # "map_uni" = {
+                     #   potatoes_unitauth %>%
+                     #     rename(`Land use by category` = `crop`) %>%
+                     #     mutate(across(where(is.numeric), comma))
+                     # },
       )
       
       # -------------------------
@@ -256,7 +256,7 @@ potatoesServer <- function(id) {
                "map" = paste0("Potatoes_Agricultural_Region_Map_Data_", Sys.Date(), ".csv"),
                "timeseries" = paste0("Potatoes_Timeseries_Data_", Sys.Date(), ".csv"),
                # "map_con" = paste0("Potatoes_Constituency_Data_", Sys.Date(), ".csv"),
-               "map_uni" = paste0("Potatoes_Local_Authority_Data_", Sys.Date(), ".csv"),
+               # "map_uni" = paste0("Potatoes_Local_Authority_Data_", Sys.Date(), ".csv"),
                
                # fallback
                paste0("Downloaded_Data_", Sys.Date(), ".csv")
@@ -288,11 +288,11 @@ potatoesServer <- function(id) {
                        # "map_con" = {
                        #   potatoes_constituency
                        # },
-                       # 
+                       # c
                        # # ---- Local authority ----
-                       "map_uni" = {
-                         potatoes_unitauth
-                       }
+                       # "map_uni" = {
+                       #   potatoes_unitauth
+                       # }
         )
         
         write.csv(data, file, row.names = FALSE)

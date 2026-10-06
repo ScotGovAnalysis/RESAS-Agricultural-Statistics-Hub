@@ -36,7 +36,7 @@ employeesMapUI <- function(id) {
         id = ns("tabs"),
         tabPanel("Agricultural Region Map", mapUI(ns("map")), value = "map"),
         # tabPanel("Constituency Map", mapConstituenciesUI(ns("map_con")), value = "map_con"),
-        tabPanel("Local Authority Map", mapUnitaryUI(ns("map_uni")), value = "map_uni"),
+        # tabPanel("Local Authority Map", mapUnitaryUI(ns("map_uni")), value = "map_uni"),
         tabPanel("Time Series", 
                  lineChartUI(ns("line_chart"), note_type = 2),  # Use note_type = 2 for the second note
                  value = "timeseries"),
@@ -73,19 +73,19 @@ employeesMapServer <- function(id) {
     #     )
     # })
     ############# LOCAL AUTHORITY MAP #################
-    employee_unitary_map <- reactive({
-      workforce_unitauth %>%        
-        mutate(across(everything(), as.character)) %>%
-        pivot_longer(
-          cols = -`workforce`,
-          names_to = "unitauth",
-          values_to = "value"
-        ) %>% 
-        mutate(
-          value = if_else(is.na(value), NA_integer_, as.integer(value))
-        )
-    })
-    
+    # employee_unitary_map <- reactive({
+    #   workforce_unitauth %>%        
+    #     mutate(across(everything(), as.character)) %>%
+    #     pivot_longer(
+    #       cols = -`workforce`,
+    #       names_to = "unitauth",
+    #       values_to = "value"
+    #     ) %>% 
+    #     mutate(
+    #       value = if_else(is.na(value), NA_integer_, as.integer(value))
+    #     )
+    # })
+    # 
     ########### Timeseries ##############
     occupiers_employees <- occupiers_employees %>%
       mutate(across(starts_with("20"), as.numeric))
@@ -192,18 +192,18 @@ employeesMapServer <- function(id) {
     
     ############ LOCAL AUTHORITY MAP #############
     
-    mapUnitaryServer(
-      id = "map_uni",
-      data = reactive({
-        req(input$variable_uni)
-        employee_unitary_map() %>% filter(`workforce` == input$variable_uni)
-      }),
-      unit = "employees",
-      footer = census_footer,
-      variable = reactive(input$variable_uni),
-      title = paste("Agricultural employees by local authority in", census_year),
-      legend_title = "Employees (Number)"
-    )
+    # mapUnitaryServer(
+    #   id = "map_uni",
+    #   data = reactive({
+    #     req(input$variable_uni)
+    #     employee_unitary_map() %>% filter(`workforce` == input$variable_uni)
+    #   }),
+    #   unit = "employees",
+    #   footer = census_footer,
+    #   variable = reactive(input$variable_uni),
+    #   title = paste("Agricultural employees by local authority in", census_year),
+    #   legend_title = "Employees (Number)"
+    # )
     
     
     ########### DATA TABLES ##############
@@ -228,11 +228,11 @@ employeesMapServer <- function(id) {
       #     datatable(., options = list(scrollX = TRUE, pageLength = 20
       #   ))
       #   
-      } else if (input$data_source == "Local Authority Data") {
-        uni_data() %>% 
-          mutate(across(where(is.numeric) & !contains("Year"), comma)) %>%
-          datatable(, options = list(scrollX = TRUE, pageLength = 20
-        ))
+      # } else if (input$data_source == "Local Authority Data") {
+      #   uni_data() %>% 
+      #     mutate(across(where(is.numeric) & !contains("Year"), comma)) %>%
+      #     datatable(, options = list(scrollX = TRUE, pageLength = 20
+      #   ))
       }
     })
     
@@ -281,8 +281,8 @@ employeesMapServer <- function(id) {
         # } else if (input$data_source == "Constituency Data") {
         #   write.csv(fmt(con_data()), file, row.names = FALSE)
           
-        } else if (input$data_source == "Local Authority Data") {
-          write.csv(fmt(uni_data()), file, row.names = FALSE)
+        # } else if (input$data_source == "Local Authority Data") {
+        #   write.csv(fmt(uni_data()), file, row.names = FALSE)
         }
       }
     )

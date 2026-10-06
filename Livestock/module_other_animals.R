@@ -37,22 +37,22 @@ otherAnimalsUI <- function(id) {
       #     )
       #   )
       # ),
-      conditionalPanel(
-        condition = "input.tabsetPanel === 'Local Authority Map'",
-        ns = ns,
-        radioButtons(
-          ns("variable_uni"), 
-          "Select Variable", 
-          choices = c(
-            "Goats and kids" = "Goats and kids",
-            "Deer" = "Deer",
-            "Horses" = "Horses",
-            "Donkeys" = "Donkeys",
-            "Camelids" = "Camelids",
-            "Beehives" = "Beehives"
-          )
-        )
-      ),
+      # conditionalPanel(
+      #   condition = "input.tabsetPanel === 'Local Authority Map'",
+      #   ns = ns,
+      #   radioButtons(
+      #     ns("variable_uni"), 
+      #     "Select Variable", 
+      #     choices = c(
+      #       "Goats and kids" = "Goats and kids",
+      #       "Deer" = "Deer",
+      #       "Horses" = "Horses",
+      #       "Donkeys" = "Donkeys",
+      #       "Camelids" = "Camelids",
+      #       "Beehives" = "Beehives"
+      #     )
+      #   )
+      # ),
       conditionalPanel(
         condition = "input.tabsetPanel === 'Time Series'",
         ns = ns,
@@ -84,9 +84,10 @@ otherAnimalsUI <- function(id) {
           ns("table_data"),
           "Select Data to Display",
           choices = c("Agricultural Region Data" = "map", 
-                      "Chart Data" = "timeseries",
+                      "Chart Data" = "timeseries"
                       # "Constituency Data" = "map_con",
-                      "Local Authority Data" = "map_uni"),
+                      # "Local Authority Data" = "map_uni"
+                      ),
           selected = "map"
         )
       )
@@ -97,7 +98,7 @@ otherAnimalsUI <- function(id) {
         id = ns("tabsetPanel"),
         tabPanel("Agricultural Region Map", mapUI(ns("map"))),
         # tabPanel("Constituency Map", mapConstituenciesUI(ns("map_con"))),
-        tabPanel("Local Authority Map", mapUnitaryUI(ns("map_uni"))),
+        # tabPanel("Local Authority Map", mapUnitaryUI(ns("map_uni"))),
         tabPanel("Time Series", lineChartUI(ns("line"))),
         tabPanel("Data Table", 
                  DTOutput(ns("table")),
