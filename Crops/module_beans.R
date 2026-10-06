@@ -61,9 +61,10 @@ beansUI <- function(id) {
           ns("table_data"),
           "Select Data to Display",
           choices = c("Agricultural Region Data" = "map", 
-                      "Time Series Data" = "timeseries",
+                      "Time Series Data" = "timeseries"
                    #   "Constituency Data" = "map_con",
-                      "Local Authority Data" = "map_uni"),
+              #        "Local Authority Data" = "map_uni"
+              ),
           selected = "map"
         )
       )
@@ -154,18 +155,18 @@ beansServer <- function(id) {
     #     )
     # })
     # 
-    mapUnitaryServer(
-      id = "map_uni",
-      data = reactive({
-        req(input$variable_uni)
-        peas_uni_map() %>% filter(`crop` == input$variable_uni)
-      }),
-      unit = "hectares",
-      footer = census_footer,
-      variable = reactive(input$variable_uni),
-      title = paste("Beans distribution by local authority in", census_year),
-      legend_title = "Area (hectares)"
-    )
+    # mapUnitaryServer(
+    #   id = "map_uni",
+    #   data = reactive({
+    #     req(input$variable_uni)
+    #     peas_uni_map() %>% filter(`crop` == input$variable_uni)
+    #   }),
+    #   unit = "hectares",
+    #   footer = census_footer,
+    #   variable = reactive(input$variable_uni),
+    #   title = paste("Beans distribution by local authority in", census_year),
+    #   legend_title = "Area (hectares)"
+    # )
     
     
     # ===================== TIME SERIES =====================

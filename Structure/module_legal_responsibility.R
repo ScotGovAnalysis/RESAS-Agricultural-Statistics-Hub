@@ -6,7 +6,7 @@ legalResponsibilityUI <- function(id) {
     sidebarLayout(
       sidebarPanel(
         width = 3,
-        radioButtons(ns("data_type"), "Data Type", choices = c("holdings" = "Holdings (number)", "area" = "Area (hectares)"), selected = "holdings"),
+        radioButtons(ns("data_type"), "Data Type", choices = c("Holdings" = "holdings", "Area" = "area"), selected = "holdings"),
         checkboxGroupInput(ns("selected_variables"), "Select Variables", choices = NULL, selected = NULL)
       ),
       mainPanel(
@@ -35,7 +35,7 @@ legalResponsibilityServer <- function(id) {
         filter(`Legal responsibility` != "Total")
       data
     })
-
+    
     filtered_chart_data <- reactive({
       data <- chart_data() %>%
         filter(`Legal responsibility` %in% input$selected_variables) %>%
@@ -124,16 +124,3 @@ legalResponsibilityServer <- function(id) {
     )
   })
 }
-
-
-# Testing module
-legal_demo <- function() {
-  ui <- fluidPage(legalResponsibilityUI("legal_responsibility_test"))
-  server <- function(input, output, session) {
-    legalResponsibilityServer("legal_responsibility_test")
-  }
-  shinyApp(ui, server)
-}
-
-legal_demo()
-
