@@ -241,7 +241,7 @@ names(vegetables_bulbs_fruit_area) <- names(vegetables_bulbs_fruit_area) %>%
 crops_summary_data <- agricultural_area_hectares %>%
   select(-`% Change 2026 to 2025`) %>%
   filter(`Crop/land use` %in% c("Total combine harvested crops", "Total crops for stockfeeding",
-                                "Vegetables for human consumptioncrops", "Soft Fruit")) %>%
+                                "Vegetables for human consumption", "Soft fruit")) %>%
   pivot_longer(
     cols = -`Crop/land use`,
     names_to = "Year",

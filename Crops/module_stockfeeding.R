@@ -60,9 +60,10 @@ stockfeedingUI <- function(id) {
           ns("table_data"),
           "Select Data to Display",
           choices = c("Agricultural Region Data" = "map", 
-                      "Time Series Data" = "timeseries",
+                      "Time Series Data" = "timeseries"
                       # "Constituency Data" = "map_con",
-                      "Local Authority Data" = "map_uni"),
+                      # "Local Authority Data" = "map_uni"
+                      ),
           selected = "map"
         )
       )
@@ -261,7 +262,7 @@ stockfeedingServer <- function(id) {
                "map" = paste0("Stockfeeding_Agricultural_Region_Map_Data_", Sys.Date(), ".csv"),
                "timeseries" = paste0("Stockfeeding_Timeseries_Data_", Sys.Date(), ".csv"),
                # "map_con" = paste0("Stockfeeding_Constituency_Data_", Sys.Date(), ".csv"),
-               "map_uni" = paste0("Stockfeeding_Local_Authority_Data_", Sys.Date(), ".csv"),
+               # "map_uni" = paste0("Stockfeeding_Local_Authority_Data_", Sys.Date(), ".csv"),
                
                # fallback
                paste0("Downloaded_Data_", Sys.Date(), ".csv")

@@ -1,5 +1,6 @@
 # File: module_fruit.R
-
+fruit_data <- fruit_data %>%
+  mutate(across(c(`2023`, `2024`, `2026`), ~ round(.x, 0)))
 fruitUI <- function(id) {
   ns <- NS(id)
   sidebarLayout(

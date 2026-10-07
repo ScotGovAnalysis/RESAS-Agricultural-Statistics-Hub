@@ -179,31 +179,31 @@ otherAnimalsServer <- function(id) {
       filtered_data
     })
     
-    other_uni_map <- reactive({
-      other_animals_unitauth %>%         
-        mutate(across(everything(), as.character)) %>%
-        pivot_longer(
-          cols = -`livestock`,
-          names_to = "unitauth",
-          values_to = "value"
-        ) %>% 
-        mutate(
-          value = if_else(is.na(value), NA_integer_, as.integer(value))
-        )
-    })
-    
-    mapUnitaryServer(
-      id = "map_uni",
-      data = reactive({
-        req(input$variable_uni)
-        other_uni_map() %>% filter(`livestock` == input$variable_uni)
-      }),
-      unit = "number",
-      footer = census_footer,
-      variable = reactive(input$variable_uni),
-      title = paste("Other animals distribution by local authority in", census_year),
-      legend_title = "Animals (number)"
-    )
+    # other_uni_map <- reactive({
+    #   other_animals_unitauth %>%         
+    #     mutate(across(everything(), as.character)) %>%
+    #     pivot_longer(
+    #       cols = -`livestock`,
+    #       names_to = "unitauth",
+    #       values_to = "value"
+    #     ) %>% 
+    #     mutate(
+    #       value = if_else(is.na(value), NA_integer_, as.integer(value))
+    #     )
+    # })
+    # 
+    # mapUnitaryServer(
+    #   id = "map_uni",
+    #   data = reactive({
+    #     req(input$variable_uni)
+    #     other_uni_map() %>% filter(`livestock` == input$variable_uni)
+    #   }),
+    #   unit = "number",
+    #   footer = census_footer,
+    #   variable = reactive(input$variable_uni),
+    #   title = paste("Other animals distribution by local authority in", census_year),
+    #   legend_title = "Animals (number)"
+    # )
     
     chart_data <- reactive({
       req(input$timeseries_variables)
@@ -304,7 +304,7 @@ otherAnimalsServer <- function(id) {
                "map" = paste0("Other_Animals_Map_Data_", Sys.Date(), ".csv"),
                "timeseries" = paste0("Other_Animals_Timeseries_Data_", Sys.Date(), ".csv"),
                # "map_con" = paste0("Other_Animals_Constituency_Data_", Sys.Date(), ".csv"),
-               "map_uni" = paste0("Other_Animals_Local_Authority_Data_", Sys.Date(), ".csv"),
+               # "map_uni" = paste0("Other_Animals_Local_Authority_Data_", Sys.Date(), ".csv"),
                
                # fallback
                paste0("Downloaded_Data_", Sys.Date(), ".csv")
@@ -340,9 +340,9 @@ otherAnimalsServer <- function(id) {
                        # },
                        # 
                        # ---- Local authority ----
-                       "map_uni" = {
-                         other_animals_unitauth
-                       }
+                       # "map_uni" = {
+                       #   other_animals_unitauth
+                       # }
         )
         
         write.csv(data, file, row.names = FALSE)

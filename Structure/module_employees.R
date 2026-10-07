@@ -106,8 +106,8 @@ employeesMapServer <- function(id) {
         radioButtons(ns("variable_region"), "Select Variable", choices = categories)
       # } else if (input$tabs == "map_con") {
       #   radioButtons(ns("variable_con"), "Select Variable", choices = categories_con)
-      } else if (input$tabs == "map_uni") {
-        radioButtons(ns("variable_uni"), "Select Variable", choices = categories)
+      # } else if (input$tabs == "map_uni") {
+      #   radioButtons(ns("variable_uni"), "Select Variable", choices = categories)
       } else if (input$tabs == "data_table") {
         radioButtons(ns("data_source"), "Choose data to show:", choices = c("Time Series Data", "Agricultural Region Data", "Local Authority Data"))
       } else if (input$tabs == "timeseries") {
@@ -248,8 +248,8 @@ employeesMapServer <- function(id) {
           "Scottish Agricultural Employees Agricultural Regional Data - 2025.csv"
         # } else if (input$data_source == "Constituency Data") {
         #   "Scottish Agricultural Employees Constituency Data - 2025.csv"
-        } else if (input$data_source == "Local Authority Data") {
-          "Scottish Agricultural Employees Local Authority Data - 2025.csv"
+        # } else if (input$data_source == "Local Authority Data") {
+        #   "Scottish Agricultural Employees Local Authority Data - 2025.csv"
         }
       },
       
