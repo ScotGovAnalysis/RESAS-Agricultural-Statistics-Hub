@@ -109,7 +109,7 @@ employeesMapServer <- function(id) {
       # } else if (input$tabs == "map_uni") {
       #   radioButtons(ns("variable_uni"), "Select Variable", choices = categories)
       } else if (input$tabs == "data_table") {
-        radioButtons(ns("data_source"), "Choose data to show:", choices = c("Time Series Data", "Agricultural Region Data", "Local Authority Data"))
+        radioButtons(ns("data_source"), "Choose data to show:", choices = c("Time Series Data", "Agricultural Region Data"))
       } else if (input$tabs == "timeseries") {
         selectizeInput(
           ns("variables"), 
