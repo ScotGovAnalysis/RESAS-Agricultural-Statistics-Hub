@@ -16,26 +16,26 @@ beansUI <- function(id) {
       ),     
       
       # ===================== CONSTITUENCY MAP =====================
-      conditionalPanel(
-        condition = "input.tabsetPanel === 'Constituency Map'",
-        ns = ns,
-        radioButtons(
-          ns("variable_con"), 
-          "Select Variable", 
-          choices = unique(peas_beans_constituency$crop)
-        )
-      ),
+      # conditionalPanel(
+      #   condition = "input.tabsetPanel === 'Constituency Map'",
+      #   ns = ns,
+      #   radioButtons(
+      #     ns("variable_con"), 
+      #     "Select Variable", 
+      #     choices = unique(peas_beans_constituency$crop)
+      #   )
+      # ),
       
-      # ===================== LOCAL AUTHORITY MAP =====================
-      conditionalPanel(
-        condition = "input.tabsetPanel === 'Local Authority Map'",
-        ns = ns,
-        radioButtons(
-          ns("variable_uni"), 
-          "Select Variable", 
-          choices = unique(peas_beans_constituency$crop)
-        )
-      ),
+      # # ===================== LOCAL AUTHORITY MAP =====================
+      # conditionalPanel(
+      #   condition = "input.tabsetPanel === 'Local Authority Map'",
+      #   ns = ns,
+      #   radioButtons(
+      #     ns("variable_uni"), 
+      #     "Select Variable", 
+      #     choices = unique(peas_beans_constituency$crop)
+      #   )
+      # ),
       
       # ===================== TIME SERIES =====================
       
@@ -45,7 +45,7 @@ beansUI <- function(id) {
         checkboxGroupInput(
           ns("timeseries_variables"),
           "Select Time Series Variables",
-          choices = unique(beans_data$`Crop/Land use`),
+          choices = unique(beans_data$`Crop/land use`),
           selected = c(
             "Protein Peas",
             "Field Beans"
@@ -61,9 +61,10 @@ beansUI <- function(id) {
           ns("table_data"),
           "Select Data to Display",
           choices = c("Agricultural Region Data" = "map", 
-                      "Time Series Data" = "timeseries",
-                      "Constituency Data" = "map_con",
-                      "Local Authority Data" = "map_uni"),
+                      "Time Series Data" = "timeseries"
+                   #   "Constituency Data" = "map_con",
+              #        "Local Authority Data" = "map_uni"
+              ),
           selected = "map"
         )
       )
@@ -75,8 +76,8 @@ beansUI <- function(id) {
       tabsetPanel(
         id = ns("tabsetPanel"),
         tabPanel("Agricultural Region Map", mapUI(ns("map"))),
-        tabPanel("Constituency Map", mapConstituenciesUI(ns("map_con"))),
-        tabPanel("Local Authority Map", mapUnitaryUI(ns("map_uni"))),
+     #   tabPanel("Constituency Map", mapConstituenciesUI(ns("map_con"))),
+        # tabPanel("Local Authority Map", mapUnitaryUI(ns("map_uni"))),
         tabPanel("Time Series", lineChartUI(ns("line"))),
         tabPanel("Data Table", 
                  DTOutput(ns("table")),
@@ -114,66 +115,66 @@ beansServer <- function(id) {
     )
     
     # ===================== CONSTITUENCY MAP =====================
-    peas_const_map <- reactive({
-      peas_beans_constituency %>%         
-        mutate(across(everything(), as.character)) %>%
-        pivot_longer(
-          cols = -`crop`,
-          names_to = "constituency",
-          values_to = "value"
-        ) %>% 
-        mutate(
-          value = if_else(is.na(value), NA_real_, as.numeric(value))
-        )
-    })
-    
-    mapConstituenciesServer(
-      id = "map_con",
-      data = reactive({
-        req(input$variable_con)
-        peas_const_map() %>% filter(`crop` == input$variable_con)
-      }),
-      unit = "hectares",
-      footer = census_footer,
-      variable = reactive(input$variable_con),
-      title = paste("Beans distribution by 2026 Scottish Parliamentary Constituency"),
-      legend_title = "Area (hectares)"
-    )
+    # peas_const_map <- reactive({
+    #   peas_beans_constituency %>%         
+    #     mutate(across(everything(), as.character)) %>%
+    #     pivot_longer(
+    #       cols = -`crop`,
+    #       names_to = "constituency",
+    #       values_to = "value"
+    #     ) %>% 
+    #     mutate(
+    #       value = if_else(is.na(value), NA_real_, as.numeric(value))
+    #     )
+    # })
+    # 
+    # mapConstituenciesServer(
+    #   id = "map_con",
+    #   data = reactive({
+    #     req(input$variable_con)
+    #     peas_const_map() %>% filter(`crop` == input$variable_con)
+    #   }),
+    #   unit = "hectares",
+    #   footer = census_footer,
+    #   variable = reactive(input$variable_con),
+    #   title = paste("Beans distribution by 2026 Scottish Parliamentary Constituency"),
+    #   legend_title = "Area (hectares)"
+    # )
     
     # ===================== LOCAL AUTHORITY MAP =====================
-    peas_uni_map <- reactive({
-      peas_beans_unitauth %>%        
-        mutate(across(everything(), as.character)) %>%
-        pivot_longer(
-          cols = -`crop`,
-          names_to = "unitauth",
-          values_to = "value"
-        ) %>% 
-        mutate(
-          value = if_else(is.na(value), NA_real_, as.numeric(value))
-        )
-    })
-    
-    mapUnitaryServer(
-      id = "map_uni",
-      data = reactive({
-        req(input$variable_uni)
-        peas_uni_map() %>% filter(`crop` == input$variable_uni)
-      }),
-      unit = "hectares",
-      footer = census_footer,
-      variable = reactive(input$variable_uni),
-      title = paste("Beans distribution by local authority in", census_year),
-      legend_title = "Area (hectares)"
-    )
+    # peas_uni_map <- reactive({
+    #   peas_beans_unitauth %>%        
+    #     mutate(across(everything(), as.character)) %>%
+    #     pivot_longer(
+    #       cols = -`crop`,
+    #       names_to = "unitauth",
+    #       values_to = "value"
+    #     ) %>% 
+    #     mutate(
+    #       value = if_else(is.na(value), NA_real_, as.numeric(value))
+    #     )
+    # })
+    # 
+    # mapUnitaryServer(
+    #   id = "map_uni",
+    #   data = reactive({
+    #     req(input$variable_uni)
+    #     peas_uni_map() %>% filter(`crop` == input$variable_uni)
+    #   }),
+    #   unit = "hectares",
+    #   footer = census_footer,
+    #   variable = reactive(input$variable_uni),
+    #   title = paste("Beans distribution by local authority in", census_year),
+    #   legend_title = "Area (hectares)"
+    # )
     
     
     # ===================== TIME SERIES =====================
     chart_data <- reactive({
       req(input$timeseries_variables)
       filtered_data <- beans_data %>%
-        filter(`Crop/Land use` %in% input$timeseries_variables) %>%
-        pivot_longer(cols = -`Crop/Land use`, names_to = "year", values_to = "value") %>%
+        filter(`Crop/land use` %in% input$timeseries_variables) %>%
+        pivot_longer(cols = -`Crop/land use`, names_to = "year", values_to = "value") %>%
         mutate(year = as.numeric(year))  # Ensure year is numeric
       filtered_data
     })
@@ -215,7 +216,7 @@ beansServer <- function(id) {
                      # -------------------
                      "timeseries" = {
                        beans_data %>%
-                         pivot_longer(cols = -`Crop/Land use`,
+                         pivot_longer(cols = -`Crop/land use`,
                                       names_to = "year",
                                       values_to = "value") %>%
                          pivot_wider(names_from = year, values_from = value) %>%
@@ -225,21 +226,21 @@ beansServer <- function(id) {
                      # -------------------
                      # 3. Constituency Table
                      # -------------------
-                     "map_con" = {
-                       peas_beans_constituency %>%
-                         rename(`Crop/Land use` = `crop`) %>%
-                         mutate(across(where(is.numeric), comma))
-                     },
+                     # "map_con" = {
+                     #   peas_beans_constituency %>%
+                     #     rename(`Crop/land use` = `crop`) %>%
+                     #     mutate(across(where(is.numeric), comma))
+                     # },
                      
                      
                      # -------------------
                      # 4. Local authority table
                      # -------------------
-                     "map_uni" = {
-                       peas_beans_unitauth %>%
-                         rename(`Crop/Land use` = `crop`) %>%
-                         mutate(across(where(is.numeric), comma))
-                     },
+                     # "map_uni" = {
+                     #   peas_beans_unitauth %>%
+                     #     rename(`Crop/land use` = `crop`) %>%
+                     #     mutate(across(where(is.numeric), comma))
+                     # },
       )
       
       # -------------------------
@@ -267,8 +268,8 @@ beansServer <- function(id) {
         switch(input$table_data,
                "map" = paste0("Peas_Beans_Agricultural_Region_Data_", Sys.Date(), ".csv"),
                "timeseries" = paste0("Peas_Beans_Timeseries_Data_", Sys.Date(), ".csv"),
-               "map_con" = paste0("Peas_Beans_Constituency_Data_", Sys.Date(), ".csv"),
-               "map_uni" = paste0("Peas_Beans_Local_Authority_Data_", Sys.Date(), ".csv"),
+               # "map_con" = paste0("Peas_Beans_Constituency_Data_", Sys.Date(), ".csv"),
+               # "map_uni" = paste0("Peas_Beans_Local_Authority_Data_", Sys.Date(), ".csv"),
                
                # fallback
                paste0("Downloaded_Data_", Sys.Date(), ".csv")
@@ -291,22 +292,22 @@ beansServer <- function(id) {
                        "timeseries" = {
                          beans_data %>%
                            pivot_longer(
-                             cols = -`Crop/Land use`,
+                             cols = -`Crop/land use`,
                              names_to = "year",
                              values_to = "value"
                            ) #%>%
                           # pivot_wider(names_from = year, values_from = value)
                        },
-                       
-                       # ---- Constituency ----
-                       "map_con" = {
-                         peas_beans_constituency
-                       },
-                       
-                       # ---- Local authority ----
-                       "map_uni" = {
-                         peas_beans_unitauth
-                       }
+                       # 
+                       # # ---- Constituency ----
+                       # "map_con" = {
+                       #   peas_beans_constituency
+                       # },
+                       # 
+                       # # ---- Local authority ----
+                       # "map_uni" = {
+                       #   peas_beans_unitauth
+                       # }
         )
         
         write.csv(data, file, row.names = FALSE)
@@ -324,4 +325,5 @@ beans_demo <- function() {
   }
   shinyApp(ui, server)
 }
+
 beans_demo()

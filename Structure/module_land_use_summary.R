@@ -14,26 +14,26 @@ landUseSummaryUI <- function(id) {
       ),
       
       # Only show for Constituency Map tab
-      conditionalPanel(
-        condition = "input.tabsetPanel === 'Constituency Map'",
-        ns = ns,
-        radioButtons(
-          ns("variable_con"),
-          "Select Variable",
-          choices = unique(land_use_constituency$`land use`)
-        )
-      ),
-      
+      # conditionalPanel(
+      #   condition = "input.tabsetPanel === 'Constituency Map'",
+      #   ns = ns,
+      #   radioButtons(
+      #     ns("variable_con"),
+      #     "Select Variable",
+      #     choices = unique(land_use_constituency$`land use`)
+      #   )
+      # ),
+      # 
       # Unitary Authority Map tab
-      conditionalPanel(
-        condition = "input.tabsetPanel === 'Local Authority Map'",
-        ns = ns,
-        radioButtons(
-          ns("variable_uni"),
-          "Select Variable",
-          choices = unique(land_use_unitauth$`land use`)
-        )
-      ),
+      # conditionalPanel(
+      #   condition = "input.tabsetPanel === 'Local Authority Map'",
+      #   ns = ns,
+      #   radioButtons(
+      #     ns("variable_uni"),
+      #     "Select Variable",
+      #     choices = unique(land_use_unitauth$`land use`)
+      #   )
+      # ),
     
       conditionalPanel(
         condition = "input.tabsetPanel === 'Summary'",
@@ -50,14 +50,14 @@ landUseSummaryUI <- function(id) {
         checkboxGroupInput(
           ns("timeseries_variables"),
           "Select Time Series Variables",
-          choices = unique(land_use_data$`Crop/Land use`),
+          choices = unique(land_use_data$`Crop/land use`),
           selected = c(
-            "Common Grazings",
-            "Rough Grazing",
-            "Total Crops, Fallow, And Set-Aside",
-            "Total Grass",
+            "Common grazings",
+            "Rough grazing",
+            "Total crops, fallow, and set-aside",
+            "Total grass",
             "Cauliflower",
-            "Total Sole Right Agricultural Area"
+            "Total sole right agricultural area"
           )
         )
       ),
@@ -69,9 +69,10 @@ landUseSummaryUI <- function(id) {
           ns("table_data"),
           "Select Data to Display",
           choices = c("Agricultural Region Data" = "map", 
-                      "Time Series Data" = "timeseries",
-                      "Constituency Data" = "map_con",
-                      "Local Authority Data" = "map_uni"),
+                      "Time Series Data" = "timeseries"
+                      # "Constituency Data" = "map_con",
+                      # "Local Authority Data" = "map_uni"
+                      ),
           selected = "map"
         )
       )
@@ -83,8 +84,8 @@ landUseSummaryUI <- function(id) {
       tabsetPanel(
         id = ns("tabsetPanel"),
         tabPanel("Agricultural Region Map", mapUI(ns("map"))),
-        tabPanel("Constituency Map", mapConstituenciesUI(ns("map_con"))),
-        tabPanel("Local Authority Map", mapUnitaryUI(ns("map_uni"))),
+        # tabPanel("Constituency Map", mapConstituenciesUI(ns("map_con"))),
+        # tabPanel("Local Authority Map", mapUnitaryUI(ns("map_uni"))),
         tabPanel("Time Series", lineChartUI(ns("line"))),
         tabPanel("Data Table", 
                  DTOutput(ns("table")),
@@ -115,33 +116,33 @@ landUseSummaryServer <- function(id) {
     })
     
     # Constituency map
-    land_use_const_map <- reactive({
-      land_use_constituency %>%   
-        mutate(across(everything(), as.character)) %>%
-        pivot_longer(
-          cols = -`land use`,
-          names_to = "constituency",
-          values_to = "value"
-        ) %>% 
-        mutate(
-          value = if_else(is.na(value), NA_real_, as.numeric(value))
-        )
-    })
+    # land_use_const_map <- reactive({
+    #   land_use_constituency %>%   
+    #     mutate(across(everything(), as.character)) %>%
+    #     pivot_longer(
+    #       cols = -`land use`,
+    #       names_to = "constituency",
+    #       values_to = "value"
+    #     ) %>% 
+    #     mutate(
+    #       value = if_else(is.na(value), NA_real_, as.numeric(value))
+    #     )
+    # })
     
     # Local Authority Map
-    land_use_unitauth_map <- reactive({
-      land_use_unitauth %>%        
-        mutate(across(everything(), as.character)) %>%
-        pivot_longer(
-          cols = -`land use`,
-          names_to = "unitauth",
-          values_to = "value"
-        ) %>% 
-        mutate(
-          value = if_else(is.na(value), NA_real_, as.numeric(value))
-        )
-    })
-    
+    # land_use_unitauth_map <- reactive({
+    #   land_use_unitauth %>%        
+    #     mutate(across(everything(), as.character)) %>%
+    #     pivot_longer(
+    #       cols = -`land use`,
+    #       names_to = "unitauth",
+    #       values_to = "value"
+    #     ) %>% 
+    #     mutate(
+    #       value = if_else(is.na(value), NA_real_, as.numeric(value))
+    #     )
+    # })
+    # 
     
     table_data <- reactive({
       req(input$table_data)
@@ -150,14 +151,14 @@ landUseSummaryServer <- function(id) {
       raw_data <- switch(
         input$table_data,
         "map"        = land_use_subregion,
-        "timeseries" = land_use_data,
-        "map_con"     = land_use_constituency,
-        "map_uni"   = land_use_unitauth
+        "timeseries" = land_use_data
+        # "map_con"     = land_use_constituency,
+        # "map_uni"   = land_use_unitauth
       )
       
       
       if ("land use" %in% names(raw_data)) {
-        raw_data <- raw_data %>% rename(`Crop/Land use` = `land use`)
+        raw_data <- raw_data %>% rename(`Crop/land use` = `land use`)
       }
 
     })
@@ -176,37 +177,37 @@ landUseSummaryServer <- function(id) {
       legend_title = "Area (hectares)"
     )
     
-    mapConstituenciesServer(
-      id = "map_con",
-      data = reactive({
-        req(input$variable_con)
-        land_use_const_map() %>% filter(`land use` == input$variable_con)
-      }),
-      unit = "hectares",
-      footer = census_footer,
-      variable = reactive(input$variable_con),
-      title = paste("Land use by 2026 Scottish Parliamentary Constituency"),
-      legend_title = "Area (hectares)"
-    )
+    # mapConstituenciesServer(
+    #   id = "map_con",
+    #   data = reactive({
+    #     req(input$variable_con)
+    #     land_use_const_map() %>% filter(`land use` == input$variable_con)
+    #   }),
+    #   unit = "hectares",
+    #   footer = census_footer,
+    #   variable = reactive(input$variable_con),
+    #   title = paste("Land use by 2026 Scottish Parliamentary Constituency"),
+    #   legend_title = "Area (hectares)"
+    # )
     
-    mapUnitaryServer(
-      id = "map_uni",
-      data = reactive({
-        req(input$variable_uni)
-        land_use_unitauth_map() %>% filter(`land use` == input$variable_uni)
-      }),
-      unit = "hectares",
-      footer = census_footer,
-      variable = reactive(input$variable_uni),
-      title = paste("Land use by local authority in", census_year),
-      legend_title = "Area (hectares)"
-    )
+    # mapUnitaryServer(
+    #   id = "map_uni",
+    #   data = reactive({
+    #     req(input$variable_uni)
+    #     land_use_unitauth_map() %>% filter(`land use` == input$variable_uni)
+    #   }),
+    #   unit = "hectares",
+    #   footer = census_footer,
+    #   variable = reactive(input$variable_uni),
+    #   title = paste("Land use by local authority in", census_year),
+    #   legend_title = "Area (hectares)"
+    # )
     
     timeseries_data <- reactive({
       req(input$timeseries_variables)
       land_use_data %>%
-        filter(`Crop/Land use` %in% input$timeseries_variables) %>%
-        pivot_longer(cols = -`Crop/Land use`, names_to = "year", values_to = "value") %>%
+        filter(`Crop/land use` %in% input$timeseries_variables) %>%
+        pivot_longer(cols = -`Crop/land use`, names_to = "year", values_to = "value") %>%
         mutate(year = as.numeric(year))  # Ensure year is numeric
     })
 
@@ -246,7 +247,7 @@ landUseSummaryServer <- function(id) {
                      # -------------------
                      "timeseries" = {
                        land_use_data %>%
-                         pivot_longer(cols = -`Crop/Land use`,
+                         pivot_longer(cols = -`Crop/land use`,
                                       names_to = "year",
                                       values_to = "value") %>%
                          pivot_wider(names_from = year, values_from = value) %>%
@@ -256,20 +257,20 @@ landUseSummaryServer <- function(id) {
                      # -------------------
                      # 3. Constituency Table
                      # -------------------
-                     "map_con" = {
-                       land_use_constituency %>%
-                         rename(`Land use by category` = `land use`) %>%
-                         mutate(across(where(is.numeric), comma))
-                     },
-                     
+                     # "map_con" = {
+                     #   land_use_constituency %>%
+                     #     rename(`Land use by category` = `land use`) %>%
+                     #     mutate(across(where(is.numeric), comma))
+                     # },
+                     # 
                      # -------------------
                      # 4. Local authority table
                      # -------------------
-                     "map_uni" = {
-                       land_use_unitauth %>%
-                         rename(`Land use by category` = `land use`) %>%
-                         mutate(across(where(is.numeric), comma))
-                     },
+                     # "map_uni" = {
+                     #   land_use_unitauth %>%
+                     #     rename(`Land use by category` = `land use`) %>%
+                     #     mutate(across(where(is.numeric), comma))
+                     # },
       )
       
       # -------------------------
@@ -297,8 +298,8 @@ landUseSummaryServer <- function(id) {
         switch(input$table_data,
                "map" = paste0("Land_Use_Agricultural_Region_Map_Data_", Sys.Date(), ".csv"),
                "timeseries" = paste0("Land_Use_Timeseries_Data_", Sys.Date(), ".csv"),
-               "map_con" = paste0("Land_Use_Constituency_Data_", Sys.Date(), ".csv"),
-               "map_uni" = paste0("Land_Use_Local_Authority_Data_", Sys.Date(), ".csv"),
+               # "map_con" = paste0("Land_Use_Constituency_Data_", Sys.Date(), ".csv"),
+               # "map_uni" = paste0("Land_Use_Local_Authority_Data_", Sys.Date(), ".csv"),
                
                # fallback
                paste0("Downloaded_Data_", Sys.Date(), ".csv")
@@ -321,7 +322,7 @@ landUseSummaryServer <- function(id) {
                        "timeseries" = {
                          land_use_data %>%
                            pivot_longer(
-                             cols = -`Crop/Land use`,
+                             cols = -`Crop/land use`,
                              names_to = "year",
                              values_to = "value"
                            ) %>%
@@ -329,14 +330,14 @@ landUseSummaryServer <- function(id) {
                        },
                        
                        # ---- Constituency ----
-                       "map_con" = {
-                         land_use_constituency
-                       },
-                       
+                       # "map_con" = {
+                       #   land_use_constituency
+                       # },
+                       # 
                        # ---- Local authority ----
-                       "map_uni" = {
-                         land_use_unitauth
-                       }
+                       # "map_uni" = {
+                       #   land_use_unitauth
+                       # }
         )
         
         write.csv(data, file, row.names = FALSE)
@@ -346,13 +347,13 @@ landUseSummaryServer <- function(id) {
   )
 }
 
-# 
-# land_use_demo <- function() {
-#   ui <- fluidPage(landUseSummaryUI("land_use_test"))
-#   server <- function(input, output, session) {
-#     landUseSummaryServer("land_use_test")
-#   }
-#   shinyApp(ui, server)
-# }
-# 
-# land_use_demo()
+
+land_use_demo <- function() {
+  ui <- fluidPage(landUseSummaryUI("land_use_test"))
+  server <- function(input, output, session) {
+    landUseSummaryServer("land_use_test")
+  }
+  shinyApp(ui, server)
+}
+
+land_use_demo()

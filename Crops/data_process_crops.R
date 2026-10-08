@@ -1,41 +1,38 @@
 load(here("Data", "census_data.RData"))
 
 main_cereals <- cereals_data %>%
-  filter(`Crop/Land use` %in% c("Wheat", "Barley Total", "Oats Total")) %>%
-  summarise(across(-`Crop/Land use`, ~ sum(.x, na.rm = TRUE))) %>%
-  mutate(`Crop/Land use` = "Main Cereals (Barley, Oats and Wheat)") 
+  filter(`Crop/land use` %in% c("Wheat", "Barley total", "Oats total")) %>%
+  summarise(across(-`Crop/land use`, ~ sum(.x, na.rm = TRUE))) %>%
+  mutate(`Crop/land use` = "Main cereals (barley, oats and wheat)") 
 
 
 # Bind back into the wide dataset
 cereals_data_census <- bind_rows(cereals_data, main_cereals)%>% 
-  distinct(`Crop/Land use`, .keep_all = TRUE)%>%
-  mutate(`Crop/Land use` = recode(`Crop/Land use`,
-                                  "Barley Total" = "Total Barley",
-                                  "Oats Total"   = "Total Oats"
-                                  ))
+  distinct(`Crop/land use`, .keep_all = TRUE)
+
 save(cereals_data_census, file="Data/cereals_data_census.RData")
 
 Cereals_census_data_long <- cereals_data_census %>% 
   pivot_longer(
-    cols = -`Crop/Land use`,
+    cols = -`Crop/land use`,
     names_to = "Year",
     values_to = "Value"
   ) %>% 
   mutate(
     Measure = "Area",
-    `Crop/Land use` = as.factor(`Crop/Land use`),  
+    `Crop/land use` = as.factor(`Crop/land use`),  
     Measure = as.factor(Measure),
     Year = as.integer(Year)
   )
 
 Oilseed_census_data_long <- oilseed_data %>% 
   pivot_longer(
-    cols = -`Crop/Land use`,
+    cols = -`Crop/land use`,
     names_to = "Year",
     values_to = "Value"
   ) %>% 
   mutate(Measure = "Area",
-         `Crop/Land use` = as.factor(`Crop/Land use`),  
+         `Crop/land use` = as.factor(`Crop/land use`),  
          Measure = as.factor(Measure),
          Year = as.integer(Year)
   )
@@ -51,24 +48,24 @@ cereals_tiff_data_long <- cereals_tiff_data %>%
   mutate(Barley_Yield = as.numeric(Barley_Yield)) %>%
   pivot_longer(
     cols = -Year,   # keep Year (or other ID columns) as is
-    names_to = c("Crop/Land use", "Measure"),
+    names_to = c("Crop/land use", "Measure"),
     names_pattern = "(.*)_(.*)",   # everything before last "_" = Crop, after = Measure
     values_to = "Value"
   ) %>% 
   mutate(
-    `Crop/Land use` = as.factor(`Crop/Land use`),  
+    `Crop/land use` = as.factor(`Crop/land use`),  
     Measure = as.factor(Measure), 
-    `Crop/Land use` = recode(`Crop/Land use`,
-                  "S_Barley" = "Spring Barley",
-                  "W_Barley" = "Winter Barley",
-                  "Barley"  = "Total Barley",
-                  "Oats"  = "Total Oats",
-                  "Cereals" = "Main Cereals (Barley, Oats and Wheat)"
+    `Crop/land use` = recode(`Crop/land use`,
+                  "S_Barley" = "Spring barley",
+                  "W_Barley" = "Winter barley",
+                  "Barley"  = "Barley total",
+                  "Oats"  = "Oats total",
+                  "Cereals" = "Main cereals (barley, oats and wheat)"
                   )
   ) %>% 
-  filter(`Crop/Land use` != "OSR",
+  filter(`Crop/land use` != "OSR",
          Measure != "Area") %>% 
-  distinct(`Crop/Land use`, Year, Measure, .keep_all = TRUE)
+  distinct(`Crop/land use`, Year, Measure, .keep_all = TRUE)
 
 save(cereals_tiff_data_long, file="Data/cereals_tiff_data_long.RData")
 
@@ -96,18 +93,18 @@ oilseed_tiff_data_long <- cereals_tiff_data %>%
   mutate(Barley_Yield = as.numeric(Barley_Yield)) %>%
   pivot_longer(
     cols = -Year,   # keep Year (or other ID columns) as is
-    names_to = c("Crop/Land use", "Measure"),
+    names_to = c("Crop/land use", "Measure"),
     names_pattern = "(.*)_(.*)",   # everything before last "_" = Crop, after = Measure
     values_to = "Value"
   ) %>% 
   mutate(
-    `Crop/Land use` = as.factor(`Crop/Land use`),  
+    `Crop/land use` = as.factor(`Crop/land use`),  
     Measure = as.factor(Measure), 
-    `Crop/Land use` = recode(`Crop/Land use`,
+    `Crop/land use` = recode(`Crop/land use`,
                              "OSR" = "Oilseed Rape"
     )
   ) %>% 
-  filter(`Crop/Land use` == "Oilseed Rape",
+  filter(`Crop/land use` == "Oilseed Rape",
          Measure != "Area")%>%
   filter(Year %in% years_with_area)
 

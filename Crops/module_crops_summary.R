@@ -17,8 +17,8 @@ cropsSummaryUI <- function(id) {
         width = 3,
         div("Adjust the sliders to compare data from different years.", 
             style = "font-size: 14px; font-weight: bold; margin-bottom: 10px;"),
-        sliderInput(ns("summary_current_year_crops"), "Year of interest", min = 2013, max = census_year, value = census_year, step = 1, sep = ""),
-        sliderInput(ns("summary_comparison_year_crops"), "Comparison year", min = 2013, max = census_year, value = census_year - 1, step = 1, sep = "")
+        sliderInput(ns("summary_current_year_crops"), "Year of interest", min = 2016, max = census_year, value = census_year, step = 1, sep = ""),
+        sliderInput(ns("summary_comparison_year_crops"), "Comparison year", min = 2016, max = census_year, value = census_year - 1, step = 1, sep = "")
       ),
       mainPanel(
         id = ns("mainpanel"),
@@ -28,12 +28,12 @@ cropsSummaryUI <- function(id) {
           tabPanel("Summary Page",
                    value = "Summary_Page",
                    fluidRow(
-                     column(width = 6, valueBoxUI(ns("Total Combine Harvested Crops")), style = "padding-right: 0; padding-left: 0; padding-bottom: 10px;"),
-                     column(width = 6, valueBoxUI(ns("Total Crops For Stockfeeding")), style = "padding-right: 0; padding-left: 0; padding-bottom: 10px;")
+                     column(width = 6, valueBoxUI(ns("Total combine harvested crops")), style = "padding-right: 0; padding-left: 0; padding-bottom: 10px;"),
+                     column(width = 6, valueBoxUI(ns("Total crops for stockfeeding")), style = "padding-right: 0; padding-left: 0; padding-bottom: 10px;")
                    ),
                    fluidRow(
-                     column(width = 6, valueBoxUI(ns("Vegetables For Human Consumption")), style = "padding-right: 0; padding-left: 0;"),
-                     column(width = 6, valueBoxUI(ns("Soft Fruit")), style = "padding-right: 0; padding-left: 0;")
+                     column(width = 6, valueBoxUI(ns("Vegetables for human consumption")), style = "padding-right: 0; padding-left: 0;"),
+                     column(width = 6, valueBoxUI(ns("Soft fruit")), style = "padding-right: 0; padding-left: 0;")
                    ),
                    # Add the footer text
                    div(
@@ -68,15 +68,15 @@ cropsSummaryServer <- function(id) {
     current_year <- reactive({ input$summary_current_year_crops })
     comparison_year <- reactive({ input$summary_comparison_year_crops })
     
-    valueBoxServer("Total Combine Harvested Crops", full_data_crops, "Crop/Land use", reactive("Total Combine Harvested Crops"), current_year, comparison_year, "hectares")
-    valueBoxServer("Total Crops For Stockfeeding", full_data_crops, "Crop/Land use", reactive("Total Crops For Stockfeeding"), current_year, comparison_year, "hectares")
-    valueBoxServer("Vegetables For Human Consumption", full_data_crops, "Crop/Land use", reactive("Vegetables For Human Consumption"), current_year, comparison_year, "hectares")
-    valueBoxServer("Soft Fruit", full_data_crops, "Crop/Land use", reactive("Soft Fruit"), current_year, comparison_year, "hectares")
+    valueBoxServer("Total combine harvested crops", full_data_crops, "Crop/land use", reactive("Total combine harvested crops"), current_year, comparison_year, "hectares")
+    valueBoxServer("Total crops for stockfeeding", full_data_crops, "Crop/land use", reactive("Total crops for stockfeeding"), current_year, comparison_year, "hectares")
+    valueBoxServer("Vegetables for human consumption", full_data_crops, "Crop/land use", reactive("Vegetables for human consumption"), current_year, comparison_year, "hectares")
+    valueBoxServer("Soft fruit", full_data_crops, "Crop/land use", reactive("Soft fruit"), current_year, comparison_year, "hectares")
     
     # Pivot the data wider for the data table and format numbers with commas, excluding the 'Year' column
     pivoted_data <- reactive({
       full_data_crops() %>%
-        pivot_wider(names_from = `Crop/Land use`, values_from = `Value`) %>%
+        pivot_wider(names_from = `Crop/land use`, values_from = `Value`) %>%
         mutate(across(where(is.numeric) & !contains("Year"), comma))  # Format all numeric columns except 'Year' with commas
     })
     
@@ -102,13 +102,13 @@ cropsSummaryServer <- function(id) {
 
 
 # 
-# # Testing module
-# content_demo <- function() {
-#   ui <- fluidPage(cropsSummaryUI("summary_crops_test"))
-#   server <- function(input, output, session) {
-#     cropsSummaryServer("summary_crops_test")
-#   }
-#   shinyApp(ui, server)
-# }
-# 
-# content_demo()
+# Testing module
+content_demo <- function() {
+  ui <- fluidPage(cropsSummaryUI("summary_crops_test"))
+  server <- function(input, output, session) {
+    cropsSummaryServer("summary_crops_test")
+  }
+  shinyApp(ui, server)
+}
+
+content_demo()

@@ -15,26 +15,26 @@ stockfeedingUI <- function(id) {
         )
       ), 
       
-      conditionalPanel(
-        condition = "input.tabsetPanel === 'Constituency Map'",
-        ns = ns,
-        radioButtons(
-          ns("variable_con"), 
-          "Select Variable", 
-          choices = unique(stockfeeding_constituency$crop)
-        )
-      ),     
+      # conditionalPanel(
+      #   condition = "input.tabsetPanel === 'Constituency Map'",
+      #   ns = ns,
+      #   radioButtons(
+      #     ns("variable_con"), 
+      #     "Select Variable", 
+      #     choices = unique(stockfeeding_constituency$crop)
+      #   )
+      # ),     
+      # 
       
-      
-      conditionalPanel(
-        condition = "input.tabsetPanel === 'Local Authority Map'",
-        ns = ns,
-        radioButtons(
-          ns("variable_uni"), 
-          "Select Variable", 
-          choices = unique(stockfeeding_unitauth$crop)
-        )
-      ),     
+      # conditionalPanel(
+      #   condition = "input.tabsetPanel === 'Local Authority Map'",
+      #   ns = ns,
+      #   radioButtons(
+      #     ns("variable_uni"), 
+      #     "Select Variable", 
+      #     choices = unique(stockfeeding_unitauth$crop)
+      #   )
+      # ),     
       
       conditionalPanel(
         condition = "input.tabsetPanel === 'Time Series'",
@@ -42,7 +42,7 @@ stockfeedingUI <- function(id) {
         checkboxGroupInput(
           ns("timeseries_variables"),
           "Select Time Series Variables",
-          choices = unique(stockfeeding_data$`Crop/Land use`),
+          choices = unique(stockfeeding_data$`Crop/land use`),
           selected = c(
             "Turnips/swedes",
             "Kale/cabbage",
@@ -60,9 +60,10 @@ stockfeedingUI <- function(id) {
           ns("table_data"),
           "Select Data to Display",
           choices = c("Agricultural Region Data" = "map", 
-                      "Time Series Data" = "timeseries",
-                      "Constituency Data" = "map_con",
-                      "Local Authority Data" = "map_uni"),
+                      "Time Series Data" = "timeseries"
+                      # "Constituency Data" = "map_con",
+                      # "Local Authority Data" = "map_uni"
+                      ),
           selected = "map"
         )
       )
@@ -72,8 +73,8 @@ stockfeedingUI <- function(id) {
       tabsetPanel(
         id = ns("tabsetPanel"),
         tabPanel("Agricultural Region Map", mapUI(ns("map"))),
-        tabPanel("Constituency Map", mapConstituenciesUI(ns("map_con"))),
-        tabPanel("Local Authority Map", mapUnitaryUI(ns("map_uni"))),
+        # tabPanel("Constituency Map", mapConstituenciesUI(ns("map_con"))),
+        # tabPanel("Local Authority Map", mapUnitaryUI(ns("map_uni"))),
         tabPanel("Time Series", lineChartUI(ns("line"))),
         tabPanel("Data Table", 
                  DTOutput(ns("table")),
@@ -110,65 +111,65 @@ stockfeedingServer <- function(id) {
     )
     
     # ===================== CONSTITUENCY MAP =====================
-    stock_const_map <- reactive({
-      stockfeeding_constituency %>%        
-        mutate(across(everything(), as.character)) %>%
-        pivot_longer(
-          cols = -`crop`,
-          names_to = "constituency",
-          values_to = "value"
-        ) %>% 
-        mutate(
-          value = if_else(is.na(value), NA_real_, as.numeric(value))
-        )
-    })
+    # stock_const_map <- reactive({
+    #   stockfeeding_constituency %>%        
+    #     mutate(across(everything(), as.character)) %>%
+    #     pivot_longer(
+    #       cols = -`crop`,
+    #       names_to = "constituency",
+    #       values_to = "value"
+    #     ) %>% 
+    #     mutate(
+    #       value = if_else(is.na(value), NA_real_, as.numeric(value))
+    #     )
+    # })
     
-    mapConstituenciesServer(
-      id = "map_con",
-      data = reactive({
-        req(input$variable_con)
-        stock_const_map() %>% filter(`crop` == input$variable_con)
-      }),
-      unit = "hectares",
-      footer = census_footer,
-      variable = reactive(input$variable_con),
-      title = paste("Stockfeeding crops distribution by 2026 Scottish Parliamentary Constituency"),
-      legend_title = "Area (hectares)"
-    )
-    
+    # mapConstituenciesServer(
+    #   id = "map_con",
+    #   data = reactive({
+    #     req(input$variable_con)
+    #     stock_const_map() %>% filter(`crop` == input$variable_con)
+    #   }),
+    #   unit = "hectares",
+    #   footer = census_footer,
+    #   variable = reactive(input$variable_con),
+    #   title = paste("Stockfeeding crops distribution by 2026 Scottish Parliamentary Constituency"),
+    #   legend_title = "Area (hectares)"
+    # )
+    # 
     # ===================== LOCAL AUTHORITY MAP =====================
-    stock_uni_map <- reactive({
-      stockfeeding_unitauth %>% 
-        mutate(across(everything(), as.character)) %>%
-        pivot_longer(
-          cols = -`crop`,
-          names_to = "unitauth",
-          values_to = "value"
-        ) %>% 
-        mutate(
-          value = if_else(is.na(value), NA_real_, as.numeric(value))
-        )
-    })
-    
-    mapUnitaryServer(
-      id = "map_uni",
-      data = reactive({
-        req(input$variable_uni)
-        stock_uni_map() %>% filter(`crop` == input$variable_uni)
-      }),
-      unit = "hectares",
-      footer = census_footer,
-      variable = reactive(input$variable_uni),
-      title = paste("Stockfeeding crops distribution by local authority in", census_year),
-      legend_title = "Area (hectares)"
-    )
+    # stock_uni_map <- reactive({
+    #   stockfeeding_unitauth %>% 
+    #     mutate(across(everything(), as.character)) %>%
+    #     pivot_longer(
+    #       cols = -`crop`,
+    #       names_to = "unitauth",
+    #       values_to = "value"
+    #     ) %>% 
+    #     mutate(
+    #       value = if_else(is.na(value), NA_real_, as.numeric(value))
+    #     )
+    # })
+    # 
+    # mapUnitaryServer(
+    #   id = "map_uni",
+    #   data = reactive({
+    #     req(input$variable_uni)
+    #     stock_uni_map() %>% filter(`crop` == input$variable_uni)
+    #   }),
+    #   unit = "hectares",
+    #   footer = census_footer,
+    #   variable = reactive(input$variable_uni),
+    #   title = paste("Stockfeeding crops distribution by local authority in", census_year),
+    #   legend_title = "Area (hectares)"
+    # )
     
     
     chart_data <- reactive({
       req(input$timeseries_variables)
       filtered_data <- stockfeeding_data %>%
-        filter(`Crop/Land use` %in% input$timeseries_variables) %>%
-        pivot_longer(cols = -`Crop/Land use`, names_to = "year", values_to = "value") %>%
+        filter(`Crop/land use` %in% input$timeseries_variables) %>%
+        pivot_longer(cols = -`Crop/land use`, names_to = "year", values_to = "value") %>%
         mutate(year = as.numeric(year))  # Ensure year is numeric
       filtered_data
     })
@@ -209,7 +210,7 @@ stockfeedingServer <- function(id) {
                      # -------------------
                      "timeseries" = {
                        stockfeeding_data %>%
-                         pivot_longer(cols = -`Crop/Land use`,
+                         pivot_longer(cols = -`Crop/land use`,
                                       names_to = "year",
                                       values_to = "value") %>%
                          pivot_wider(names_from = year, values_from = value) %>%
@@ -217,22 +218,22 @@ stockfeedingServer <- function(id) {
                      },
                      
                      # -------------------
-                     # 3. Constituency Table
-                     # -------------------
-                     "map_con" = {
-                       stockfeeding_constituency %>%
-                         rename(`Land use by category` = `crop`) %>%
-                         mutate(across(where(is.numeric), comma))
-                     },
-                     
+                     # # 3. Constituency Table
+                     # # -------------------
+                     # "map_con" = {
+                     #   stockfeeding_constituency %>%
+                     #     rename(`Land use by category` = `crop`) %>%
+                     #     mutate(across(where(is.numeric), comma))
+                     # },
+                     # 
                      # -------------------
                      # 4. Local authority table
                      # -------------------
-                     "map_uni" = {
-                       stockfeeding_unitauth %>%
-                         rename(`Land use by category` = `crop`) %>%
-                         mutate(across(where(is.numeric), comma))
-                     },
+                     # "map_uni" = {
+                     #   stockfeeding_unitauth %>%
+                     #     rename(`Land use by category` = `crop`) %>%
+                     #     mutate(across(where(is.numeric), comma))
+                     # },
       )
       
       # -------------------------
@@ -260,8 +261,8 @@ stockfeedingServer <- function(id) {
         switch(input$table_data,
                "map" = paste0("Stockfeeding_Agricultural_Region_Map_Data_", Sys.Date(), ".csv"),
                "timeseries" = paste0("Stockfeeding_Timeseries_Data_", Sys.Date(), ".csv"),
-               "map_con" = paste0("Stockfeeding_Constituency_Data_", Sys.Date(), ".csv"),
-               "map_uni" = paste0("Stockfeeding_Local_Authority_Data_", Sys.Date(), ".csv"),
+               # "map_con" = paste0("Stockfeeding_Constituency_Data_", Sys.Date(), ".csv"),
+               # "map_uni" = paste0("Stockfeeding_Local_Authority_Data_", Sys.Date(), ".csv"),
                
                # fallback
                paste0("Downloaded_Data_", Sys.Date(), ".csv")
@@ -284,7 +285,7 @@ stockfeedingServer <- function(id) {
                        "timeseries" = {
                          stockfeeding_data %>%
                            pivot_longer(
-                             cols = -`Crop/Land use`,
+                             cols = -`Crop/land use`,
                              names_to = "year",
                              values_to = "value"
                            ) %>%
@@ -292,14 +293,14 @@ stockfeedingServer <- function(id) {
                        },
                        
                        # ---- Constituency ----
-                       "map_con" = {
-                         stockfeeding_constituency
-                       },
-                       
+                       # "map_con" = {
+                       #   stockfeeding_constituency
+                       # },
+                       # 
                        # ---- Local authority ----
-                       "map_uni" = {
-                         stockfeeding_unitauth
-                       }
+                       # "map_uni" = {
+                       #   stockfeeding_unitauth
+                       # }
         )
         
         write.csv(data, file, row.names = FALSE)
@@ -309,11 +310,11 @@ stockfeedingServer <- function(id) {
   )
 }
 
-# stockfeeding_demo <- function() {
-#   ui <- fluidPage(stockfeedingUI("stockfeeding_test"))
-#   server <- function(input, output, session) {
-#     stockfeedingServer("stockfeeding_test")
-#   }
-#   shinyApp(ui, server)
-# }
-# stockfeeding_demo()
+stockfeeding_demo <- function() {
+  ui <- fluidPage(stockfeedingUI("stockfeeding_test"))
+  server <- function(input, output, session) {
+    stockfeedingServer("stockfeeding_test")
+  }
+  shinyApp(ui, server)
+}
+stockfeeding_demo()

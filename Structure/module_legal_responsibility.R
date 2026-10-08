@@ -6,20 +6,31 @@ legalResponsibilityUI <- function(id) {
     sidebarLayout(
       sidebarPanel(
         width = 3,
-        radioButtons(ns("data_type"), "Data Type", choices = c("Holdings" = "holdings", "Area" = "area"), selected = "holdings"),
-        checkboxGroupInput(ns("selected_variables"), "Select Variables", choices = NULL, selected = NULL)
+        conditionalPanel(
+          condition = "input.tabsetPanel === 'Bar Chart'",
+          ns = ns,
+          radioButtons(ns("data_type"), "Data Type", choices = c("Holdings" = "holdings", "Area" = "area"), selected = "holdings"),
+          checkboxGroupInput(ns("selected_variables"), "Select Variables", choices = NULL, selected = NULL)
+        ),
+        conditionalPanel(
+          condition = "input.tabsetPanel === 'Data Table'",
+          ns = ns,
+          radioButtons(ns("table_data"), 
+                       "Select Data to Display", 
+                       choices = c("Bar Chart Data" = "chart_data"), 
+                       selected = "chart_data"),
+        ),
       ),
       mainPanel(
         id = ns("mainpanel"),
         width = 9,
         tabsetPanel(
-          id = ns("tabs"),
-          tabPanel("Bar Chart", barChartUI(ns("bar_chart")), value = ns("bar")),
+          id = ns("tabsetPanel"),
+          tabPanel("Bar Chart", barChartUI(ns("bar_chart"))),
           tabPanel("Data Table",
                    DTOutput(ns("data_table")),
                    downloadButton(ns("downloadData"), "Download Data"),
-                   generateCensusTableFooter(),
-                   value = ns("data"))
+                   generateCensusTableFooter())
         )
       )
     )
@@ -35,7 +46,7 @@ legalResponsibilityServer <- function(id) {
         filter(`Legal responsibility` != "Total")
       data
     })
-
+    
     filtered_chart_data <- reactive({
       data <- chart_data() %>%
         filter(`Legal responsibility` %in% input$selected_variables) %>%
