@@ -186,10 +186,11 @@ poultryServer <- function(id) {
     chart_data <- reactive({
       req(input$timeseries_variables)
       filtered_data <- number_of_poultry %>%
-      #  select(-`% Change 2025 to 2024`) %>% 
+        select(-`% Change 2026 to 2025`) %>% 
         filter(`Poultry by category` %in% input$timeseries_variables) %>%
         pivot_longer(cols = -`Poultry by category`, names_to = "year", values_to = "value") %>%
         mutate(value = as.numeric(value))
+      filtered_data
     })
     
     lineChartServer(
