@@ -15,11 +15,6 @@ categories <- c("Regular full-time staff total",
                 "Total casual and seasonal staff", 
                 "Total workforce (including occupiers)")
 
-# categories_con <- c("Regular full-time staff total", 
-#                     "Regular part-time staff total", 
-#                     "Total casual and seasonal staff", 
-#                     "Total workforce (including occupiers)")
-
 filtered_regions_data <- regions_data %>%
   filter(`Occupiers and employees by category` %in% categories)
 
@@ -34,9 +29,19 @@ employeesMapUI <- function(id) {
       width = 9,
       tabsetPanel(
         id = ns("tabs"),
-        tabPanel("Agricultural Region Map", mapUI(ns("map")), value = "map"),
+        tabPanel(
+          "Maps",
+          value = "map",
+          conditionalPanel(
+            condition = sprintf("input['%s'] == 'region'", ns("map_region")),
+            mapUI(ns("map"))
+          ),
+          conditionalPanel(
+            condition = sprintf("input['%s'] == 'la'", ns("map_region")),
+            mapUnitaryUI(ns("map_uni"))
+          )
+        ),
         # tabPanel("Constituency Map", mapConstituenciesUI(ns("map_con")), value = "map_con"),
-        # tabPanel("Local Authority Map", mapUnitaryUI(ns("map_uni")), value = "map_uni"),
         tabPanel("Time Series", 
                  lineChartUI(ns("line_chart"), note_type = 2),  # Use note_type = 2 for the second note
                  value = "timeseries"),
@@ -59,7 +64,8 @@ employeesMapUI <- function(id) {
 employeesMapServer <- function(id) {
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
-    ########## CONSTITUENCY MAP #############
+    
+    # Constituency map
     # employee_const_map <- reactive({
     #   workforce_constituency %>%
     #     mutate(across(everything(), as.character)) %>%
@@ -72,21 +78,22 @@ employeesMapServer <- function(id) {
     #       value = if_else(is.na(value), NA_integer_, as.integer(value))
     #     )
     # })
-    ############# LOCAL AUTHORITY MAP #################
-    # employee_unitary_map <- reactive({
-    #   workforce_unitauth %>%        
-    #     mutate(across(everything(), as.character)) %>%
-    #     pivot_longer(
-    #       cols = -`workforce`,
-    #       names_to = "unitauth",
-    #       values_to = "value"
-    #     ) %>% 
-    #     mutate(
-    #       value = if_else(is.na(value), NA_integer_, as.integer(value))
-    #     )
-    # })
-    # 
-    ########### Timeseries ##############
+    
+    # Local authority map
+    employee_unitary_map <- reactive({
+      workforce_unitauth %>%
+        mutate(across(everything(), as.character)) %>%
+        pivot_longer(
+          cols = -`workforce`,
+          names_to = "unitauth",
+          values_to = "value"
+        ) %>%
+        mutate(
+          value = if_else(is.na(value), NA_integer_, as.integer(value))
+        )
+    })
+
+    # Time series
     occupiers_employees <- occupiers_employees %>%
       mutate(across(starts_with("20"), as.numeric))
     
@@ -99,17 +106,34 @@ employeesMapServer <- function(id) {
         filter(!grepl("occupiers", `Occupiers and employees by category`, ignore.case = TRUE))
     })
     
-    ######## RADIO BUTTONS #############
+    # Radio buttons
     output$sidebar_ui <- renderUI({
       req(input$tabs)
       if (input$tabs == "map") {
-        radioButtons(ns("variable_region"), "Select Variable", choices = categories)
+        tagList(
+          selectInput(
+            ns("map_region"),
+            "Geography",
+            choices = c(
+              "Agricultural Region" = "region",
+              "Local Authority" = "la"
+            ),
+            selected = "region"
+          ),
+          radioButtons(
+            ns("map_variable"),
+            "Select Variable",
+            choices = categories
+          )
+        )
       # } else if (input$tabs == "map_con") {
       #   radioButtons(ns("variable_con"), "Select Variable", choices = categories_con)
-      # } else if (input$tabs == "map_uni") {
-      #   radioButtons(ns("variable_uni"), "Select Variable", choices = categories)
       } else if (input$tabs == "data_table") {
-        radioButtons(ns("data_source"), "Choose data to show:", choices = c("Time Series Data", "Agricultural Region Data"))
+        radioButtons(ns("data_source"), "Choose data to show:", 
+                     choices = c("Agricultural Region Data",
+                                 "Local Authority Data",
+                                 "Time Series Data" 
+                                 ))
       } else if (input$tabs == "timeseries") {
         selectizeInput(
           ns("variables"), 
@@ -122,7 +146,7 @@ employeesMapServer <- function(id) {
       }
     })
     
-    ############# DATA TABLES #################
+    # Chart data
     pivoted_chart_data <- reactive({
       chart_data() %>%
         pivot_wider(names_from = Year, values_from = Value) %>%
@@ -142,7 +166,7 @@ employeesMapServer <- function(id) {
     uni_data <- reactive({workforce_unitauth %>%
         rename(`Occupiers and employees by category` = workforce)})
     
-    ############# Time series chart ################
+    # Time series chart
     lineChartServer(
       id = "line_chart",
       chart_data = reactive({
@@ -159,24 +183,22 @@ employeesMapServer <- function(id) {
       y_col = "Value"
     )
     
-    ############ AGRICULTURAL REGION MAP ##############
+    # Agricultural region map
     mapServer(
       id = "map",
       data = reactive({
-        req(input$variable_region)
+        req(input$map_variable)
         filtered_regions_data %>%
-          filter(`Occupiers and employees by category` == input$variable_region)
+          filter(`Occupiers and employees by category` == input$map_variable)
       }),
       unit = "employees",
       footer = '<div style="font-size: 16px; font-weight: bold;"><a href="https://www.gov.scot/publications/results-from-the-scottish-agricultural-census-june-2025/">Source: Scottish Agricultural Census: June 2025</a></div>',
-      variable = reactive(input$variable_region),
+      variable = reactive(input$map_variable),
       title = paste("Agricultural employees by region in Scotland in", census_year),
       legend_title = "Number of employees"
     )  
     
-    
-    ########### CONSTITUENCIES MAP ###########
-    
+    # Constituency map
     # mapConstituenciesServer(
     #   id = "map_con",
     #   data = reactive({
@@ -190,23 +212,21 @@ employeesMapServer <- function(id) {
     #   legend_title = "Employees (Number)"
     # )
     
-    ############ LOCAL AUTHORITY MAP #############
+    # Local authority map
+    mapUnitaryServer(
+      id = "map_uni",
+      data = reactive({
+        req(input$map_variable)
+        employee_unitary_map() %>% filter(`workforce` == input$map_variable)
+      }),
+      unit = "employees",
+      footer = census_footer,
+      variable = reactive(input$map_variable),
+      title = paste("Agricultural employees by local authority in", census_year),
+      legend_title = "Employees (Number)"
+    )
     
-    # mapUnitaryServer(
-    #   id = "map_uni",
-    #   data = reactive({
-    #     req(input$variable_uni)
-    #     employee_unitary_map() %>% filter(`workforce` == input$variable_uni)
-    #   }),
-    #   unit = "employees",
-    #   footer = census_footer,
-    #   variable = reactive(input$variable_uni),
-    #   title = paste("Agricultural employees by local authority in", census_year),
-    #   legend_title = "Employees (Number)"
-    # )
-    
-    
-    ########### DATA TABLES ##############
+    # Data table
     output$data_table <- renderDT({
       req(input$data_source)
       
@@ -227,12 +247,12 @@ employeesMapServer <- function(id) {
       #     mutate(across(where(is.numeric) & !contains("Year"), comma)) %>% 
       #     datatable(., options = list(scrollX = TRUE, pageLength = 20
       #   ))
-      #   
-      # } else if (input$data_source == "Local Authority Data") {
-      #   uni_data() %>% 
-      #     mutate(across(where(is.numeric) & !contains("Year"), comma)) %>%
-      #     datatable(, options = list(scrollX = TRUE, pageLength = 20
-      #   ))
+
+      } else if (input$data_source == "Local Authority Data") {
+        uni_data() %>%
+          mutate(across(where(is.numeric) & !contains("Year"), comma)) %>%
+          datatable(, options = list(scrollX = TRUE, pageLength = 20
+        ))
       }
     })
     
@@ -248,8 +268,8 @@ employeesMapServer <- function(id) {
           "Scottish Agricultural Employees Agricultural Regional Data - 2025.csv"
         # } else if (input$data_source == "Constituency Data") {
         #   "Scottish Agricultural Employees Constituency Data - 2025.csv"
-        # } else if (input$data_source == "Local Authority Data") {
-        #   "Scottish Agricultural Employees Local Authority Data - 2025.csv"
+        } else if (input$data_source == "Local Authority Data") {
+          "Scottish Agricultural Employees Local Authority Data - 2025.csv"
         }
       },
       
@@ -281,8 +301,8 @@ employeesMapServer <- function(id) {
         # } else if (input$data_source == "Constituency Data") {
         #   write.csv(fmt(con_data()), file, row.names = FALSE)
           
-        # } else if (input$data_source == "Local Authority Data") {
-        #   write.csv(fmt(uni_data()), file, row.names = FALSE)
+        } else if (input$data_source == "Local Authority Data") {
+          write.csv(fmt(uni_data()), file, row.names = FALSE)
         }
       }
     )
