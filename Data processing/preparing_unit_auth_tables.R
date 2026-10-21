@@ -172,8 +172,7 @@ table_02 <- unitary_authorities %>%
     "Total Grass and Rough Grazing" = `Rotational Grass - Under 5 Years` + `Permanent Grassland - 5th Year & Over` + `Sole Right Grazing`,
     "Holdings with Utilised Agricultural Area (UAA), (excl. common grazing)" = item46 + `Sole Right Grazing`,
     "Other Land (including woodland)" = item48 + item49,
-    "Total Sole Right Agricultural Area" = item50,
-    "Number of Holdings" = 1
+    "Total Sole Right Agricultural Area" = item50
   ) %>%
   select(
     "Wheat", "Winter Barley", "Spring Barley", "Total Barley",
@@ -185,7 +184,7 @@ table_02 <- unitary_authorities %>%
     "Total Crops, Fallow, And Set-Aside", "Rotational Grass - Under 5 Years",
     "Permanent Grassland - 5th Year & Over", "Sole Right Grazing", "Total Grass and Rough Grazing",
     "Holdings with Utilised Agricultural Area (UAA), (excl. common grazing)",
-    "Other Land (including woodland)", "Total Sole Right Agricultural Area", "Number of Holdings", unitauth
+    "Other Land (including woodland)", "Total Sole Right Agricultural Area", unitauth
   )
 
 # Summarise table and group by constituency
@@ -193,10 +192,26 @@ table_02 <- table_02 %>%
   group_by(unitauth) %>%
   dplyr::summarise(across(everything(), sum, na.rm = TRUE))
 
+# Create common grazing dataset for joining
+table_02_cg <- unitary_authorities %>%
+  select(`Common grazings` = cgarea, unitauth) %>% 
+  group_by(unitauth) %>%
+  summarise(across(everything(), sum, na.rm = TRUE))
+
+# Join common grazings and calculate total agricultural area
+table_02_joined <- table_02 %>% 
+  bind_cols(table_02_cg %>% select(-unitauth)) %>% 
+  mutate(
+    "Total agricultural area" = `Total Sole Right Agricultural Area` + `Common grazings`
+  )
+
 # Join on S codes
-table_02 <- table_02 %>%
+table_02 <- table_02_joined %>%
   left_join(ua_subset_shape, by = "unitauth") %>%
   relocate(code, .before = unitauth)
+
+
+
 
 # Table 3: Number of holdings with livestock ----
 
