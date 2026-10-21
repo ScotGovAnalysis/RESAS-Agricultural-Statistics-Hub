@@ -6,16 +6,28 @@ fruitUI <- function(id) {
   sidebarLayout(
     sidebarPanel(
       width = 3,
+      
+      # Maps
       conditionalPanel(
-        condition = "input.tabsetPanel === 'Agricultural Region Map'",
+        condition = "input.tabsetPanel === 'Maps'",
         ns = ns,
+        selectInput(
+          ns("map_region"),
+          "Geography",
+          choices = c(
+            "Agricultural Region" = "region",
+            "Local Authority" = "la"
+          ),
+          selected = "region"
+        ),
         radioButtons(
-          ns("variable_region"), 
-          "Select Variable", 
+          ns("map_variable"),
+          "Select Variable",
           choices = unique(fruit_subregion$`Land use by category`)
         )
       ),
       
+      # Constituency map
       # conditionalPanel(
       #   condition = "input.tabsetPanel === 'Constituency Map'",
       #   ns = ns,
@@ -25,17 +37,8 @@ fruitUI <- function(id) {
       #     choices = unique(fruit_constituency$crop)
       #   )
       # ),    
-      
-      # conditionalPanel(
-      #   condition = "input.tabsetPanel === 'Local Authority Map'",
-      #   ns = ns,
-      #   radioButtons(
-      #     ns("variable_uni"), 
-      #     "Select Variable", 
-      #     choices = unique(fruit_constituency$crop)
-      #   )
-      # ),   
-      
+
+      # Time series
       conditionalPanel(
         condition = "input.tabsetPanel === 'Time Series'",
         ns = ns,
@@ -44,12 +47,12 @@ fruitUI <- function(id) {
           "Click within the box to select variables",
           choices = unique(fruit_data$`Vegetables and fruits for human consumption`),
           selected = c(
-            "Strawberries Grown In Open/Under Cover",
-            "Raspberries Grown In Open/Under Cover",
-            "Blackcurrants Grown In Open/Under Cover",
-            "Blueberries Grown In Open/Under Cover",
-            "Tomatoes Grown In Open/Under Cover",
-            "Other Fruit Grown In Open/Under Cover"
+            "Strawberries grown in open/under cover",
+            "Raspberries grown in open/under cover",
+            "Blackcurrants grown in open/under cover",
+            "Blueberries grown in open/under cover",
+            "Tomatoes grown in open/under cover",
+            "Other Fruit grown in open/under cover"
           ),
           multiple = TRUE,
           options = list(
@@ -57,6 +60,8 @@ fruitUI <- function(id) {
           )
         )
       ),
+      
+      # Data table
       conditionalPanel(
         condition = "input.tabsetPanel === 'Data Table'",
         ns = ns,
@@ -64,21 +69,31 @@ fruitUI <- function(id) {
           ns("table_data"),
           "Select Data to Display",
           choices = c("Agricultural Region Data" = "map",
+                      "Local Authority Data" = "map_uni",
                       "Time Series Data" = "timeseries"
                       # "Constituency Data" = "map_con",
-                      # "Local Authority Data" = "map_uni"
                       ),
           selected = "map"
         )
       )
     ),
+    
     mainPanel(
       width = 9,
       tabsetPanel(
         id = ns("tabsetPanel"),
-        tabPanel("Agricultural Region Map", mapUI(ns("map"))),
+        tabPanel(
+          "Maps",
+          conditionalPanel(
+            condition = sprintf("input['%s'] == 'region'", ns("map_region")),
+            mapUI(ns("map"))
+          ),
+          conditionalPanel(
+            condition = sprintf("input['%s'] == 'la'", ns("map_region")),
+            mapUnitaryUI(ns("map_uni"))
+          )
+        ),
         # tabPanel("Constituency Map", mapConstituenciesUI(ns("map_con"))),
-        # tabPanel("Local Authority Map", mapUnitaryUI(ns("map_uni"))),
         tabPanel("Time Series", lineChartUI(ns("line"), note_type = 2)),
         tabPanel("Data Table", 
                  DTOutput(ns("table")),
@@ -104,12 +119,12 @@ fruitServer <- function(id) {
     mapServer(
       id = "map",
       data = reactive({
-        req(input$variable_region)
-        fruit_map %>% filter(`Land use by category` == input$variable_region)
+        req(input$map_variable)
+        fruit_map %>% filter(`Land use by category` == input$map_variable)
       }),
       unit = "hectares",
       footer = census_footer,
-      variable = reactive(input$variable_region),
+      variable = reactive(input$map_variable),
       title = paste("Fruit distribution by region in Scotland in", census_year),
       legend_title = "Area (hectares)"
     )
@@ -141,33 +156,33 @@ fruitServer <- function(id) {
     #   title = paste("Fruit crops distribution by 2026 Scottish Parliamentary Constituency"),
     #   legend_title = "Area (hectares)"
     # )
-    # 
+    
     # ===================== LOCAL AUTHORITY MAP =====================
-    # fruit_uni_map <- reactive({
-    #   fruit_unitauth %>%        
-    #     mutate(across(everything(), as.character)) %>%
-    #     pivot_longer(
-    #       cols = -`crop`,
-    #       names_to = "unitauth",
-    #       values_to = "value"
-    #     ) %>% 
-    #     mutate(
-    #       value = if_else(is.na(value), NA_real_, as.numeric(value))
-    #     )
-    # })
-    # 
-    # mapUnitaryServer(
-    #   id = "map_uni",
-    #   data = reactive({
-    #     req(input$variable_uni)
-    #     fruit_uni_map() %>% filter(`crop` == input$variable_uni)
-    #   }),
-    #   unit = "hectares",
-    #   footer = census_footer,
-    #   variable = reactive(input$variable_uni),
-    #   title = paste("Fruit crops distribution by local authority in", census_year),
-    #   legend_title = "Area (hectares)"
-    # )
+    fruit_uni_map <- reactive({
+      fruit_unitauth %>%
+        mutate(across(everything(), as.character)) %>%
+        pivot_longer(
+          cols = -`crop`,
+          names_to = "unitauth",
+          values_to = "value"
+        ) %>%
+        mutate(
+          value = if_else(is.na(value), NA_real_, as.numeric(value))
+        )
+    })
+
+    mapUnitaryServer(
+      id = "map_uni",
+      data = reactive({
+        req(input$map_variable)
+        fruit_uni_map() %>% filter(`crop` == input$map_variable)
+      }),
+      unit = "hectares",
+      footer = census_footer,
+      variable = reactive(input$map_variable),
+      title = paste("Fruit crops distribution by local authority in", census_year),
+      legend_title = "Area (hectares)"
+    )
     
     # ===================== TIME SERIES =====================
     chart_data <- reactive({
@@ -235,11 +250,11 @@ fruitServer <- function(id) {
                      # -------------------
                      # 4. Local authority table
                      # -------------------
-                     # "map_uni" = {
-                     #   fruit_unitauth %>%
-                     #     rename(`Land use by category` = `crop`) %>%
-                     #     mutate(across(where(is.numeric), comma))
-                     # },
+                     "map_uni" = {
+                       fruit_unitauth %>%
+                         rename(`Land use by category` = `crop`) %>%
+                         mutate(across(where(is.numeric), comma))
+                     },
       )
       
       # -------------------------
@@ -268,7 +283,7 @@ fruitServer <- function(id) {
                "map" = paste0("Fruit_Agricultural_Region_Data_", Sys.Date(), ".csv"),
                "timeseries" = paste0("Fruit_Timeseries_Data_", Sys.Date(), ".csv"),
                # "map_con" = paste0("Fruit_Constituency_Data_", Sys.Date(), ".csv"),
-               # "map_uni" = paste0("Fruit_Local_Authority_Data_", Sys.Date(), ".csv"),
+               "map_uni" = paste0("Fruit_Local_Authority_Data_", Sys.Date(), ".csv"),
                
                # fallback
                paste0("Downloaded_Data_", Sys.Date(), ".csv")
@@ -283,7 +298,7 @@ fruitServer <- function(id) {
                        # ---- Agricultural region map ----
                        "map" = {
                          fruit_subregion %>%
-                           filter(`Land use by category` == input$variable_region) # %>%
+                           filter(`Land use by category` == input$map_variable) # %>%
                         #   pivot_wider(names_from = sub_region, values_from = value)
                        },
                        
@@ -304,9 +319,9 @@ fruitServer <- function(id) {
                        # },
                        # 
                        # ---- Local authority ----
-                       # "map_uni" = {
-                       #   fruit_unitauth
-                       # }
+                       "map_uni" = {
+                         fruit_unitauth
+                       }
         )
         
         write.csv(data, file, row.names = FALSE)

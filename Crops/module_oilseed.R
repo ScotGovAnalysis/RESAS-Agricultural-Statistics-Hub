@@ -6,13 +6,22 @@ oilseedUI <- function(id) {
     sidebarPanel(
       width = 3,
       
-      # ================ AGRICULTURAL REGION MAP ===================
+      # ================ MAPS ===================
       conditionalPanel(
-        condition = "input.tabsetPanel === 'Agricultural Region Map'",
+        condition = "input.tabsetPanel === 'Maps'",
         ns = ns,
+        selectInput(
+          ns("map_region"),
+          "Geography",
+          choices = c(
+            "Agricultural Region" = "region",
+            "Local Authority" = "la"
+          ),
+          selected = "region"
+        ),
         radioButtons(
-          ns("variable_region"), 
-          "Select Variable", 
+          ns("map_variable"),
+          "Select Variable",
           choices = unique(oilseed_subregion$`Land use by category`)
         )
       ),
@@ -25,17 +34,6 @@ oilseedUI <- function(id) {
       #     ns("variable_con"), 
       #     "Select Variable", 
       #     choices = unique(oilseeds_constituency$crop)
-      #   )
-      # ),
-      # 
-      # ===================== LOCAL AUTHORITY MAP =====================
-      # conditionalPanel(
-      #   condition = "input.tabsetPanel === 'Local Authority Map'",
-      #   ns = ns,
-      #   radioButtons(
-      #     ns("variable_uni"), 
-      #     "Select Variable", 
-      #     choices = unique(oilseeds_unitauth$crop)
       #   )
       # ),
       
@@ -68,9 +66,9 @@ oilseedUI <- function(id) {
           ns("table_data"),
           "Select Data to Display",
           choices = c("Agricultural Region Data" = "map", 
+                      "Local Authority Data" = "map_uni",
                       "Time Series Data" = "timeseries"
                       # "Constituency Data" = "map_con",
-                      # "Local Authority Data" = "map_uni"
                       ),
           selected = "timeseries"
         )
@@ -82,9 +80,18 @@ oilseedUI <- function(id) {
       width = 9,
       tabsetPanel(
         id = ns("tabsetPanel"),
-        tabPanel("Agricultural Region Map", mapUI(ns("map"))),
+        tabPanel(
+          "Maps",
+          conditionalPanel(
+            condition = sprintf("input['%s'] == 'region'", ns("map_region")),
+            mapUI(ns("map"))
+          ),
+          conditionalPanel(
+            condition = sprintf("input['%s'] == 'la'", ns("map_region")),
+            mapUnitaryUI(ns("map_uni"))
+          )
+        ),
         # tabPanel("Constituency Map", mapConstituenciesUI(ns("map_con"))),
-        # tabPanel("Local Authority Map", mapUnitaryUI(ns("map_uni"))),
         tabPanel("Time Series", lineChartUI(ns("line"))),
         tabPanel("Data Table", 
                  DTOutput(ns("table")),
@@ -110,12 +117,12 @@ oilseedServer <- function(id) {
     mapServer(
       id = "map",
       data = reactive({
-        req(input$variable_region)
-        oilseed_map %>% filter(`Land use by category` == input$variable_region)
+        req(input$map_variable)
+        oilseed_map %>% filter(`Land use by category` == input$map_variable)
       }),
       unit = "hectares",
       footer = census_footer,
-      variable = reactive(input$variable_region),
+      variable = reactive(input$map_variable),
       title = paste("Oilseed distribution by region in Scotland in", census_year),
       legend_title = "Area (hectares)"
     )
@@ -146,33 +153,33 @@ oilseedServer <- function(id) {
     #   title = paste("Oilseed distribution by 2026 Scottish Parliamentary Constituency"),
     #   legend_title = "Area (hectares)"
     # )
-    # 
+    
     # ===================== LOCAL AUTHORITY MAP =====================
-    # oilseed_uni_map <- reactive({
-    #   oilseeds_unitauth %>% 
-    #     mutate(across(everything(), as.character)) %>%
-    #     pivot_longer(
-    #       cols = -`crop`,
-    #       names_to = "unitauth",
-    #       values_to = "value"
-    #     ) %>% 
-    #     mutate(
-    #       value = if_else(is.na(value), NA_real_, as.numeric(value))
-    #     )
-    # })
-    # 
-    # mapUnitaryServer(
-    #   id = "map_uni",
-    #   data = reactive({
-    #     req(input$variable_uni)
-    #     oilseed_uni_map() %>% filter(`crop` == input$variable_uni)
-    #   }),
-    #   unit = "hectares",
-    #   footer = census_footer,
-    #   variable = reactive(input$variable_uni),
-    #   title = paste("Oilseed distribution by local authority in", census_year),
-    #   legend_title = "Area (hectares)"
-    # )
+    oilseed_uni_map <- reactive({
+      oilseeds_unitauth %>%
+        mutate(across(everything(), as.character)) %>%
+        pivot_longer(
+          cols = -`crop`,
+          names_to = "unitauth",
+          values_to = "value"
+        ) %>%
+        mutate(
+          value = if_else(is.na(value), NA_real_, as.numeric(value))
+        )
+    })
+
+    mapUnitaryServer(
+      id = "map_uni",
+      data = reactive({
+        req(input$map_variable)
+        oilseed_uni_map() %>% filter(`crop` == input$map_variable)
+      }),
+      unit = "hectares",
+      footer = census_footer,
+      variable = reactive(input$map_variable),
+      title = paste("Oilseed distribution by local authority in", census_year),
+      legend_title = "Area (hectares)"
+    )
     
     # ===================== TIME SERIES =====================
     # Update crop selection when measure changes
@@ -284,7 +291,7 @@ oilseedServer <- function(id) {
       # TABLE 1 — AGRCULTURAL REGION MAP DATA
       # ------------------------------------------------------
       if (input$table_data == "map") {
-        req(input$variable_region)
+        req(input$map_variable)
         
         oilseed_map %>%
           pivot_wider(names_from = sub_region, values_from = value) %>%
@@ -365,19 +372,19 @@ oilseedServer <- function(id) {
         # ------------------------------------------------------
         # TABLE 4 — LOCAL AUTHORITY MAP DATA
         # ------------------------------------------------------
-      # } else if (input$table_data == "map_uni") {
-      #   
-      #   oilseeds_unitauth %>%
-      #     rename(`Crop/land use` = crop) %>%
-      #     mutate(across(where(is.numeric), comma)) %>% 
-      #     datatable(
-      #       options = list(
-      #         scrollX = TRUE,
-      #         pageLength = 20,
-      #         autoWidth = TRUE
-      #       )
-      #     )
-      #   
+      } else if (input$table_data == "map_uni") {
+
+        oilseeds_unitauth %>%
+          rename(`Crop/land use` = crop) %>%
+          mutate(across(where(is.numeric), comma)) %>%
+          datatable(
+            options = list(
+              scrollX = TRUE,
+              pageLength = 20,
+              autoWidth = TRUE
+            )
+          )
+
       }
     })
     
@@ -392,9 +399,9 @@ oilseedServer <- function(id) {
           
         # } else if (input$table_data == "map_con") {
         #   paste("Oilseed_Constituency_Data_", Sys.Date(), ".csv", sep = "")
-        #   
-        # } else if (input$table_data == "table4") {
-        #   paste("Oilseed_Local_Authority_Data_", Sys.Date(), ".csv", sep = "")
+        
+        } else if (input$table_data == "table4") {
+          paste("Oilseed_Local_Authority_Data_", Sys.Date(), ".csv", sep = "")
         }
         
       },
@@ -432,14 +439,16 @@ oilseedServer <- function(id) {
             ) %>%
             arrange(Measure)
           
-        } else if (input$table_data == "map_con") {
+        # ---------- CONSTITUENCY MAP -------------
           
-        #   # ---------- CONSTITUENCY MAP -------------
+        # } else if (input$table_data == "map_con") {
+
         #   oilseeds_constituency 
-        #   
-        # } else if (input$table_data == "map_uni") {
-        #   
-          # --------- LOCAL AUTHORITY MAP ----------
+        
+        # --------- LOCAL AUTHORITY MAP ----------
+          
+         } else if (input$table_data == "map_uni") {
+
           oilseeds_unitauth  
         }
         
