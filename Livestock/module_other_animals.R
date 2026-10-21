@@ -5,12 +5,23 @@ otherAnimalsUI <- function(id) {
   sidebarLayout(
     sidebarPanel(
       width = 3,
+      
+      # Maps
       conditionalPanel(
-        condition = "input.tabsetPanel === 'Agricultural Region Map'",
+        condition = "input.tabsetPanel === 'Maps'",
         ns = ns,
+        selectInput(
+          ns("map_region"),
+          "Geography",
+          choices = c(
+            "Agricultural Region" = "region",
+            "Local Authority" = "la"
+          ),
+          selected = "region"
+        ),
         radioButtons(
-          ns("variable_region"), 
-          "Select Variable", 
+          ns("map_variable"),
+          "Select Variable",
           choices = c(
             "Goats and kids" = "Goats and kids",
             "Deer" = "Deer",
@@ -21,6 +32,8 @@ otherAnimalsUI <- function(id) {
           )
         )
       ),
+
+      # Constituency map
       # conditionalPanel(
       #   condition = "input.tabsetPanel === 'Constituency Map'",
       #   ns = ns,
@@ -37,22 +50,8 @@ otherAnimalsUI <- function(id) {
       #     )
       #   )
       # ),
-      # conditionalPanel(
-      #   condition = "input.tabsetPanel === 'Local Authority Map'",
-      #   ns = ns,
-      #   radioButtons(
-      #     ns("variable_uni"), 
-      #     "Select Variable", 
-      #     choices = c(
-      #       "Goats and kids" = "Goats and kids",
-      #       "Deer" = "Deer",
-      #       "Horses" = "Horses",
-      #       "Donkeys" = "Donkeys",
-      #       "Camelids" = "Camelids",
-      #       "Beehives" = "Beehives"
-      #     )
-      #   )
-      # ),
+      
+      # Time series
       conditionalPanel(
         condition = "input.tabsetPanel === 'Time Series'",
         ns = ns,
@@ -77,6 +76,8 @@ otherAnimalsUI <- function(id) {
           )
         )
       ),
+      
+      # Data table
       conditionalPanel(
         condition = "input.tabsetPanel === 'Data Table'",
         ns = ns,
@@ -84,9 +85,9 @@ otherAnimalsUI <- function(id) {
           ns("table_data"),
           "Select Data to Display",
           choices = c("Agricultural Region Data" = "map", 
+                      "Local Authority Data" = "map_uni",
                       "Time Series Data" = "timeseries"
                       # "Constituency Data" = "map_con",
-                      # "Local Authority Data" = "map_uni"
                       ),
           selected = "map"
         )
@@ -96,9 +97,16 @@ otherAnimalsUI <- function(id) {
       width = 9,
       tabsetPanel(
         id = ns("tabsetPanel"),
-        tabPanel("Agricultural Region Map", mapUI(ns("map"))),
+        tabPanel(
+          "Maps",
+          conditionalPanel(
+            condition = sprintf("input['%s'] == 'region'", ns("map_region")),
+            mapUI(ns("map"))),
+          conditionalPanel(
+            condition = sprintf("input['%s'] == 'la'", ns("map_region")),
+            mapUnitaryUI(ns("map_uni")))
+        ),
         # tabPanel("Constituency Map", mapConstituenciesUI(ns("map_con"))),
-        # tabPanel("Local Authority Map", mapUnitaryUI(ns("map_uni"))),
         tabPanel("Time Series", lineChartUI(ns("line"))),
         tabPanel("Data Table", 
                  DTOutput(ns("table")),
@@ -116,6 +124,7 @@ otherAnimalsServer <- function(id) {
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
     
+    # Agricultural region map server
     other_animals_data <- livestock_subregion %>%
       filter(`Livestock by category` %in% c(
         "Goats and kids",
@@ -133,15 +142,16 @@ otherAnimalsServer <- function(id) {
     mapServer(
       id = "map",
       data = reactive({
-        req(input$variable_region)
-        other_animals_data %>% filter(`Livestock by category` == input$variable_region)
+        req(input$map_variable)
+        other_animals_data %>% filter(`Livestock by category` == input$map_variable)
       }),
       footer = census_footer,
-      variable = reactive(input$variable_region),
+      variable = reactive(input$map_variable),
       title = paste("Other animals distribution by region in Scotland in", census_year),
       legend_title = "Number of animals"
     )
     
+    # Constituency map server
     # other_const_map <- reactive({
     #   other_animals_constituency %>%    
     #     mutate(across(everything(), as.character)) %>%
@@ -167,44 +177,35 @@ otherAnimalsServer <- function(id) {
     #   title = paste("Other animals distribution by 2026 Scottish Parliamentary Constituency"),
     #   legend_title = "Animals (number)"
     # )
-    # 
-    chart_data <- reactive({
-      req(input$timeseries_variables)
-      filtered_data <- number_of_other_livestock %>%
-        mutate(across(-`Livestock by category`, as.numeric)) %>% 
-        select(-last_col()) %>% 
-        filter(`Livestock by category` %in% input$timeseries_variables) %>%
-        pivot_longer(cols = -`Livestock by category`, names_to = "year", values_to = "value") %>%
-        mutate(year = as.numeric(year))  # Ensure year is numeric
-      filtered_data
+    
+    # Local authority map server
+    other_uni_map <- reactive({
+      other_animals_unitauth %>%
+        mutate(across(everything(), as.character)) %>%
+        pivot_longer(
+          cols = -`livestock`,
+          names_to = "unitauth",
+          values_to = "value"
+        ) %>%
+        mutate(
+          value = if_else(is.na(value), NA_integer_, as.integer(value))
+        )
     })
+
+    mapUnitaryServer(
+      id = "map_uni",
+      data = reactive({
+        req(input$map_variable)
+        other_uni_map() %>% filter(`livestock` == input$map_variable)
+      }),
+      unit = "number",
+      footer = census_footer,
+      variable = reactive(input$map_variable),
+      title = paste("Other animals distribution by local authority in", census_year),
+      legend_title = "Animals (number)"
+    )
     
-    # other_uni_map <- reactive({
-    #   other_animals_unitauth %>%         
-    #     mutate(across(everything(), as.character)) %>%
-    #     pivot_longer(
-    #       cols = -`livestock`,
-    #       names_to = "unitauth",
-    #       values_to = "value"
-    #     ) %>% 
-    #     mutate(
-    #       value = if_else(is.na(value), NA_integer_, as.integer(value))
-    #     )
-    # })
-    # 
-    # mapUnitaryServer(
-    #   id = "map_uni",
-    #   data = reactive({
-    #     req(input$variable_uni)
-    #     other_uni_map() %>% filter(`livestock` == input$variable_uni)
-    #   }),
-    #   unit = "number",
-    #   footer = census_footer,
-    #   variable = reactive(input$variable_uni),
-    #   title = paste("Other animals distribution by local authority in", census_year),
-    #   legend_title = "Animals (number)"
-    # )
-    
+    # Time series server
     chart_data <- reactive({
       req(input$timeseries_variables)
       filtered_data <- number_of_other_livestock %>%
@@ -304,7 +305,7 @@ otherAnimalsServer <- function(id) {
                "map" = paste0("Other_Animals_Map_Data_", Sys.Date(), ".csv"),
                "timeseries" = paste0("Other_Animals_Timeseries_Data_", Sys.Date(), ".csv"),
                # "map_con" = paste0("Other_Animals_Constituency_Data_", Sys.Date(), ".csv"),
-               # "map_uni" = paste0("Other_Animals_Local_Authority_Data_", Sys.Date(), ".csv"),
+               "map_uni" = paste0("Other_Animals_Local_Authority_Data_", Sys.Date(), ".csv"),
                
                # fallback
                paste0("Downloaded_Data_", Sys.Date(), ".csv")
@@ -319,7 +320,7 @@ otherAnimalsServer <- function(id) {
                        # ---- Agricultural region map ----
                        "map" = {
                          other_animals_data %>%
-                           filter(`Livestock by category` == input$variable_region) %>%
+                           filter(`Livestock by category` == input$map_variable) %>%
                            pivot_wider(names_from = sub_region, values_from = value)
                        },
                        
@@ -338,11 +339,11 @@ otherAnimalsServer <- function(id) {
                        # "map_con" = {
                        #   other_animals_constituency
                        # },
-                       # 
+                        
                        # ---- Local authority ----
-                       # "map_uni" = {
-                       #   other_animals_unitauth
-                       # }
+                       "map_uni" = {
+                         other_animals_unitauth
+                       }
         )
         
         write.csv(data, file, row.names = FALSE)
