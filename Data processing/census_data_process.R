@@ -199,7 +199,14 @@ land_use_timeseries_chart <- land_use_timeseries_table %>%
   pivot_longer(-`Crop/land use`, names_to = "year", values_to = "value")
 
 # Agricultural region table data
-land_use_region_table <- land_use_subregion %>% 
+land_use_region_table <- crops_grass_area_subregion %>% 
+  filter(`Land use by category` %in% c(
+    "Total crops, fallow, and set-aside",
+    "Rough grazing",
+    "Other land (including woodland)",
+    "Total sole right agricultural area",
+    "Common grazings",
+    "Total agricultural area")) %>% 
   mutate(across(where(is.numeric), ~ round(.x, 0))) %>% 
   select(-`Scotland total`)
 
@@ -271,11 +278,14 @@ occupiers_region_map <- occupiers_region_table %>%
   rename(occupier = `Occupiers and employees by category`)
 
 # Local authority map data
-occupiers_unitauth_map <- occupiers_unitauth %>%
-  pivot_longer(cols = -occupier, names_to = "unitauth", values_to = "value")
+occupiers_unitauth_map <- unitary_workforce_numbers %>%
+  select(unitauth, `Total working occupiers`, `Occupiers not working on the holding`) %>% 
+  pivot_longer(cols = -unitauth, names_to = "occupier", values_to = "value") %>% 
+  select(occupier, unitauth, value)
 
 # Local authority table data
-occupiers_unitauth_table <- occupiers_unitauth %>%
+occupiers_unitauth_table <- occupiers_unitauth_map %>%
+  pivot_wider(names_from = "unitauth", values_from = "value") %>% 
   rename(`Occupiers and employees by category` = occupier)
 
 # Population pyramid chart data
@@ -379,7 +389,7 @@ cattle_timeseries_table <- number_of_cattle
 # Time series chart data
 cattle_timeseries_chart <- number_of_cattle %>%
   pivot_longer(cols = -`Cattle by category`, names_to = "year", values_to = "value") %>%
-  mutate(year = as.numeric(year))  n
+  mutate(year = as.numeric(year))
 
 # Total cattle (long)
 total_cattle_long <- cattle_timeseries_chart %>%
@@ -730,54 +740,42 @@ cereals_data <- agricultural_area_hectares %>%
     "Wheat", "Triticale", "Winter barley", "Spring barley", "Barley total", 
     "Winter Oats", "Spring Oats", "Oats total", "Rye", "Mixed grain", "Total Cereals"))
 
-# Time series table data
-cereals_timeseries_table <- cereals_combined_long %>%
-  pivot_wider(
-    id_cols = c(`Crop/land use`, Measure),
-    names_from = Year,
-    values_from = Value) %>%
-  mutate(
-    Measure = recode(
-      Measure,
-      "Area"       = "Area (hectares)",
-      "Production" = "Production (tonnes)",
-      "Yield"      = "Yield (tonnes per hectare)")) %>%
-  arrange(Measure)
-
 # Time series chart data (Area)
-cereals_area_chart <- cereals_data_census %>%
+cereals_area_chart <- cereals_data %>%
   pivot_longer(cols = -`Crop/land use`, names_to = "Year", values_to = "value") %>%
   mutate(Year = as.numeric(Year),
          value = round(value, 0),
          Measure = "Area")
 
 # Agricultural region map data
-cereals_region_map <- cereals_subregion %>%
+cereals_region_map <- crops_grass_area_subregion %>%
   select(-`Scotland total`) %>%
   pivot_longer(
     cols = -`Land use by category`,
     names_to = "sub_region", values_to = "value") %>%
-  mutate(value = as.numeric(value))
+  mutate(value = round(value, 0)) %>% 
+  filter(`Land use by category` %in% c(
+    "Wheat", "Winter barley", "Spring barley", "Oats and mixed grain"))
 
 # Agricultural region table data
 cereals_region_table <- cereals_region_map %>%
   pivot_wider(names_from = sub_region, values_from = value)
 
 # Local authority map data
-cereals_unitauth_map <- cereals_unitauth %>%
-  pivot_longer(cols = -crop, names_to = "unitauth", values_to = "value") %>%
-  mutate(value = if_else(is.na(value), NA_real_, as.numeric(value))) %>%
-  mutate(value = round(value, 0))
+cereals_unitauth_map <- unitary_crops_area %>%
+  select(unitauth, Wheat, `Winter barley`, `Spring barley`, `Oats and mixed grain`) %>% 
+  pivot_longer(cols = -unitauth, names_to = "crop", values_to = "value") %>%
+  mutate(value = round(value, 0)) %>% 
+  select(crop, unitauth, value)
 
 # Local authority table data
-cereals_unitauth_table <- cereals_unitauth %>%
-  rename(`Crop/land use` = crop) %>%
-  mutate(across(where(is.numeric), ~ round(.x, 0)))
+cereals_unitauth_table <- cereals_unitauth_map %>%
+  pivot_wider(names_from = "unitauth", values_from = "value") %>% 
+  rename(`Crop/land use` = crop)
 
 # Save data
 save(
   cereals_data,
-  cereals_timeseries_table,
   cereals_area_chart,
   cereals_region_map,
   cereals_region_table,
@@ -821,15 +819,16 @@ beans_region_table <- beans_region_map %>%
   pivot_wider(names_from = sub_region, values_from = value)
 
 # Local authority map data
-beans_unitauth_map <- peas_beans_unitauth %>%
-  pivot_longer(cols = -crop, names_to = "unitauth", values_to = "value") %>%
-  mutate(value = if_else(is.na(value), NA_real_, as.numeric(value)),
-         value = round(value, 0))
+beans_unitauth_map <- unitary_crops_area %>%
+  select(unitauth, `Peas and beans for combining`) %>% 
+  pivot_longer(cols = -unitauth, names_to = "crop", values_to = "value") %>%
+  mutate(value = round(value, 0)) %>% 
+  select(crop, unitauth, value)
 
 # Local authority table data
-beans_unitauth_table <- peas_beans_unitauth %>%
+beans_unitauth_table <- beans_unitauth_map %>%
   rename(`Crop/land use` = crop) %>%
-  mutate(across(where(is.numeric), ~ round(.x, 0)))
+  pivot_wider(names_from = "unitauth", values_from = "value")
 
 # Save data
 save(
@@ -900,15 +899,16 @@ fruit_region_table <- fruit_region_map %>%
   pivot_wider(names_from = sub_region, values_from = value)
 
 # Local authority map data
-fruit_unitauth_map <- fruit_unitauth %>%
-  pivot_longer(cols = -crop, names_to = "unitauth", values_to = "value") %>%
-  mutate(value = if_else(is.na(value), NA_real_, as.numeric(value)),
-         value = round(value, 0))
+fruit_unitauth_map <- unitary_crops_area %>%
+  select(unitauth, `Orchard and soft fruit`) %>% 
+  pivot_longer(cols = -unitauth, names_to = "crop", values_to = "value") %>%
+  mutate(value = round(value, 0)) %>% 
+  select(crop, unitauth, value)
 
 # Local authority table data
-fruit_unitauth_table <- fruit_unitauth %>%
+fruit_unitauth_table <- fruit_unitauth_map %>%
   rename(`Land use by category` = crop) %>%
-  mutate(across(where(is.numeric), ~ round(.x, 0)))
+  pivot_wider(names_from = "unitauth", values_from = "value")
 
 # Save data
 save(
@@ -970,15 +970,16 @@ vegetables_region_table <- vegetables_region_map %>%
   pivot_wider(names_from = sub_region, values_from = value)
 
 # Local authority map data
-vegetables_unitauth_map <- vegetables_unitauth %>%
-  pivot_longer(cols = -crop, names_to = "unitauth", values_to = "value") %>%
-  mutate(value = if_else(is.na(value), NA_real_, as.numeric(value))) %>%
-  mutate(value = round(value, 0))
+vegetables_unitauth_map <- unitary_crops_area %>%
+  select(unitauth, `Vegetables for human consumption`) %>% 
+  pivot_longer(cols = -unitauth, names_to = "crop", values_to = "value") %>%
+  mutate(value = round(value, 0)) %>% 
+  select(crop, unitauth, value)
 
 # Local authority table data
-vegetables_unitauth_table <- vegetables_unitauth %>%
+vegetables_unitauth_table <- vegetables_unitauth_map %>%
   rename(`Land use by category` = crop) %>%
-  mutate(across(where(is.numeric), ~ round(.x, 0)))
+  pivot_wider(names_from = "unitauth", values_from = "value")
 
 # Save data
 save(
@@ -996,60 +997,44 @@ save(
 
 ### Oilseeds -----
 
-# Time series table data
-oilseed_timeseries_table <- oilseed_combined_long %>%
-  pivot_wider(
-    id_cols = c(`Crop/land use`, Measure),
-    names_from = Year,
-    values_from = Value) %>%
-  mutate(
-    Measure = recode(
-      Measure,
-      "Area"       = "Area (hectares)",
-      "Production" = "Production (tonnes)",
-      "Yield"      = "Yield (tonnes per hectare)")) %>%
-  arrange(Measure)
-
-# Subset for oilseed_subregion
-oilseed_subregion <- crops_grass_area_subregion %>%
-  filter(`Land use by category` %in% c(
-    "Oilseeds (including linseed)")) %>%
-  mutate(across(where(is.numeric), ~ round(.x, 0)))
-
 # Time series chart data (Area)
-oilseed_area_chart <- oilseed_data %>%
+oilseed_area_chart <- agricultural_area_hectares %>%
+  select(-contains("% Change")) %>% 
   pivot_longer(cols = -`Crop/land use`, names_to = "Year", values_to = "value") %>%
+  filter(`Crop/land use` %in% c(
+    "Winter oilseed rape", "Spring oilseed rape", "Linseed", "Total oilseeds")) %>% 
   mutate(Year = as.numeric(Year),
          Measure = "Area",
          value = round(value, 0))
 
+# Agricultural region table data
+oilseed_region_table <- crops_grass_area_subregion %>%
+  select(-`Scotland total`) %>% 
+  filter(`Land use by category` %in% c(
+    "Oilseeds (including linseed)")) %>%
+  mutate(across(where(is.numeric), ~ round(.x, 0)))
+
 # Agricultural region map data
-oilseed_region_map <- oilseed_subregion %>%
-  select(-`Scotland total`) %>%
+oilseed_region_map <- oilseed_region_table %>%
   pivot_longer(
     cols = -`Land use by category`,
     names_to = "sub_region", values_to = "value") %>%
   mutate(value = as.numeric(value))
 
-# Agricultural region table data
-oilseed_region_table <- oilseed_region_map %>%
-  pivot_wider(names_from = sub_region, values_from = value)
-
 # Local authority map data
-oilseed_unitauth_map <- oilseeds_unitauth %>%
-  pivot_longer(cols = -crop, names_to = "unitauth", values_to = "value") %>%
-  mutate(value = if_else(is.na(value), NA_real_, as.numeric(value))) %>%
-  mutate(value = round(value, 0))
-
+oilseed_unitauth_map <- unitary_crops_area %>%
+  select(unitauth, `Oilseeds (including linseed)`) %>% 
+  pivot_longer(cols = -unitauth, names_to = "crop", values_to = "value") %>%
+  mutate(value = round(value, 0)) %>% 
+  select(crop, unitauth, value)
+  
 # Local authority table data
-oilseed_unitauth_table <- oilseeds_unitauth %>%
-  rename(`Crop/land use` = crop) %>%
-  mutate(across(where(is.numeric), ~ round(.x, 0)))
+oilseed_unitauth_table <- oilseed_unitauth_map %>%
+  rename(`Crop/land use` = crop) %>% 
+  pivot_wider(names_from = "unitauth", values_from = "value")
 
 # Save data
 save(
-  oilseed_timeseries_table,
-  oilseed_subregion,
   oilseed_area_chart,
   oilseed_region_map,
   oilseed_region_table,
@@ -1097,15 +1082,16 @@ potatoes_region_table <- potatoes_region_map %>%
   pivot_wider(names_from = sub_region, values_from = value)
 
 # Local authority map data
-potatoes_unitauth_map <- potatoes_unitauth %>%
-  pivot_longer(cols = -crop, names_to = "unitauth", values_to = "value") %>%
-  mutate(value = if_else(is.na(value), NA_real_, as.numeric(value)),
-         value = round(value, 0))
+potatoes_unitauth_map <- unitary_crops_area %>%
+  select(unitauth, Potatoes) %>% 
+  pivot_longer(cols = -unitauth, names_to = "crop", values_to = "value") %>%
+  mutate(value = round(value, 0)) %>% 
+  select(crop, unitauth, value)
 
 # Local authority table data
-potatoes_unitauth_table <- potatoes_unitauth %>%
+potatoes_unitauth_table <- potatoes_unitauth_map %>%
   rename(`Land use by category` = crop) %>%
-  mutate(across(where(is.numeric), ~ round(.x, 0)))
+  pivot_wider(names_from = "unitauth", values_from = "value")
 
 # Save data
 save(
@@ -1159,15 +1145,16 @@ stockfeeding_region_table <- stockfeeding_region_map %>%
   pivot_wider(names_from = sub_region, values_from = value)
 
 # Local authority map data
-stockfeeding_unitauth_map <- stockfeeding_unitauth %>%
-  pivot_longer(cols = -crop, names_to = "unitauth", values_to = "value") %>%
-  mutate(value = if_else(is.na(value), NA_real_, as.numeric(value))) %>%
-  mutate(value = round(value, 0))
+stockfeeding_unitauth_map <- unitary_crops_area %>%
+  select(unitauth, `Stockfeeding crops`) %>% 
+  pivot_longer(cols = -unitauth, names_to = "crop", values_to = "value") %>%
+  mutate(value = round(value, 0)) %>% 
+  select(crop, unitauth, value)
 
 # Local authority table data
-stockfeeding_unitauth_table <- stockfeeding_unitauth %>%
+stockfeeding_unitauth_table <- stockfeeding_unitauth_map %>%
   rename(`Land use by category` = crop) %>%
-  mutate(across(where(is.numeric), ~ round(.x, 0)))
+  pivot_wider(names_from = "unitauth", values_from = "value")
 
 # Save data
 save(
@@ -1317,23 +1304,23 @@ save(list = names(data_frames), file = "module_2023.RData", envir = list2env(dat
 
 # 5. 2025 module (irrigation) --------------------------------------------------
 
-# Wrangle drought and flood protection measures data
-irrigation_drought_flood_protection <- irrigation_drought_flood_protection %>%
-  filter(if_any(everything(), ~ grepl("[A-Za-z]", .))) %>% 
-  filter(!(`Irrigation, drought or flood protection measure` %in% c(
-    "Number of holdings that responded", "Total responses")))
-
-# Wrangle irrigation methods data
-irrigation_methods <- irrigation_methods %>% 
-  filter(!(`Irrigation practice` %in% c(
-    "Number of holdings that responded", "Total responses")))
-
-# Save data to environment
-save(
-  irrigation_methods,
-  irrigation_drought_flood_protection,
-  file = "Data/irrigation_2025.RData"
-)
+# # Wrangle drought and flood protection measures data
+# irrigation_drought_flood_protection <- irrigation_drought_flood_protection %>%
+#   filter(if_any(everything(), ~ grepl("[A-Za-z]", .))) %>% 
+#   filter(!(`Irrigation, drought or flood protection measure` %in% c(
+#     "Number of holdings that responded", "Total responses")))
+# 
+# # Wrangle irrigation methods data
+# irrigation_methods <- irrigation_methods %>% 
+#   filter(!(`Irrigation practice` %in% c(
+#     "Number of holdings that responded", "Total responses")))
+# 
+# # Save data to environment
+# save(
+#   irrigation_methods,
+#   irrigation_drought_flood_protection,
+#   file = "Data/irrigation_2025.RData"
+# )
 
 
 # Constituency ----

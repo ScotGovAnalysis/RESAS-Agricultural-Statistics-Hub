@@ -277,7 +277,18 @@ oilseedServer <- function(id) {
       # Time series data
       } else if (input$table_data == "timeseries") {
         
-        ts_data <- oilseed_timeseries_table %>% 
+        ts_data <- oilseed_combined_long %>%
+          pivot_wider(
+            id_cols = c(`Crop/land use`, Measure),
+            names_from = Year,
+            values_from = Value) %>%
+          mutate(
+            Measure = recode(
+              Measure,
+              "Area"       = "Area (hectares)",
+              "Production" = "Production (tonnes)",
+              "Yield"      = "Yield (tonnes per hectare)")) %>%
+          arrange(Measure) %>% 
           mutate(across(where(is.numeric), ~ case_when(
             Measure == "Yield (tonnes per hectare)" ~ as.character(round(.x, 1)),
             TRUE ~ comma(round(.x, 0)))))
