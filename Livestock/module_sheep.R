@@ -4,12 +4,23 @@ sheepUI <- function(id) {
   sidebarLayout(
     sidebarPanel(
       width = 3,
+
+      # Maps
       conditionalPanel(
-        condition = "input.tabsetPanel === 'Agricultural Region Map'",
+        condition = "input.tabsetPanel === 'Maps'",
         ns = ns,
+        selectInput(
+          ns("map_region"),
+          "Geography",
+          choices = c(
+            "Agricultural Region" = "region",
+            "Local Authority" = "la"),
+          selected = "region"
+        ),
+        
         radioButtons(
-          ns("variable_region"), 
-          "Select Variable", 
+          ns("map_variable"),
+          "Select Variable",
           choices = c(
             "Total sheep" = "Total sheep",
             "Ewes used for breeding in previous season" = "Ewes used for breeding in previous season",
@@ -19,6 +30,8 @@ sheepUI <- function(id) {
           )
         )
       ),
+      
+      # Constituency map
       # conditionalPanel(
       #   condition = "input.tabsetPanel === 'Constituency Map'",
       #   ns = ns,
@@ -35,29 +48,15 @@ sheepUI <- function(id) {
       #   )
       # )
       # ,
-      # conditionalPanel(
-      #   condition = "input.tabsetPanel === 'Local Authority Map'",
-      #   ns = ns,
-      #   radioButtons(
-      #     ns("variable_uni"), 
-      #     "Select Variable", 
-      #     choices = c(
-      #       "Total sheep" = "Total sheep",
-      #       "Ewes used for breeding in previous season" = "Ewes used for breeding in previous season",
-      #       "Other sheep for breeding aged 1 year and over" = "Other sheep for breeding aged 1 year and over",
-      #       "Rams to be used for service" = "Rams to be used for service",
-      #       "Lambs" = "Lambs"
-      #     )
-      #   )
-      # )
-      # ,
+      
+      # Time series
       conditionalPanel(
         condition = "input.tabsetPanel === 'Time Series'",
         ns = ns,
         checkboxGroupInput(
           ns("timeseries_variables"),
           "Select Time Series Variables",
-          choices = unique(number_of_sheep$`Sheep by category`),
+          choices = unique(sheep_timeseries_chart$`Sheep by category`),
           selected = c(
             "Ewes used for breeding in previous season",
             "Other sheep for breeding aged 1 year and over",
@@ -67,6 +66,8 @@ sheepUI <- function(id) {
           )
         )
       ),
+      
+      # Data table
       conditionalPanel(
         condition = "input.tabsetPanel === 'Data Table'",
         ns = ns,
@@ -74,9 +75,9 @@ sheepUI <- function(id) {
           ns("table_data"),
           "Select Data to Display",
           choices = c("Agricultural Region Data" = "map", 
+                      "Local Authority Data" = "map_uni",
                       "Time Series Data" = "timeseries"
                       # "Constituency Data" = "map_con",
-                      # "Local Authority Data" = "map_uni"
                       ),
           selected = "map"
         )
@@ -86,9 +87,15 @@ sheepUI <- function(id) {
       width = 9,
       tabsetPanel(
         id = ns("tabsetPanel"),
-        tabPanel("Agricultural Region Map", mapUI(ns("map"))),
+        tabPanel("Maps",
+          conditionalPanel(
+            condition = sprintf("input['%s'] == 'region'", ns("map_region")),
+            mapUI(ns("map"))),
+          conditionalPanel(
+            condition = sprintf("input['%s'] == 'la'", ns("map_region")),
+            mapUnitaryUI(ns("map_uni")))
+        ),
         # tabPanel("Constituency Map", mapConstituenciesUI(ns("map_con"))),
-        # tabPanel("Local Authority Map", mapUnitaryUI(ns("map_uni"))),
         tabPanel("Time Series", lineChartUI(ns("line"))),
         tabPanel("Data Table", 
                  DTOutput(ns("table")),
@@ -105,27 +112,14 @@ sheepServer <- function(id) {
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
     
-    # Agricultural region map
-    sheep_data <- livestock_subregion %>%
-      filter(`Livestock by category` %in%   
-        c("Ewes used for breeding in previous season",
-        "Other sheep for breeding aged 1 year and over",
-        "Rams to be used for service",
-        "Lambs",
-        "Total sheep"))%>%
-      select(-`Scotland total`) %>%
-      mutate(across(everything(), as.character)) %>%
-      pivot_longer(cols = -`Livestock by category`, names_to = "sub_region", values_to = "value") %>%
-      mutate(value = as.numeric(value))
-    
     mapServer(
       id = "map",
       data = reactive({
-        req(input$variable_region)
-        sheep_data %>% filter(`Livestock by category` == input$variable_region)
+        req(input$map_variable)
+        sheep_region_map %>% filter(`Livestock by category` == input$map_variable)
       }),
       footer = census_footer,
-      variable = reactive(input$variable_region),
+      variable = reactive(input$map_variable),
       title = paste("Sheep distribution by region in Scotland in", census_year),
       legend_title = "Number of sheep"
     )
@@ -156,41 +150,25 @@ sheepServer <- function(id) {
     #   title = paste("Sheep distribution by 2026 Scottish Parliamentary Constituency"),
     #   legend_title = "Sheep (number)"
     # )
-    
-    # Local Authority map
-    # sheep_uni_map <- reactive({
-    #   sheep_unitauth %>%        
-    #     mutate(across(everything(), as.character)) %>%
-    #     pivot_longer(
-    #       cols = -`livestock`,
-    #       names_to = "unitauth",
-    #       values_to = "value"
-    #     ) %>% 
-    #     mutate(
-    #       value = if_else(is.na(value), NA_integer_, as.integer(value))
-    #     )
-    # })
-    # 
-    # mapUnitaryServer(
-    #   id = "map_uni",
-    #   data = reactive({
-    #     req(input$variable_uni)
-    #     sheep_uni_map() %>% filter(`livestock` == input$variable_uni)
-    #   }),
-    #   unit = "number",
-    #   footer = census_footer,
-    #   variable = reactive(input$variable_uni),
-    #   title = paste("Sheep distribution by local authority", census_year),
-    #   legend_title = "Sheep (number)"
-    # )
+
+    mapUnitaryServer(
+      id = "map_uni",
+      data = reactive({
+        req(input$map_variable)
+        sheep_unitauth_map %>% filter(`livestock` == input$map_variable)
+      }),
+      unit = "number",
+      footer = census_footer,
+      variable = reactive(input$map_variable),
+      title = paste("Sheep distribution by local authority", census_year),
+      legend_title = "Sheep (number)"
+    )
     
     # Time series
     chart_data <- reactive({
       req(input$timeseries_variables)
-      filtered_data <- number_of_sheep %>% #select (-last_col()) %>%  # remove %change column
-        filter(`Sheep by category` %in% input$timeseries_variables) %>%
-        pivot_longer(cols = -`Sheep by category`, names_to = "year", values_to = "value") %>%
-        mutate(year = as.numeric(year))  # Ensure year is numeric
+      filtered_data <- sheep_timeseries_chart %>% 
+        filter(`Sheep by category` %in% input$timeseries_variables)
       filtered_data
     })
     
@@ -213,35 +191,29 @@ sheepServer <- function(id) {
                     
                     # Agricultural region table
                     "map" = {
-                      req(input$variable_region)
-                      sheep_data %>%
-                        pivot_wider(names_from = sub_region, values_from = value) %>%
+                      req(input$map_variable)
+                      sheep_region_table %>% 
                         mutate(across(where(is.numeric), comma))
                     },
                     
                     # Timeseries table
                     "timeseries" = {
-                      number_of_sheep %>%
-                        pivot_longer(cols = -`Sheep by category`,
-                                     names_to = "year",
-                                     values_to = "value") %>%
-                        pivot_wider(names_from = year, values_from = value) %>%
-                        mutate(across(where(is.numeric) & !contains("Year"), comma))
+                      sheep_timeseries_table %>% 
+                        mutate(across(where(is.numeric), comma))
                     },
                     
-                    # # Constituency Table
+                    # Constituency Table
                     # "map_con" = {
                     #   sheep_constituency %>%
                     #     rename(`Sheep by category` = `livestock`) %>%
                     #     mutate(across(where(is.numeric), comma))
                     # },
-                    # 
+
                     # Local authority table
-                    # "map_uni" = {
-                    #   sheep_unitauth %>% 
-                    #     rename(`Sheep by category` = `livestock`) %>%
-                    #     mutate(across(where(is.numeric), comma))                    
-                    # }
+                    "map_uni" = {
+                      sheep_unitauth_table %>% 
+                        mutate(across(where(is.numeric), comma))
+                    }
       )
       
       # Render the chosen table
@@ -267,7 +239,7 @@ sheepServer <- function(id) {
                "map" = paste0("Sheep_Map_Data_", Sys.Date(), ".csv"),
                "timeseries" = paste0("Sheep_Timeseries_Data_", Sys.Date(), ".csv"),
                # "map_con" = paste0("Sheep_Constituency_Data_", Sys.Date(), ".csv"),
-               # "map_uni" = paste0("Sheep_Local_Authority_Data_", Sys.Date(), ".csv"),
+               "map_uni" = paste0("Sheep_Local_Authority_Data_", Sys.Date(), ".csv"),
                
                # fallback
                paste0("Downloaded_Data_", Sys.Date(), ".csv")
@@ -279,33 +251,26 @@ sheepServer <- function(id) {
         
         data <- switch(input$table_data,
                        
-                       # ---- Agricultural region map ----
+                       # ---- Agricultural region  ----
                        "map" = {
-                         sheep_data %>%
-                           filter(`Livestock by category` == input$variable_region) %>%
-                           pivot_wider(names_from = sub_region, values_from = value)
+                         sheep_region_table %>%
+                           filter(`Livestock by category` == input$map_variable)
                        },
                        
                        # ---- Timeseries ----
                        "timeseries" = {
-                         number_of_sheep %>%
-                           pivot_longer(
-                             cols = -`Sheep by category`,
-                             names_to = "year",
-                             values_to = "value"
-                           ) %>%
-                           pivot_wider(names_from = year, values_from = value)
+                         sheep_timeseries_table
                        },
                        
                        # ---- Constituency ----
                        # "map_con" = {
                        #   sheep_constituency
                        # },
-                       # 
+                        
                        # ---- Local authority ----
-                       # "map_uni" = {
-                       #   sheep_unitauth
-                       # }
+                       "map_uni" = {
+                         sheep_unitauth_table
+                       }
         )
         
         write.csv(data, file, row.names = FALSE)

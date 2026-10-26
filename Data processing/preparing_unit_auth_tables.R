@@ -4,11 +4,10 @@
 # Version of R - 4.4.2
 # Author: Euan Wakefield (euan.wakefield@gov.scot)
 # Date created: 27/02/2026
+# Last updated: 20/10/2026
 #
-# Description: The information on tables 15 to 22 on the June Agricultural Census
-# 2025 by by unitary authority rather than region.
-# Source: June Agricultural Census 2025.
-# Requester: Calli Dougall
+# Description: Crop areas, livestock, and workforce by local authority.
+# Source: June Agricultural Census 2026.
 ##########################################################################
 
 # 1. Set up ----
@@ -30,51 +29,23 @@ library(sp)
 
 server <- "s0196a\\ADM"
 database <- "RuralAndEnvironmentalScienceFarmingStatistics"
-schema <- "juneagriculturalsurvey2025"
+schema <- "juneagriculturalsurvey2026"
 
 # 2. Import files ----
 
 jac <- read_table_from_db(server=server,
                           database=database,
                           schema=schema,
-                          table_name="JAC25_final_dataset_corrections_feb")
+                          table_name="final_dataset_corrected_2909")
 
 shape_data <- st_read("utility/Local Authority Boundaries Scotland/pub_las.shp")
 
-# 3. Wrangle data ----
-jac <- jac %>% 
-  mutate(
-    
-    # If occupier is marked as doing no work and also some work, remove no work entry
-    # If multiple working times are selected, full-time overrides all others 
-    # More than half-time overrides less than half-time
-    item2566 = ifelse(rowSums(across(c(item177, item178, item179, item2566))) > 1 & item2566 > 0, 0, item2566),
-    item178 = ifelse(item177 > 0 & rowSums(across(c(item177, item178, item179))) > 1, 0, item178),
-    item179 = case_when(
-      item177 > 0 & rowSums(across(c(item177, item178, item179))) > 1 ~ 0,
-      item178 > 0 & rowSums(across(c(item177, item178, item179))) > 1 ~ 0,
-      TRUE ~ item179),
-    
-    item2567 = ifelse(rowSums(across(c(item182, item183, item184, item2567))) > 1 & item2567 > 0, 0, item2567),
-    item183 = ifelse(item182 > 0 & rowSums(across(c(item182, item183, item184))) > 1, 0, item183),
-    item184 = case_when(
-      item182 > 0 & rowSums(across(c(item182, item183, item184))) > 1 ~ 0,
-      item183 > 0 & rowSums(across(c(item182, item183, item184))) > 1 ~ 0,
-      TRUE ~ item184),
-    
-    # If gender is marked as both male and female, set occupier 1 as male
-    # and occupier 2 as female
-    item2878 = if_else(item2877 == 1 & item2878 == 1, 0, item2878),
-    item3056 = if_else(item3056 == 1 & item3057 == 1, 0, item3056),
-    
-    # Round up where a proportion of a worker is recorded
-    item195 = if_else(item195 == 0.5, 1, item195),
-    item198 = if_else(item198 == 0.2, 1, item198),
-    item200 = if_else(item200 == 0.7, 2, item200),
-    
-    # Replace out-of-range legal responsibility response with unknown
-    item2980 = ifelse(item2980 == 1949, 0, item2980))
 
+# 3. Wrangle data ----
+
+jac <- jac %>% 
+  mutate(across(where(is.numeric), ~ replace_na(.x, 0)))
+  
 ua_subset_shape <- shape_data %>%
   select(local_auth, code) %>%
   rename(unitauth = local_auth)
@@ -128,9 +99,10 @@ table_01 <- unitary_authorities %>%
     "Oilseeds (Including Linseed)" = item19 + item23 + item21,
     "Potatoes" = item24 + item2320,
     "Peas and Beans for Combining" = item27 + item28,
-    "Stockfeeding Crops" = item27725,
+    "Stockfeeding Crops" = item27725 + item2034,
     "Vegetables For Human Consumption" = item27730,
-    "Orchard and soft fruit" = item27735,
+    "Orchard and soft fruit" = item36 + item70 + item71 + item72 +  item75 + 
+      item87 + item2556 + item2557 + item2036 + item2832 + item2836 + item6000,
     "Bulbs, Flowers & Nursery Stock" = item84,
     "All Other Crops" = item38 + item3156 - (item84 + item87 + item2556 + item2557 + item2836 + item6000 + item2036),
     "Fallow - Under 5 Years" = item2469,
@@ -185,9 +157,10 @@ table_02 <- unitary_authorities %>%
     "Oilseeds (Including Linseed)" = item19 + item23 + item21,
     "Potatoes" = item24 + item2320,
     "Peas and Beans for Combining" = item27 + item28,
-    "Stockfeeding Crops" = item27725,
+    "Stockfeeding Crops" = item27725 + item2034,
     "Vegetables For Human Consumption" = item27730,
-    "Orchard and soft fruit" = item27735,
+    "Orchard and soft fruit" = item36 + item70 + item71 + item72 +  item75 + 
+      item87 + item2556 + item2557 + item2036 + item2832 + item2836 + item6000,
     "Bulbs, Flowers & Nursery Stock" = item84,
     "All Other Crops" = item38 + item3156 - (item84 + item87 + item2556 + item2557 + item2836 + item6000 + item2036),
     "Fallow - Under 5 Years" = item2469,
@@ -199,8 +172,7 @@ table_02 <- unitary_authorities %>%
     "Total Grass and Rough Grazing" = `Rotational Grass - Under 5 Years` + `Permanent Grassland - 5th Year & Over` + `Sole Right Grazing`,
     "Holdings with Utilised Agricultural Area (UAA), (excl. common grazing)" = item46 + `Sole Right Grazing`,
     "Other Land (including woodland)" = item48 + item49,
-    "Total Sole Right Agricultural Area" = item50,
-    "Number of Holdings" = 1
+    "Total Sole Right Agricultural Area" = item50
   ) %>%
   select(
     "Wheat", "Winter Barley", "Spring Barley", "Total Barley",
@@ -212,7 +184,7 @@ table_02 <- unitary_authorities %>%
     "Total Crops, Fallow, And Set-Aside", "Rotational Grass - Under 5 Years",
     "Permanent Grassland - 5th Year & Over", "Sole Right Grazing", "Total Grass and Rough Grazing",
     "Holdings with Utilised Agricultural Area (UAA), (excl. common grazing)",
-    "Other Land (including woodland)", "Total Sole Right Agricultural Area", "Number of Holdings", unitauth
+    "Other Land (including woodland)", "Total Sole Right Agricultural Area", unitauth
   )
 
 # Summarise table and group by constituency
@@ -220,10 +192,26 @@ table_02 <- table_02 %>%
   group_by(unitauth) %>%
   dplyr::summarise(across(everything(), sum, na.rm = TRUE))
 
+# Create common grazing dataset for joining
+table_02_cg <- unitary_authorities %>%
+  select(`Common grazings` = cgarea, unitauth) %>% 
+  group_by(unitauth) %>%
+  summarise(across(everything(), sum, na.rm = TRUE))
+
+# Join common grazings and calculate total agricultural area
+table_02_joined <- table_02 %>% 
+  bind_cols(table_02_cg %>% select(-unitauth)) %>% 
+  mutate(
+    "Total agricultural area" = `Total Sole Right Agricultural Area` + `Common grazings`
+  )
+
 # Join on S codes
-table_02 <- table_02 %>%
+table_02 <- table_02_joined %>%
   left_join(ua_subset_shape, by = "unitauth") %>%
   relocate(code, .before = unitauth)
+
+
+
 
 # Table 3: Number of holdings with livestock ----
 
@@ -255,17 +243,17 @@ table_03 <- unitary_authorities %>%
     "Total Cattle" = `Total Female Dairy Cattle` + `Total Female Beef Cattle` +
       `Total Male Cattle` + `Total Calves`,
     
-    "Ewes for breeding" = item172,
+    "Ewes for breeding" = item165,
     "Other sheep 1 year and over for breeding" = item141,
-    "Rams for service" = item173,
+    "Rams for service" = item166,
     "Lambs" = item144,
     "Other sheep not for breeding" = item143,
     "Total Sheep" = `Ewes for breeding` + `Other sheep 1 year and over for breeding` +
       `Rams for service` + Lambs + `Other sheep not for breeding`,
     
     "Female pigs breeding herd" = item146 + item147 + item148,
-    "All other non-breeding pigs" = item149 + item150 + item151 + item27760 + 
-      item27765 + item27770,
+    "All other non-breeding pigs" = item149 + item150 + item151 + item152 +
+      item153 + item154 + item155 + item27765 + item27770,
     "Total Pigs" = `Female pigs breeding herd` + `All other non-breeding pigs`,
     
     "Fowls for producing eggs" = item158 + item159 + item161,
@@ -344,18 +332,18 @@ table_04 <- unitary_authorities %>%
     "Total Cattle" = `Total Female Dairy Cattle` + `Total Female Beef Cattle` +
       `Total Male Cattle` + `Total Calves`,
     
-    "Ewes for breeding" = item172,
+    "Ewes for breeding" = item165,
     "Other sheep 1 year and over for breeding" = item141,
-    "Rams for service" = item173,
+    "Rams for service" = item166,
     "Lambs" = item144,
     "Other sheep not for breeding" = item143,
     "Total Sheep" = `Ewes for breeding` + `Other sheep 1 year and over for breeding` +
       `Rams for service` + Lambs + `Other sheep not for breeding`,
     
     "Female pigs breeding herd" = item146 + item147 + item148,
-    "All other non-breeding pigs" = item149 + item150 + item151 + item27760 + 
-      item27765 + item27770,
-    "Total Pigs" = `Female pigs breeding herd` + `All other non-breeding pigs`,
+    "All other non-breeding pigs" = item149 + item150 + item151 + item152 +
+      item153 + item154 + item155 + item27765 + item27770,
+    "Total Pigs" = item157,
     
     "Fowls for producing eggs" = item158 + item159 + item161,
     "Fowls for breeding" = item160 + item162 + item163,
@@ -635,8 +623,8 @@ table_08 <- table_08 %>%
 
 cover_list <- list(
   "An Accredited Official Statistics Publication for Scotland" = c(""),
-  "Information" = c("Data in this workbook relates to the 'June Agricultural Census: June 2025' statistical release.", 
-                    "This workbook contains data from the Scottish Agricultural Census: June 2025 Results.  Final results from the 2025 June Agricultural Census on land use, crop areas, livestock and the number of people working on agricultural holdings.",
+  "Information" = c("Data in this workbook relates to the 'June Agricultural Census: June 2026' statistical release.", 
+                    "This workbook contains data from the Scottish Agricultural Census: June 2026 Results.  Final results from the 2026 June Agricultural Census on land use, crop areas, livestock and the number of people working on agricultural holdings.",
                     "Some tables refer to notes. When notes are mentioned the note marker is presented in square brackets. The note text can be found in the Notes worksheet.",
                     "Full details of the survey methodology are available from the Methodology and Quality Assurance Report.")
 )
@@ -649,21 +637,21 @@ contents_df <- data.frame(
   ),
   "Table name" = c(
     "Notes used in this workbook.",
-    "Number of holdings with crops and grass by Unitary Authority, June 2025",
-    "Area of crops and grass by Unitary Authority, June 2025",
-    "Number of holdings with livestock by Unitary Authority, June 2025",
-    "Number of livestock by Unitary Authority, June 2025",
-    "Number of holdings with occupiers and employees by Unitary Authority, June 2025",
-    "Number of occupiers and employees by Unitary Authority, June 2025",
-    "Number of holdings by main farm type and by Unitary Authority, June 2025",
-    "Area of holdings by main farm type and by Unitary Authority, June 2025"
+    "Number of holdings with crops and grass by Unitary Authority, June 2026",
+    "Area of crops and grass by Unitary Authority, June 2026",
+    "Number of holdings with livestock by Unitary Authority, June 2026",
+    "Number of livestock by Unitary Authority, June 2026",
+    "Number of holdings with occupiers and employees by Unitary Authority, June 2026",
+    "Number of occupiers and employees by Unitary Authority, June 2026",
+    "Number of holdings by main farm type and by Unitary Authority, June 2026",
+    "Area of holdings by main farm type and by Unitary Authority, June 2026"
   ),
   check.names = FALSE
 )
 
 notes_df <- data.frame(
   "Note number" = paste0("Note ", 1:30),
-  "Note text" = c("Comparisons are made as a percentage change between 2025 to the 5 year average calculated from 2020 to 2024."
+  "Note text" = c("Comparisons are made as a percentage change between 2026 to the 5 year average calculated from 2020 to 2024."
                   
   ),
   check.names = FALSE
@@ -702,17 +690,17 @@ jac_aftables <-
                     "tables"
     ),
     sheet_titles = c(
-      "Scottish Agricultural Census: June 2025 Results",
+      "Scottish Agricultural Census: June 2026 Results",
       "Table of contents.",
       "Notes.",
-      "Table 1: Number of holdings with crops and grass by Unitary Authority, June 2025 [Note 16, 17, 18, 26]",
-      "Table 2: Area of crops and grass by Unitary Authority, June 2025 [Note 17, 18, 19, 26]",
-      "Table 3: Number of holdings with livestock by Unitary Authority, June 2025 [Note 20, 21, 26]",
-      "Table 4: Number of livestock by Unitary Authority, June 2025 [Note 20, 21, 26]",
-      "Table 5: Number of holdings with occupiers and employees by Unitary Authority, June 2025 [Note 22, 26]",
-      "Table 6: Number of occupiers and employees by Unitary Authority, June 2025 [Note 22, 26]",
-      "Table 7: Number of holdings by main farm type and by Unitary Authority, June 2025",
-      "Table 8: Area of holdings by main farm type and by Unitary Authority, June 2025"
+      "Table 1: Number of holdings with crops and grass by Unitary Authority, June 2026 [Note 16, 17, 18, 26]",
+      "Table 2: Area of crops and grass by Unitary Authority, June 2026 [Note 17, 18, 19, 26]",
+      "Table 3: Number of holdings with livestock by Unitary Authority, June 2026 [Note 20, 21, 26]",
+      "Table 4: Number of livestock by Unitary Authority, June 2026 [Note 20, 21, 26]",
+      "Table 5: Number of holdings with occupiers and employees by Unitary Authority, June 2026 [Note 22, 26]",
+      "Table 6: Number of occupiers and employees by Unitary Authority, June 2026 [Note 22, 26]",
+      "Table 7: Number of holdings by main farm type and by Unitary Authority, June 2026",
+      "Table 8: Area of holdings by main farm type and by Unitary Authority, June 2026"
       
     ), 
     blank_cells = c(
@@ -745,14 +733,14 @@ jac_aftables <-
       NA_character_,
       NA_character_,
       NA_character_,
-      "[JAC 2025](https://www.gov.scot/publications/results-from-the-scottish-agricultural-census-june-2025//)",
-      "[JAC 2025](https://www.gov.scot/publications/results-from-the-scottish-agricultural-census-june-2025//)",
-      "[JAC 2025](https://www.gov.scot/publications/results-from-the-scottish-agricultural-census-june-2025//)",
-      "[JAC 2025](https://www.gov.scot/publications/results-from-the-scottish-agricultural-census-june-2025//)",
-      "[JAC 2025](https://www.gov.scot/publications/results-from-the-scottish-agricultural-census-june-2025//)",
-      "[JAC 2025](https://www.gov.scot/publications/results-from-the-scottish-agricultural-census-june-2025//)",
-      "[JAC 2025](https://www.gov.scot/publications/results-from-the-scottish-agricultural-census-june-2025//)",
-      "[JAC 2025](https://www.gov.scot/publications/results-from-the-scottish-agricultural-census-june-2025//)"
+      "[JAC 2026](https://www.gov.scot/publications/results-from-the-scottish-agricultural-census-june-2026//)",
+      "[JAC 2026](https://www.gov.scot/publications/results-from-the-scottish-agricultural-census-june-2026//)",
+      "[JAC 2026](https://www.gov.scot/publications/results-from-the-scottish-agricultural-census-june-2026//)",
+      "[JAC 2026](https://www.gov.scot/publications/results-from-the-scottish-agricultural-census-june-2026//)",
+      "[JAC 2026](https://www.gov.scot/publications/results-from-the-scottish-agricultural-census-june-2026//)",
+      "[JAC 2026](https://www.gov.scot/publications/results-from-the-scottish-agricultural-census-june-2026//)",
+      "[JAC 2026](https://www.gov.scot/publications/results-from-the-scottish-agricultural-census-june-2026//)",
+      "[JAC 2026](https://www.gov.scot/publications/results-from-the-scottish-agricultural-census-june-2026//)"
       
       
       
@@ -762,5 +750,5 @@ jac_aftables <-
     )
   )
 my_wb1 <- aftables::generate_workbook(jac_aftables)
-openxlsx::saveWorkbook(my_wb1, paste0("Data/Workbook_Draft_Grouped_By_Unitary_Authority_new_", format(Sys.Date(), "%Y_%m_%d"), ".xlsx"))
+openxlsx::saveWorkbook(my_wb1, paste0("Data/unitary_authority_accessible_tables_", format(Sys.Date(), "%Y_%m_%d"), ".xlsx"))
 
