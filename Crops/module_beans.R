@@ -26,7 +26,7 @@ beansUI <- function(id) {
         )
       ),
       
-      # ===================== CONSTITUENCY MAP =====================
+      # Constituency map
       # conditionalPanel(
       #   condition = "input.tabsetPanel === 'Constituency Map'",
       #   ns = ns,
@@ -37,14 +37,14 @@ beansUI <- function(id) {
       #   )
       # ),
       
-      # ===================== TIME SERIES =====================
+      # Time series
       conditionalPanel(
         condition = "input.tabsetPanel === 'Time Series'",
         ns = ns,
         checkboxGroupInput(
           ns("timeseries_variables"),
           "Select Time Series Variables",
-          choices = unique(beans_data$`Crop/land use`),
+          choices = unique(beans_timeseries_chart$`Crop/land use`),
           selected = c(
             "Protein peas",
             "Field beans"
@@ -52,7 +52,7 @@ beansUI <- function(id) {
         )
       ),
       
-      # ===================== DATA TABLE =====================
+      # Data table
       conditionalPanel(
         condition = "input.tabsetPanel === 'Data Table'",
         ns = ns,
@@ -70,7 +70,7 @@ beansUI <- function(id) {
       )
     ),
     
-    # ===================== MAIN PANEL =====================
+    # Main panel
     mainPanel(
       width = 9,
       tabsetPanel(
@@ -103,18 +103,13 @@ beansServer <- function(id) {
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
     
-    # ================== AGRICULTURAL REGION MAP ==================
-    beans_map <- beans_subregion %>%
-      select(-`Scotland total`) %>%
-      mutate(across(everything(), as.character)) %>%
-      pivot_longer(cols = -`Land use by category`, names_to = "sub_region", values_to = "value") %>%
-      mutate(value = as.numeric(value))
-    
+    # Agricultural region map
     mapServer(
       id = "map",
       data = reactive({
         req(input$map_variable)
-        beans_map %>% filter(`Land use by category` == input$map_variable)
+        beans_region_map %>% 
+          filter(`Land use by category` == input$map_variable)
       }),
       unit = "hectares",
       footer = census_footer,
@@ -123,7 +118,7 @@ beansServer <- function(id) {
       legend_title = "Area (hectares)"
     )
     
-    # ===================== CONSTITUENCY MAP =====================
+    # Constituency map
     # peas_const_map <- reactive({
     #   peas_beans_constituency %>%         
     #     mutate(across(everything(), as.character)) %>%
@@ -150,25 +145,13 @@ beansServer <- function(id) {
     #   legend_title = "Area (hectares)"
     # )
     
-    # ===================== LOCAL AUTHORITY MAP =====================
-    peas_uni_map <- reactive({
-      peas_beans_unitauth %>%
-        mutate(across(everything(), as.character)) %>%
-        pivot_longer(
-          cols = -`crop`,
-          names_to = "unitauth",
-          values_to = "value"
-        ) %>%
-        mutate(
-          value = if_else(is.na(value), NA_real_, as.numeric(value))
-        )
-    })
-
+    # Local authority map
     mapUnitaryServer(
       id = "map_uni",
       data = reactive({
         req(input$map_variable)
-        peas_uni_map() %>% filter(`crop` == input$map_variable)
+        beans_unitauth_map %>% 
+          filter(`crop` == input$map_variable)
       }),
       unit = "hectares",
       footer = census_footer,
@@ -177,14 +160,11 @@ beansServer <- function(id) {
       legend_title = "Area (hectares)"
     )
     
-    
-    # ===================== TIME SERIES =====================
+    # Time series chart
     chart_data <- reactive({
       req(input$timeseries_variables)
-      filtered_data <- beans_data %>%
-        filter(`Crop/land use` %in% input$timeseries_variables) %>%
-        pivot_longer(cols = -`Crop/land use`, names_to = "year", values_to = "value") %>%
-        mutate(year = as.numeric(year))  # Ensure year is numeric
+      filtered_data <- beans_timeseries_chart %>%
+        filter(`Crop/land use` %in% input$timeseries_variables)
       filtered_data
     })
     
@@ -201,7 +181,6 @@ beansServer <- function(id) {
       y_col = "value"
     )
     
-    
     # Data Table output
     output$table <- renderDT({
       req(input$tabsetPanel == "Data Table")
@@ -215,8 +194,7 @@ beansServer <- function(id) {
                      # 1. Agricultural Region data
                      # -------------------
                      "map" = {
-                       beans_map %>%
-                         pivot_wider(names_from = sub_region, values_from = value) %>%
+                       beans_region_table %>%
                          mutate(across(where(is.numeric), comma))
                      },
                      
@@ -224,12 +202,8 @@ beansServer <- function(id) {
                      # 2. Timeseries data
                      # -------------------
                      "timeseries" = {
-                       beans_data %>%
-                         pivot_longer(cols = -`Crop/land use`,
-                                      names_to = "year",
-                                      values_to = "value") %>%
-                         pivot_wider(names_from = year, values_from = value) %>%
-                         mutate(across(where(is.numeric) & !contains("Year"), comma))
+                       beans_timeseries_table %>%
+                         mutate(across(where(is.numeric), comma))
                      },
                      
                      # -------------------
@@ -241,13 +215,11 @@ beansServer <- function(id) {
                      #     mutate(across(where(is.numeric), comma))
                      # },
                      
-                     
                      # -------------------
                      # 4. Local authority table
                      # -------------------
                      "map_uni" = {
-                       peas_beans_unitauth %>%
-                         rename(`Crop/land use` = `crop`) %>%
+                       beans_unitauth_table %>%
                          mutate(across(where(is.numeric), comma))
                      },
       )
@@ -292,30 +264,23 @@ beansServer <- function(id) {
                        
                        # ---- Agricultural region map ----
                        "map" = {
-                         beans_subregion %>%
-                           filter(`Land use by category` == input$map_variable)# %>%
-                        #   pivot_wider(names_from = sub_region, values_from = value)
+                         beans_region_table %>%
+                           filter(`Land use by category` == input$map_variable)
                        },
                        
                        # ---- Timeseries ----
                        "timeseries" = {
-                         beans_data %>%
-                           pivot_longer(
-                             cols = -`Crop/land use`,
-                             names_to = "year",
-                             values_to = "value"
-                           ) #%>%
-                          # pivot_wider(names_from = year, values_from = value)
+                         beans_timeseries_table
                        },
-                       # 
-                       # # ---- Constituency ----
+                        
+                       # ---- Constituency ----
                        # "map_con" = {
                        #   peas_beans_constituency
                        # },
-                       # 
+                        
                        # ---- Local authority ----
                        "map_uni" = {
-                         peas_beans_unitauth
+                         beans_unitauth_table
                        }
         )
         

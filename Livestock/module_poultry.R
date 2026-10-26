@@ -54,7 +54,7 @@ poultryUI <- function(id) {
         selectizeInput(
           ns("timeseries_variables"),
           "Click within the box to select variables",
-          choices = unique(number_of_poultry$`Poultry by category`),
+          choices = unique(poultry_timeseries_chart$`Poultry by category`),
           selected = c(
             "Total fowls for producing eggs",
             "Total fowls for breeding",
@@ -121,23 +121,12 @@ poultryServer <- function(id) {
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
     
-    poultry_data <- livestock_subregion %>%
-      filter(`Livestock by category` %in% c(
-        "Fowls for producing eggs",
-        "Fowls for breeding",
-        "Broilers, other table fowls and other poultry",
-        "Total poultry"
-      )) %>%
-      select(-`Scotland total`) %>%
-      mutate(across(everything(), as.character)) %>%
-      pivot_longer(cols = -`Livestock by category`, names_to = "sub_region", values_to = "value") %>%
-      mutate(value = as.numeric(value))
-    
+    # Agricultural region map server
     mapServer(
       id = "map",
       data = reactive({
         req(input$map_variable)
-        poultry_data %>% filter(`Livestock by category` == input$map_variable)
+        poultry_region_map %>% filter(`Livestock by category` == input$map_variable)
       }),
       footer = census_footer,
       variable = reactive(input$map_variable),
@@ -170,25 +159,13 @@ poultryServer <- function(id) {
     #   title = paste("Poultry distribution by 2026 Scottish Parliamentary Constituency"),
     #   legend_title = "Poultry (number)"
     # )
-    
-    poultry_uni_map <- reactive({
-      poultry_unitauth %>%
-        mutate(across(everything(), as.character)) %>%
-        pivot_longer(
-          cols = -`livestock`,
-          names_to = "unitauth",
-          values_to = "value"
-        ) %>%
-        mutate(
-          value = if_else(is.na(value), NA_integer_, as.integer(value))
-        )
-    })
 
+    # Local authority map server
     mapUnitaryServer(
       id = "map_uni",
       data = reactive({
         req(input$map_variable)
-        poultry_uni_map() %>% filter(`livestock` == input$map_variable)
+        poultry_unitauth_map %>% filter(`livestock` == input$map_variable)
       }),
       unit = "number",
       footer = census_footer,
@@ -197,13 +174,11 @@ poultryServer <- function(id) {
       legend_title = "Poultry (number)"
     )
     
+    # Time series chart server
     chart_data <- reactive({
       req(input$timeseries_variables)
-      filtered_data <- number_of_poultry %>%
-        select(-`% Change 2026 to 2025`) %>% 
-        filter(`Poultry by category` %in% input$timeseries_variables) %>%
-        pivot_longer(cols = -`Poultry by category`, names_to = "year", values_to = "value") %>%
-        mutate(value = as.numeric(value))
+      filtered_data <- poultry_timeseries_chart %>%
+        filter(`Poultry by category` %in% input$timeseries_variables)
       filtered_data
     })
     
@@ -231,8 +206,7 @@ poultryServer <- function(id) {
                      # 1. Agricultural Region data
                      # -------------------
                      "map" = {
-                       poultry_data %>%
-                         pivot_wider(names_from = sub_region, values_from = value) %>%
+                       poultry_region_table %>%
                          mutate(across(where(is.numeric), comma))
                      },
                      
@@ -240,12 +214,8 @@ poultryServer <- function(id) {
                      # 2. Timeseries data
                      # -------------------
                      "timeseries" = {
-                       number_of_poultry %>%
-                         pivot_longer(cols = -`Poultry by category`,
-                                      names_to = "year",
-                                      values_to = "value") %>%
-                         pivot_wider(names_from = year, values_from = value) %>%
-                         mutate(across(where(is.numeric) & !contains("Year"), comma))
+                       poultry_timeseries_table %>%
+                         mutate(across(where(is.numeric), comma))
                      },
                      
                      # -------------------
@@ -261,10 +231,9 @@ poultryServer <- function(id) {
                      # 4. Local authority table
                      # -------------------
                      "map_uni" = {
-                       poultry_unitauth %>%
-                         rename(`Poultry by category` = `livestock`) %>%
+                       poultry_unitauth_table %>%
                          mutate(across(where(is.numeric), comma))
-                      }
+                     }
       )
       
       # -------------------------
@@ -307,20 +276,13 @@ poultryServer <- function(id) {
                        
                        # ---- Agricultural region map ----
                        "map" = {
-                         livestock_subregion %>%
-                           filter(`Livestock by category` == input$map_variable)# %>%
-                     #      pivot_wider(names_from = sub_region, values_from = value)
+                         poultry_region_table %>%
+                           filter(`Livestock by category` == input$map_variable)
                        },
                        
                        # ---- Timeseries ----
                        "timeseries" = {
-                         number_of_poultry %>%
-                           pivot_longer(
-                             cols = -`Poultry by category`,
-                             names_to = "year",
-                             values_to = "value"
-                           ) %>%
-                           pivot_wider(names_from = year, values_from = value)
+                         poultry_timeseries_table
                        },
                        
                        # # ---- Constituency ----
@@ -330,7 +292,7 @@ poultryServer <- function(id) {
                        
                        # ---- Local authority ----
                        "map_uni" = {
-                         poultry_unitauth
+                         poultry_unitauth_table
                        }
         )
         

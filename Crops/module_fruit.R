@@ -1,6 +1,4 @@
 # File: module_fruit.R
-fruit_data <- fruit_data %>%
-  mutate(across(c(`2023`, `2024`, `2026`), ~ round(.x, 0)))
 fruitUI <- function(id) {
   ns <- NS(id)
   sidebarLayout(
@@ -45,7 +43,7 @@ fruitUI <- function(id) {
         selectizeInput(
           ns("timeseries_variables"),
           "Click within the box to select variables",
-          choices = unique(fruit_data$`Vegetables and fruits for human consumption`),
+          choices = unique(fruit_timeseries_chart$`Vegetables and fruits for human consumption`),
           selected = c(
             "Strawberries grown in open/under cover",
             "Raspberries grown in open/under cover",
@@ -110,17 +108,13 @@ fruitServer <- function(id) {
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
     
-    fruit_map <- fruit_subregion %>%
-      select(-`Scotland total`) %>%
-      mutate(across(everything(), as.character)) %>%
-      pivot_longer(cols = -`Land use by category`, names_to = "sub_region", values_to = "value") %>%
-      mutate(value = as.numeric(value))
-    
+    # Agricultural region map server
     mapServer(
       id = "map",
       data = reactive({
         req(input$map_variable)
-        fruit_map %>% filter(`Land use by category` == input$map_variable)
+        fruit_region_map %>% 
+          filter(`Land use by category` == input$map_variable)
       }),
       unit = "hectares",
       footer = census_footer,
@@ -130,7 +124,7 @@ fruitServer <- function(id) {
     )
     
     
-    # ===================== CONSTITUENCY MAP =====================
+    # Constituency map
     # fruit_const_map <- reactive({
     #   fruit_constituency %>%        
     #     mutate(across(everything(), as.character)) %>%
@@ -157,25 +151,13 @@ fruitServer <- function(id) {
     #   legend_title = "Area (hectares)"
     # )
     
-    # ===================== LOCAL AUTHORITY MAP =====================
-    fruit_uni_map <- reactive({
-      fruit_unitauth %>%
-        mutate(across(everything(), as.character)) %>%
-        pivot_longer(
-          cols = -`crop`,
-          names_to = "unitauth",
-          values_to = "value"
-        ) %>%
-        mutate(
-          value = if_else(is.na(value), NA_real_, as.numeric(value))
-        )
-    })
-
+    # Local authority map server
     mapUnitaryServer(
       id = "map_uni",
       data = reactive({
         req(input$map_variable)
-        fruit_uni_map() %>% filter(`crop` == input$map_variable)
+        fruit_unitauth_map %>% 
+          filter(`crop` == input$map_variable)
       }),
       unit = "hectares",
       footer = census_footer,
@@ -184,13 +166,11 @@ fruitServer <- function(id) {
       legend_title = "Area (hectares)"
     )
     
-    # ===================== TIME SERIES =====================
+    # Time series chart server
     chart_data <- reactive({
       req(input$timeseries_variables)
-      filtered_data <- fruit_data %>%
-        filter(`Vegetables and fruits for human consumption` %in% input$timeseries_variables) %>%
-        pivot_longer(cols = -`Vegetables and fruits for human consumption`, names_to = "year", values_to = "value") %>%
-        mutate(year = as.numeric(year))  # Ensure year is numeric
+      filtered_data <- fruit_timeseries_chart %>%
+        filter(`Vegetables and fruits for human consumption` %in% input$timeseries_variables)
       filtered_data
     })
     
@@ -206,8 +186,7 @@ fruitServer <- function(id) {
       y_col = "value"
     )
     
-    # ===================== DATA TABLE =====================
-    
+    # Data table
     output$table <- renderDT({
       req(input$tabsetPanel == "Data Table")
       
@@ -220,8 +199,7 @@ fruitServer <- function(id) {
                      # 1. Agricultural Region data
                      # -------------------
                      "map" = {
-                       fruit_map %>%
-                         pivot_wider(names_from = sub_region, values_from = value) %>%
+                       fruit_region_table %>%
                          mutate(across(where(is.numeric), comma))
                      },
                      
@@ -229,12 +207,8 @@ fruitServer <- function(id) {
                      # 2. Timeseries data
                      # -------------------
                      "timeseries" = {
-                       fruit_data %>%
-                         pivot_longer(cols = -`Vegetables and fruits for human consumption`,
-                                      names_to = "year",
-                                      values_to = "value") %>%
-                         pivot_wider(names_from = year, values_from = value) %>%
-                         mutate(across(where(is.numeric) & !contains("Year"), comma))
+                       fruit_timeseries_table %>%
+                         mutate(across(where(is.numeric), comma))
                      },
                      
                      # -------------------
@@ -251,8 +225,7 @@ fruitServer <- function(id) {
                      # 4. Local authority table
                      # -------------------
                      "map_uni" = {
-                       fruit_unitauth %>%
-                         rename(`Land use by category` = `crop`) %>%
+                       fruit_unitauth_table %>%
                          mutate(across(where(is.numeric), comma))
                      },
       )
@@ -297,30 +270,23 @@ fruitServer <- function(id) {
                        
                        # ---- Agricultural region map ----
                        "map" = {
-                         fruit_subregion %>%
-                           filter(`Land use by category` == input$map_variable) # %>%
-                        #   pivot_wider(names_from = sub_region, values_from = value)
+                         fruit_region_table %>%
+                           filter(`Land use by category` == input$map_variable)
                        },
                        
                        # ---- Timeseries ----
                        "timeseries" = {
-                         fruit_data %>%
-                           pivot_longer(
-                             cols = -`Vegetables and fruits for human consumption`,
-                             names_to = "year",
-                             values_to = "value"
-                           ) #%>%
-                          # pivot_wider(names_from = year, values_from = value)
+                         fruit_timeseries_table
                        },
                        
-                       # # ---- Constituency ----
+                       # ---- Constituency ----
                        # "map_con" = {
                        #   fruit_constituency
                        # },
-                       # 
+                       
                        # ---- Local authority ----
                        "map_uni" = {
-                         fruit_unitauth
+                         fruit_unitauth_table
                        }
         )
         

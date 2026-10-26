@@ -50,7 +50,7 @@ pigsUI <- function(id) {
         selectizeInput(
           ns("timeseries_variables"),
           "Click within the box to select variables (not all shown)",
-          choices = unique(number_of_pigs$`Pigs by category`),
+          choices = unique(pigs_timeseries_chart$`Pigs by category`),
           selected = c(
             "Total breeding herd",
             "80kg liveweight and over",
@@ -112,23 +112,14 @@ pigsUI <- function(id) {
 pigsServer <- function(id) {
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
-    
-    pigs_data <- livestock_subregion %>%
-      filter(`Livestock by category` %in% c(
-        "Female pigs breeding herd",
-        "All other non-breeding pigs",
-        "Total pigs"
-      )) %>%
-      select(-`Scotland total`) %>%
-      mutate(across(everything(), as.character)) %>%
-      pivot_longer(cols = -`Livestock by category`, names_to = "sub_region", values_to = "value") %>%
-      mutate(value = as.numeric(value))  # Ensure value is numeric
-    
+
+    # Agricultural region map server
     mapServer(
       id = "map",
       data = reactive({
         req(input$map_variable)
-        pigs_data %>% filter(`Livestock by category` == input$map_variable)
+        pigs_region_map %>% 
+          filter(`Livestock by category` == input$map_variable)
       }),
       footer = census_footer,
       variable = reactive(input$map_variable),
@@ -162,24 +153,13 @@ pigsServer <- function(id) {
     #   legend_title = "Pigs (number)"
     # )
     
-    pig_uni_map <- reactive({
-      pigs_unitauth %>%
-        mutate(across(everything(), as.character)) %>%
-        pivot_longer(
-          cols = -`livestock`,
-          names_to = "unitauth",
-          values_to = "value"
-        ) %>%
-        mutate(
-          value = if_else(is.na(value), NA_integer_, as.integer(value))
-        )
-    })
-
+    # Local authority map server
     mapUnitaryServer(
       id = "map_uni",
       data = reactive({
         req(input$map_variable)
-        pig_uni_map() %>% filter(`livestock` == input$map_variable)
+        pigs_unitauth_map %>% 
+          filter(`livestock` == input$map_variable)
       }),
       unit = "number",
       footer = census_footer,
@@ -190,12 +170,8 @@ pigsServer <- function(id) {
 
     chart_data <- reactive({
       req(input$timeseries_variables)
-      
-      filtered_data <- number_of_pigs %>% select (-last_col()) %>%  # remove %change column
-        mutate(across(-`Pigs by category`, as.numeric)) %>%
-        filter(`Pigs by category` %in% input$timeseries_variables) %>%
-        pivot_longer(cols = -`Pigs by category`, names_to = "year", values_to = "value") %>%
-        mutate(value = as.numeric(value))  # Ensure value is numeric
+      filtered_data <- pigs_timeseries_chart %>%
+        filter(`Pigs by category` %in% input$timeseries_variables)
       filtered_data
     })
     
@@ -219,19 +195,14 @@ pigsServer <- function(id) {
                      # ---- Agricultural Region Table ----
                      "map" = {
                        req(input$map_variable)
-                       pigs_data %>%
-                         pivot_wider(names_from = sub_region, values_from = value) %>%
+                       pigs_region_table %>%
                          mutate(across(where(is.numeric), comma))
                      },
                      
                      # ---- Timeseries Table ----
                      "timeseries" = {
-                       number_of_pigs %>%
-                         pivot_longer(cols = -`Pigs by category`,
-                                      names_to = "year",
-                                      values_to = "value") %>%
-                         pivot_wider(names_from = year, values_from = value) %>%
-                         mutate(across(where(is.numeric) & !contains("Year"), comma))
+                       pigs_timeseries_table %>%
+                         mutate(across(where(is.numeric), comma))
                      },
                      
                      # # ---- Constituency Table ----
@@ -243,8 +214,7 @@ pigsServer <- function(id) {
                      
                      # ---- Local authority table ----
                      "map_uni" = {
-                       pigs_unitauth %>%
-                         rename(`Pigs by category` = `livestock`) %>%
+                       pigs_unitauth_table %>%
                          mutate(across(where(is.numeric), comma))
                      }
       )
@@ -287,20 +257,13 @@ pigsServer <- function(id) {
                        
                        # ---- Agricultural region map ----
                        "map" = {
-                         pigs_data %>%
-                           filter(`Livestock by category` == input$map_variable) %>%
-                           pivot_wider(names_from = sub_region, values_from = value)
+                         pigs_region_table %>%
+                           filter(`Livestock by category` == input$map_variable)
                        },
                        
                        # ---- Timeseries ----
                        "timeseries" = {
-                         number_of_pigs %>%
-                           pivot_longer(
-                             cols = -`Pigs by category`,
-                             names_to = "year",
-                             values_to = "value"
-                           ) %>%
-                           pivot_wider(names_from = year, values_from = value)
+                         pigs_timeseries_table
                        },
                        
                        # # ---- Constituency map ----
@@ -310,7 +273,7 @@ pigsServer <- function(id) {
                        
                        # ---- Local authority map ----
                        "map_uni" = {
-                         pigs_unitauth
+                         pigs_unitauth_table
                        }
         )
         

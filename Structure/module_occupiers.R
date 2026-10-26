@@ -70,44 +70,6 @@ occupiersServer <- function(id) {
     #     )
     # })
 
-    # Local authority map
-    occupier_uni_map <- reactive({
-      occupiers_unitauth %>%
-        mutate(across(everything(), as.character)) %>%
-        pivot_longer(
-          cols = -`occupier`,
-          names_to = "unitauth",
-          values_to = "value"
-        ) %>%
-        mutate(
-          value = if_else(is.na(value), NA_integer_, as.integer(value))
-        )
-    })
-    
-    # Data Processing for Bar Chart
-    chart_data <- reactive({
-      occupiers_age_gender %>%
-        filter(`Occupier working time` == "Total working occupiers") %>%
-        select(-`Male Total`, -`Female Total`) %>%
-        pivot_longer(cols = -`Occupier working time`, names_to = "Gender_Age", values_to = "Count") %>%
-        separate(Gender_Age, into = c("Gender", "Age"), sep = " ", extra = "merge") %>%
-        mutate(Count = as.numeric(Count))
-    })
-    
-    
-    # Data Processing for Map
-    regions_data <- reactive({
-      occupiers_employees_subregion %>%
-        select(-`Scotland total`) %>%
-        mutate(across(everything(), as.character)) %>%  # Ensure all columns are characters
-        pivot_longer(cols = -`Occupiers and employees by category`, names_to = "sub_region", values_to = "value") %>%
-        mutate(value = ifelse(is.na(as.numeric(value)), NA, as.numeric(value))) %>%
-        filter(`Occupiers and employees by category` %in% c(
-          "Total working occupiers", 
-          "Occupiers not working on the holding"
-        ))
-    })
-    
     # Data Processing for Constituency Map
     # con_data <- reactive({
     #   occupiers_constituency %>%
@@ -124,34 +86,6 @@ occupiersServer <- function(id) {
     #           "Occupiers not working on the holding"
     #         ))
     # })
-    # 
-    # Data Processing for Local Authority Map
-    uni_data <- reactive({
-      occupiers_unitauth %>%
-        mutate(across(everything(), as.character)) %>%
-        pivot_longer(
-          cols = -`occupier`,
-          names_to = "unitauth",
-          values_to = "value"
-        ) %>%
-        mutate(
-          value = if_else(is.na(value), NA_integer_, as.integer(value))) %>%
-        filter(`occupier` %in% c(
-          "Total working occupiers",
-          "Occupiers not working on the holding"
-        ))
-    })
-    
-    # Data Processing for Timeseries
-    occupiers_employees <- occupiers_employees %>%
-      mutate(across(starts_with("20"), as.numeric))
-    
-    occupiers_timeseries_data <- reactive({
-      occupiers_employees %>%
-        pivot_longer(cols = -`Occupiers and employees by category`, names_to = "Year", values_to = "Value") %>%
-        mutate(Year = as.numeric(Year)) %>%
-        filter(grepl("occupiers", `Occupiers and employees by category`, ignore.case = TRUE))
-    })
     
     # Sidebar UI
     output$sidebar_ui <- renderUI({
@@ -188,23 +122,29 @@ occupiersServer <- function(id) {
                                  "Local Authority Data",
                                  "Population Pyramid Data",  
                                  "Time Series Data"))
+        
       } else if (input$tabs == "timeseries") {
         checkboxGroupInput(
           ns("variables"), 
           "Choose variables to add to chart", 
-          choices = unique(occupiers_timeseries_data()$`Occupiers and employees by category`), 
-          selected = c('Occupiers - full time', 'Total working occupiers', 'Occupiers not working on the holding')
-        )
+          choices = unique(occupiers_timeseries_table$`Occupiers and employees by category`), 
+          selected = c('Occupiers - full time', 
+                       'Total working occupiers', 
+                       'Occupiers not working on the holding'))
+        
       } else {
-        checkboxGroupInput(ns("variables_bar"), "Choose age groups to display", choices = unique(chart_data()$Age), selected = unique(chart_data()$Age))
+        checkboxGroupInput(ns("variables_bar"), 
+                           "Choose age groups to display", 
+                           choices = unique(occupiers_pyramid_chart$Age), 
+                           selected = unique(occupiers_pyramid_chart$Age))
       }
     })
     
     # Bar Chart - Filtered Data
     filtered_data <- reactive({
       req(input$variables_bar)
-      chart_data() %>%
-        filter(Age %in% input$variables_bar) %>%
+      occupiers_pyramid_chart %>%
+        filter(Age %in% input$variables_bar) %>% 
         mutate(Count = ifelse(Gender == "Female", -Count, Count))
     })
     
@@ -240,8 +180,10 @@ occupiersServer <- function(id) {
           )
         ) %>%
         hc_plotOptions(bar = list(stacking = "normal")) %>%
-        hc_add_series(name = "Female", data = as.list(female_data), color = "#002d54", tooltip = list(pointFormatter = JS("function() { return 'Female: ' + Math.abs(this.y).toLocaleString() + ' occupiers'; }"))) %>%
-        hc_add_series(name = "Male", data = as.list(male_data), color = "#2b9c93", tooltip = list(pointFormatter = JS("function() { return 'Male: ' + this.y.toLocaleString() + ' occupiers'; }"))) %>%
+        hc_add_series(name = "Female", data = as.list(female_data), color = "#002d54", 
+           tooltip = list(pointFormatter = JS("function() { return 'Female: ' + Math.abs(this.y).toLocaleString() + ' occupiers'; }"))) %>%
+        hc_add_series(name = "Male", data = as.list(male_data), color = "#2b9c93", 
+           tooltip = list(pointFormatter = JS("function() { return 'Male: ' + this.y.toLocaleString() + ' occupiers'; }"))) %>%
         hc_tooltip(shared = FALSE) %>%
         hc_legend(align = "center") %>%
         hc_xAxis(title = list(text = "Age group")) %>%
@@ -254,8 +196,8 @@ occupiersServer <- function(id) {
     # Timeseries Chart - Using the modular line chart
     filtered_timeseries_data <- reactive({
       req(input$variables)
-      data <- occupiers_timeseries_data()
-      data %>% filter(`Occupiers and employees by category` %in% input$variables)
+      occupiers_timeseries_chart %>% 
+        filter(`Occupiers and employees by category` %in% input$variables)
     })
     
     lineChartServer(
@@ -269,10 +211,14 @@ occupiersServer <- function(id) {
       y_col = "Value"
     )
     
-    # Map - Use the new map module
+    # Agricultural region map server
     mapServer(
       id = "map",
-      data = regions_data,
+      data = reactive({
+        req(input$map_variable)
+        occupiers_region_map %>% 
+          filter(`occupier` == input$map_variable)
+      }),
       variable = reactive(input$map_variable),
       footer = census_footer,
       title = paste("Occupiers by region in Scotland in", census_year),
@@ -292,11 +238,13 @@ occupiersServer <- function(id) {
     #   legend_title = "Occupiers (Number)"
     # )
 
+    # Local authority map server
     mapUnitaryServer(
       id = "map_uni",
       data = reactive({
         req(input$map_variable)
-        occupier_uni_map() %>% filter(`occupier` == input$map_variable)
+        occupiers_unitauth_map %>% 
+          filter(`occupier` == input$map_variable)
       }),
       unit = "occupiers",
       footer = census_footer,
@@ -304,49 +252,23 @@ occupiersServer <- function(id) {
       title = paste("Occupiers by 2026 Scottish Parliamentary Constituency"),
       legend_title = "Occupiers (Number)"
     )
-    
-    # Pivoting Chart Data Wider for Data Table View
-    pivoted_chart_data <- reactive({
-      chart_data() %>%
-        pivot_wider(names_from = Age, values_from = Count)%>%
-        mutate(across(where(is.numeric) & !contains("Year"), comma))
-    })
-    
-    # Pivoting Map Data Wider for Data Table View
-    pivoted_regions_data <- reactive({
-      regions_data() %>%
-        pivot_wider(names_from = sub_region, values_from = value)%>%
-        mutate(across(where(is.numeric) & !contains("Year"), comma))
-    })
-    
-    # Pivoting Timeseries Data Wider for Data Table View
-    pivoted_timeseries_data <- reactive({
-      occupiers_timeseries_data() %>%
-        pivot_wider(names_from = Year, values_from = Value)%>%
-        mutate(across(where(is.numeric) & !contains("Year"), comma))
-    })
-    
-    # con_data <- reactive({occupiers_constituency %>%
-    #     rename(`Occupiers and employees by category` = occupier)})
 
-    uni_data <- reactive({occupiers_unitauth %>%
-        rename(`Occupiers and employees by category` = occupier)})
-
+    # Data table
     output$data_table <- renderDT({
       req(input$data_source)
       
       if (input$data_source == "Population Pyramid Data") {
         
         datatable(
-          pivoted_chart_data() %>%
-            mutate(across(where(is.numeric) & !contains("Year"), comma)),
+          occupiers_pyramid_table %>%
+            mutate(across(where(is.numeric), comma)),
           options = list(scrollX = TRUE, pageLength = 26)
         )
         
       } else if (input$data_source == "Agricultural Region Data") {
         
         datatable(
-          pivoted_regions_data() %>%
+          occupiers_region_table %>%
             mutate(across(where(is.numeric), comma)),
           options = list(scrollX = TRUE)
         )
@@ -354,7 +276,7 @@ occupiersServer <- function(id) {
       } else if (input$data_source == "Time Series Data") {
         
         datatable(
-          pivoted_timeseries_data() %>%
+          occupiers_timeseries_table %>%
             mutate(across(where(is.numeric), comma)),
           options = list(scrollX = TRUE)
         )
@@ -370,7 +292,7 @@ occupiersServer <- function(id) {
       } else if (input$data_source == "Local Authority Data") {
 
         datatable(
-          uni_data() %>%
+          occupiers_unitauth_table %>%
             mutate(across(where(is.numeric), comma)),
           options = list(scrollX = TRUE)
         )

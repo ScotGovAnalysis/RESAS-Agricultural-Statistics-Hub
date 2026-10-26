@@ -1,23 +1,3 @@
-# Coerce all relevant columns to character before pivoting
-occupiers_employees_subregion <- occupiers_employees_subregion %>%
-  mutate(across(-`Occupiers and employees by category`, as.character))
-
-# Transform the data
-regions_data <- occupiers_employees_subregion %>% 
-  select(-`Scotland total`) %>% 
-  pivot_longer(cols = -`Occupiers and employees by category`, names_to = "sub_region", values_to = "value") %>%
-  mutate(value = case_when(value == "c"~ NA,
-                           .default = as.numeric(value)))
-
-# Filter for the specific categories
-categories <- c("Regular full-time staff total", 
-                "Regular part-time staff total", 
-                "Total casual and seasonal staff", 
-                "Total workforce (including occupiers)")
-
-filtered_regions_data <- regions_data %>%
-  filter(`Occupiers and employees by category` %in% categories)
-
 employeesMapUI <- function(id) {
   ns <- NS(id)
   sidebarLayout(
@@ -79,34 +59,7 @@ employeesMapServer <- function(id) {
     #     )
     # })
     
-    # Local authority map
-    employee_unitary_map <- reactive({
-      workforce_unitauth %>%
-        mutate(across(everything(), as.character)) %>%
-        pivot_longer(
-          cols = -`workforce`,
-          names_to = "unitauth",
-          values_to = "value"
-        ) %>%
-        mutate(
-          value = if_else(is.na(value), NA_integer_, as.integer(value))
-        )
-    })
-
-    # Time series
-    occupiers_employees <- occupiers_employees %>%
-      mutate(across(starts_with("20"), as.numeric))
-    
-    
-    # Reactive data for the time series chart
-    chart_data <- reactive({
-      occupiers_employees %>%
-        pivot_longer(cols = -`Occupiers and employees by category`, names_to = "Year", values_to = "Value") %>%
-        mutate(Year = as.numeric(Year)) %>%
-        filter(!grepl("occupiers", `Occupiers and employees by category`, ignore.case = TRUE))
-    })
-    
-    # Radio buttons
+    # Maps
     output$sidebar_ui <- renderUI({
       req(input$tabs)
       if (input$tabs == "map") {
@@ -123,76 +76,66 @@ employeesMapServer <- function(id) {
           radioButtons(
             ns("map_variable"),
             "Select Variable",
-            choices = categories
+            choices = c(
+              "Regular full-time staff total",
+              "Regular part-time staff total",
+              "Total casual and seasonal staff",
+              "Total workforce (including occupiers)")
           )
         )
       # } else if (input$tabs == "map_con") {
       #   radioButtons(ns("variable_con"), "Select Variable", choices = categories_con)
+        
+      # Data table
       } else if (input$tabs == "data_table") {
         radioButtons(ns("data_source"), "Choose data to show:", 
                      choices = c("Agricultural Region Data",
                                  "Local Authority Data",
-                                 "Time Series Data" 
-                                 ))
+                                 "Time Series Data" ))
+        
+      # Time series
       } else if (input$tabs == "timeseries") {
         selectizeInput(
           ns("variables"), 
           "Click within the box to add more variables", 
-          choices = unique(chart_data()$`Occupiers and employees by category`), 
-          selected = c('Regular full-time staff total', 'Regular part-time staff total', 'Total casual and seasonal staff'), 
+          choices = unique(employees_timeseries_chart$`Occupiers and employees by category`), 
+          selected = c('Regular full-time staff total', 
+                       'Regular part-time staff total', 
+                       'Total casual and seasonal staff'), 
           multiple = TRUE, 
           options = list(plugins = list('remove_button'), placeholder = "Click to add more variables")
         )
       }
     })
     
-    # Chart data
-    pivoted_chart_data <- reactive({
-      chart_data() %>%
-        pivot_wider(names_from = Year, values_from = Value) %>%
-        mutate(across(where(is.numeric) & !contains("Year"), comma))
-    })
     
-    # Pivot the map data wider for the data table view
-    pivoted_regions_data <- reactive({
-      filtered_regions_data %>%
-        pivot_wider(names_from = sub_region, values_from = value) %>%
-        mutate(across(where(is.numeric) & !contains("Year"), comma))
-    })
-    
-    # con_data <- reactive({workforce_constituency %>%
-    #     rename(`Occupiers and employees by category` = workforce)})
-    
-    uni_data <- reactive({workforce_unitauth %>%
-        rename(`Occupiers and employees by category` = workforce)})
-    
-    # Time series chart
+    # Time series chart server
     lineChartServer(
       id = "line_chart",
       chart_data = reactive({
         req(input$variables)
-        chart_data() %>%
+        employees_timeseries_chart %>%
           filter(`Occupiers and employees by category` %in% input$variables)
       }),
       title = "Agricultural employees over time",
       yAxisTitle = "Employees (1,000)",
       xAxisTitle = "Year",
       unit = "employees",
-      footer = '<div style="font-size: 16px; font-weight: bold;"><a href="https://www.gov.scot/publications/results-from-the-scottish-agricultural-census-june-2025/">Source: Scottish Agricultural Census: June 2025</a></div>',
+      footer = '<div style="font-size: 16px; font-weight: bold;"><a href="https://www.gov.scot/publications/results-from-the-scottish-agricultural-census-june-2026/">Source: Scottish Agricultural Census: June 2026</a></div>',
       x_col = "Year",
       y_col = "Value"
     )
     
-    # Agricultural region map
+    # Agricultural region map server
     mapServer(
       id = "map",
       data = reactive({
         req(input$map_variable)
-        filtered_regions_data %>%
+        employees_region_map %>%
           filter(`Occupiers and employees by category` == input$map_variable)
       }),
       unit = "employees",
-      footer = '<div style="font-size: 16px; font-weight: bold;"><a href="https://www.gov.scot/publications/results-from-the-scottish-agricultural-census-june-2025/">Source: Scottish Agricultural Census: June 2025</a></div>',
+      footer = '<div style="font-size: 16px; font-weight: bold;"><a href="https://www.gov.scot/publications/results-from-the-scottish-agricultural-census-june-2026/">Source: Scottish Agricultural Census: June 2026</a></div>',
       variable = reactive(input$map_variable),
       title = paste("Agricultural employees by region in Scotland in", census_year),
       legend_title = "Number of employees"
@@ -212,12 +155,13 @@ employeesMapServer <- function(id) {
     #   legend_title = "Employees (Number)"
     # )
     
-    # Local authority map
+    # Local authority map server
     mapUnitaryServer(
       id = "map_uni",
       data = reactive({
         req(input$map_variable)
-        employee_unitary_map() %>% filter(`workforce` == input$map_variable)
+        employees_unitauth_map %>% 
+          filter(workforce == input$map_variable)
       }),
       unit = "employees",
       footer = census_footer,
@@ -231,14 +175,14 @@ employeesMapServer <- function(id) {
       req(input$data_source)
       
       if (input$data_source == "Time Series Data") {
-        pivoted_chart_data() %>% 
-        mutate(across(where(is.numeric) & !contains("Year"), comma)) %>% 
-        datatable(., options = list(scrollX = TRUE, pageLength = 26
+        employees_timeseries_table %>% 
+          mutate(across(where(is.numeric), comma)) %>% 
+          datatable(., options = list(scrollX = TRUE, pageLength = 26
         ))
         
       } else if (input$data_source == "Agricultural Region Data") {
-        pivoted_regions_data() %>% 
-          mutate(across(where(is.numeric) & !contains("Year"), comma)) %>% 
+        employees_region_table %>% 
+          mutate(across(where(is.numeric), comma)) %>% 
           datatable(., options = list(scrollX = TRUE, pageLength = 10
         ))
         
@@ -249,8 +193,8 @@ employeesMapServer <- function(id) {
       #   ))
 
       } else if (input$data_source == "Local Authority Data") {
-        uni_data() %>%
-          mutate(across(where(is.numeric) & !contains("Year"), comma)) %>%
+        employees_unitauth_table %>%
+          mutate(across(where(is.numeric), comma)) %>%
           datatable(, options = list(scrollX = TRUE, pageLength = 20
         ))
       }
@@ -259,50 +203,32 @@ employeesMapServer <- function(id) {
     # ---------------------
     # DOWNLOAD HANDLER
     # ---------------------
-    
     output$downloadData <- downloadHandler(
       filename = function() {
         if (input$data_source == "Time Series Data") {
-          "Scottish Agricultural Employees Time Series Data - 2013 to 2025.csv"
+          "Scottish Agricultural Employees Time Series Data - 2016 to 2026.csv"
         } else if (input$data_source == "Agricultural Region Data") {
-          "Scottish Agricultural Employees Agricultural Regional Data - 2025.csv"
+          "Scottish Agricultural Employees Agricultural Regional Data - 2026.csv"
         # } else if (input$data_source == "Constituency Data") {
-        #   "Scottish Agricultural Employees Constituency Data - 2025.csv"
+        #   "Scottish Agricultural Employees Constituency Data - 2026.csv"
         } else if (input$data_source == "Local Authority Data") {
-          "Scottish Agricultural Employees Local Authority Data - 2025.csv"
+          "Scottish Agricultural Employees Local Authority Data - 2026.csv"
         }
       },
       
       content = function(file) {
         
-        # apply same formatting to the downloaded file
-        fmt <- function(df) {
-          df %>%
-            mutate(across(
-              everything(),
-              ~ {
-                x <- as.character(.x)
-                nums <- readr::parse_number(x)
-                ifelse(
-                  is.na(nums),
-                  x,
-                  scales::comma(round(nums, 0))
-                )
-              }
-            ))
-        }
-        
         if (input$data_source == "Time Series Data") {
-          write.csv(fmt(pivoted_chart_data()), file, row.names = FALSE)
+          write.csv(employees_timeseries_table, file, row.names = FALSE)
           
         } else if (input$data_source == "Agricultural Region Data") {
-          write.csv(fmt(pivoted_regions_data()), file, row.names = FALSE)
+          write.csv(employees_region_table, file, row.names = FALSE)
           
         # } else if (input$data_source == "Constituency Data") {
         #   write.csv(fmt(con_data()), file, row.names = FALSE)
           
         } else if (input$data_source == "Local Authority Data") {
-          write.csv(fmt(uni_data()), file, row.names = FALSE)
+          write.csv(employees_unitauth_table, file, row.names = FALSE)
         }
       }
     )

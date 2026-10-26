@@ -125,25 +125,12 @@ otherAnimalsServer <- function(id) {
     ns <- session$ns
     
     # Agricultural region map server
-    other_animals_data <- livestock_subregion %>%
-      filter(`Livestock by category` %in% c(
-        "Goats and kids",
-        "Deer",
-        "Horses",
-        "Donkeys",
-        "Camelids",
-        "Beehives"
-      )) %>%
-      select(-`Scotland total`) %>%
-      mutate(across(everything(), as.character)) %>%
-      pivot_longer(cols = -`Livestock by category`, names_to = "sub_region", values_to = "value") %>%
-      mutate(value = as.numeric(value))
-    
     mapServer(
       id = "map",
       data = reactive({
         req(input$map_variable)
-        other_animals_data %>% filter(`Livestock by category` == input$map_variable)
+        other_livestock_region_map %>% 
+          filter(`Livestock by category` == input$map_variable)
       }),
       footer = census_footer,
       variable = reactive(input$map_variable),
@@ -179,24 +166,12 @@ otherAnimalsServer <- function(id) {
     # )
     
     # Local authority map server
-    other_uni_map <- reactive({
-      other_animals_unitauth %>%
-        mutate(across(everything(), as.character)) %>%
-        pivot_longer(
-          cols = -`livestock`,
-          names_to = "unitauth",
-          values_to = "value"
-        ) %>%
-        mutate(
-          value = if_else(is.na(value), NA_integer_, as.integer(value))
-        )
-    })
-
     mapUnitaryServer(
       id = "map_uni",
       data = reactive({
         req(input$map_variable)
-        other_uni_map() %>% filter(`livestock` == input$map_variable)
+       other_livestock_unitauth_map %>% 
+         filter(`livestock` == input$map_variable)
       }),
       unit = "number",
       footer = census_footer,
@@ -208,12 +183,8 @@ otherAnimalsServer <- function(id) {
     # Time series server
     chart_data <- reactive({
       req(input$timeseries_variables)
-      filtered_data <- number_of_other_livestock %>%
-        mutate(across(-`Livestock by category`, as.numeric)) %>% 
-        select(-last_col()) %>% 
-        filter(`Livestock by category` %in% input$timeseries_variables) %>%
-        pivot_longer(cols = -`Livestock by category`, names_to = "year", values_to = "value") %>%
-        mutate(year = as.numeric(year))  # Ensure year is numeric
+      filtered_data <- other_livestock_timeseries_chart %>%
+        filter(`Livestock by category` %in% input$timeseries_variables)
       filtered_data
     })
     
@@ -241,8 +212,7 @@ otherAnimalsServer <- function(id) {
                      # 1. Agricultural Region data
                      # -------------------
                      "map" = {
-                       other_animals_data %>%
-                         pivot_wider(names_from = sub_region, values_from = value) %>%
+                       other_livestock_region_table %>%
                          mutate(across(where(is.numeric), comma))
                      },
                      
@@ -250,12 +220,8 @@ otherAnimalsServer <- function(id) {
                      # 2. Timeseries data
                      # -------------------
                      "timeseries" = {
-                       number_of_other_livestock %>%
-                         pivot_longer(cols = -`Livestock by category`,
-                                      names_to = "year",
-                                      values_to = "value") %>%
-                         pivot_wider(names_from = year, values_from = value) %>%
-                         mutate(across(where(is.numeric) & !contains("Year"), comma))
+                       other_livestock_timeseries_table %>%
+                         mutate(across(where(is.numeric), comma))
                      },
                      
                      # -------------------
@@ -273,8 +239,7 @@ otherAnimalsServer <- function(id) {
                      # 4. Local authority table
                      # -------------------
                      "map_uni" = {
-                       other_animals_unitauth %>% 
-                         rename(`Livestock by category` = `livestock`) %>%
+                       other_livestock_unitauth_table %>% 
                          mutate(across(where(is.numeric), comma))           
                      }
       )
@@ -319,20 +284,12 @@ otherAnimalsServer <- function(id) {
                        
                        # ---- Agricultural region map ----
                        "map" = {
-                         other_animals_data %>%
-                           filter(`Livestock by category` == input$map_variable) %>%
-                           pivot_wider(names_from = sub_region, values_from = value)
+                         other_livestock_region_table
                        },
                        
                        # ---- Timeseries ----
                        "timeseries" = {
-                         number_of_other_livestock %>%
-                           pivot_longer(
-                             cols = -`Livestock by category`,
-                             names_to = "year",
-                             values_to = "value"
-                           ) %>%
-                           pivot_wider(names_from = year, values_from = value)
+                         other_livestock_timeseries_table
                        },
                        
                        # # ---- Constituency ----
@@ -342,7 +299,7 @@ otherAnimalsServer <- function(id) {
                         
                        # ---- Local authority ----
                        "map_uni" = {
-                         other_animals_unitauth
+                         other_livestock_unitauth_table
                        }
         )
         
