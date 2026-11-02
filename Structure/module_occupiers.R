@@ -104,10 +104,7 @@ occupiersServer <- function(id) {
           radioButtons(
             ns("map_variable"),
             "Select Variable",
-            choices = c(
-              "Total working occupiers",
-              "Occupiers not working on the holding"
-            )
+            choices = c(unique(occupiers_region_map$occupier))
           )
           
         )
@@ -128,8 +125,9 @@ occupiersServer <- function(id) {
           ns("variables"), 
           "Choose variables to add to chart", 
           choices = unique(occupiers_timeseries_table$`Occupiers and employees by category`), 
-          selected = c('Occupiers - full time', 
-                       'Total working occupiers', 
+          selected = c('Occupiers - full time',
+                       'Occupiers - half time or more',
+                       'Occupiers - less than half time', 
                        'Occupiers not working on the holding'))
         
       } else {

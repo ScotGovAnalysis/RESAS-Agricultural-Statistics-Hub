@@ -72,7 +72,7 @@ source("charts_tables_functions/function_data_cleaning.R")
 ## 2a. Read in main data and agricultural region data --------------------------
 
 # Define file path
-file_path <- "Data/June Agricultural Census 2026 - Main data tables.xlsx"
+file_path <- "Data/June Agricultural Census 2026 - Main data tables - Updated.xlsx"
 
 # Define the simplified table names and corresponding sheet names
 table_names <- c(
@@ -267,6 +267,9 @@ occupiers_region_table <- occupiers_employees_subregion %>%
   select(-`Scotland total`) %>%
   filter(
     `Occupiers and employees by category` %in% c(
+      "Occupiers - full time",
+      "Occupiers - half time or more",
+      "Occupiers - less than half time",
       "Total working occupiers",
       "Occupiers not working on the holding"))
 
@@ -279,7 +282,12 @@ occupiers_region_map <- occupiers_region_table %>%
 
 # Local authority map data
 occupiers_unitauth_map <- unitary_workforce_numbers %>%
-  select(unitauth, `Total working occupiers`, `Occupiers not working on the holding`) %>% 
+  select(unitauth, 
+         `Occupiers - full time`,
+         `Occupiers - half time or more`,
+         `Occupiers - less than half time`,
+         `Total working occupiers`, 
+         `Occupiers not working on the holding`) %>% 
   pivot_longer(cols = -unitauth, names_to = "occupier", values_to = "value") %>% 
   select(occupier, unitauth, value)
 
@@ -718,8 +726,10 @@ names(vegetables_bulbs_fruit_area) <- names(vegetables_bulbs_fruit_area) %>%
 crops_summary_data <- agricultural_area_hectares %>%
   select(-contains("% Change")) %>% 
   filter(`Crop/land use` %in% c(
-    "Total combine harvested crops", "Total crops for stockfeeding",
-    "Vegetables for human consumption", "Soft fruit")) %>%
+    "Total combine harvested crops", 
+    "Total crops for stockfeeding",
+    "Vegetables for human consumption", 
+    "Soft fruit")) %>%
   pivot_longer(cols = -`Crop/land use`, names_to = "Year", values_to = "Value") %>%
   mutate(
     Year = as.numeric(Year),  # Ensure Year is numeric
@@ -755,7 +765,11 @@ cereals_region_map <- crops_grass_area_subregion %>%
     names_to = "sub_region", values_to = "value") %>%
   mutate(value = round(value, 0)) %>% 
   filter(`Land use by category` %in% c(
-    "Wheat", "Winter barley", "Spring barley", "Oats and mixed grain"))
+    "Wheat", 
+    "Winter barley", 
+    "Spring barley", 
+    "Oats and mixed grain",
+    "Total cereals"))
 
 # Agricultural region table data
 cereals_region_table <- cereals_region_map %>%
@@ -763,7 +777,8 @@ cereals_region_table <- cereals_region_map %>%
 
 # Local authority map data
 cereals_unitauth_map <- unitary_crops_area %>%
-  select(unitauth, Wheat, `Winter barley`, `Spring barley`, `Oats and mixed grain`) %>% 
+  select(unitauth, Wheat, `Winter barley`, `Spring barley`, 
+         `Oats and mixed grain`, `Total cereals`) %>% 
   pivot_longer(cols = -unitauth, names_to = "crop", values_to = "value") %>%
   mutate(value = round(value, 0)) %>% 
   select(crop, unitauth, value)

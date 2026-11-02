@@ -31,12 +31,13 @@ server <- "s0196a\\ADM"
 database <- "RuralAndEnvironmentalScienceFarmingStatistics"
 schema <- "juneagriculturalsurvey2026"
 
+
 # 2. Import files ----
 
 jac <- read_table_from_db(server=server,
                           database=database,
                           schema=schema,
-                          table_name="final_dataset_corrected_2909")
+                          table_name="jac26_string_corrections_oct26")
 
 shape_data <- st_read("utility/Local Authority Boundaries Scotland/pub_las.shp")
 
@@ -91,47 +92,50 @@ table_01 <- unitary_authorities %>%
   filter(completedata == 1) %>%
   mutate(
     "Wheat" = item14,
-    "Winter Barley" = item16, 
-    "Spring Barley" = item18,
-    "Total Barley" = item16 + item18,
+    "Winter barley" = item16, 
+    "Spring barley" = item18,
+    "Total barley" = item16 + item18,
     "Oats and mixed grain" = item17 + item20 + item22,
-    "Triticale" = item15,
-    "Oilseeds (Including Linseed)" = item19 + item23 + item21,
+    "Triticale and rye" = item15 + item3156,
+    "Total cereals" = item14 + item15 + item16 + item18 + item17 + item20 + 
+      item3156 + item22,
+    "Oilseeds (including linseed)" = item19 + item23 + item21,
     "Potatoes" = item24 + item2320,
-    "Peas and Beans for Combining" = item27 + item28,
-    "Stockfeeding Crops" = item27725 + item2034,
-    "Vegetables For Human Consumption" = item27730,
+    "Peas and beans for combining" = item27 + item28,
+    "Stockfeeding crops" = item27725 + item2034,
+    "Vegetables for human consumption" = item27730,
     "Orchard and soft fruit" = item36 + item70 + item71 + item72 +  item75 + 
       item87 + item2556 + item2557 + item2036 + item2832 + item2836 + item6000,
-    "Bulbs, Flowers & Nursery Stock" = item84,
-    "All Other Crops" = item38 + item3156 - (item84 + item87 + item2556 + item2557 + item2836 + item6000 + item2036),
-    "Fallow - Under 5 Years" = item2469,
-    "Fallow - 5th Year & Over" = item2470,
-    "Total Crops, Fallow, And Set-Aside" = item40,
-    "Rotational Grass - Under 5 Years" = item2321,
-    "Permanent Grassland - 5th Year & Over" = item2322,
-    "Sole Right Grazing" = item47,
-    "Total Grass and Rough Grazing" = `Rotational Grass - Under 5 Years` + `Permanent Grassland - 5th Year & Over` + `Sole Right Grazing`,
-    "Holdings with Utilised Agricultural Area (UAA), (excl. common grazing)" = item46 + `Sole Right Grazing`,
-    "Other Land (including woodland)" = item48 + item49,
-    "Number of Holdings" = 1
+    "Bulbs, flowers & nursery stock" = item84,
+    "Other crops" = item38 - (item84 + item87 + item2556 + item2557 + item2836 + item6000 + item2036),
+    "Fallow land for 5 years or less" = item2469,
+    "Fallow land for more than 5 years" = item2470,
+    "Total crops, fallow, and set-aside" = item40,
+    "Grass under 5 years old" = item2321,
+    "Grass 5 years old and over" = item2322,
+    "Rough grazing" = item47,
+    "Total grass and rough grazing" = item2321 + item2322 + item47,
+    "Utilised agricultural area (UAA)" = item46 + item47,
+    "Other land (including woodland)" = item48 + item49,
+    "Number of holdings" = 1
   ) %>%
   select(
-    "Wheat", "Winter Barley", "Spring Barley", "Total Barley",
-    "Oats and mixed grain", "Triticale", "Oilseeds (Including Linseed)", "Potatoes",
-    "Peas and Beans for Combining", "Stockfeeding Crops",
-    "Vegetables For Human Consumption", "Orchard and soft fruit",
-    "Bulbs, Flowers & Nursery Stock", "All Other Crops",
-    "Fallow - Under 5 Years", "Fallow - 5th Year & Over",
-    "Total Crops, Fallow, And Set-Aside", "Rotational Grass - Under 5 Years",
-    "Permanent Grassland - 5th Year & Over", "Sole Right Grazing", "Total Grass and Rough Grazing",
-    "Holdings with Utilised Agricultural Area (UAA), (excl. common grazing)",
-    "Other Land (including woodland)", "Number of Holdings", unitauth
+    "Wheat", "Winter barley", "Spring barley", "Total barley",
+    "Oats and mixed grain", "Triticale and rye",
+    "Total cereals", "Oilseeds (including linseed)", "Potatoes",
+    "Peas and beans for combining", "Stockfeeding crops",
+    "Vegetables for human consumption", "Orchard and soft fruit",
+    "Bulbs, flowers & nursery stock", "Other crops",
+    "Fallow land for 5 years or less", "Fallow land for more than 5 years",
+    "Total crops, fallow, and set-aside", "Grass under 5 years old",
+    "Grass 5 years old and over", "Rough grazing", "Total grass and rough grazing",
+    "Utilised agricultural area (UAA)",
+    "Other land (including woodland)", "Number of holdings", unitauth
   )
 
 # Change all positive values to 1 and all negative to 0
 table_01 <- table_01 %>%
-  dplyr::mutate(across(Wheat:"Number of Holdings", ~ ifelse(. > 0, 1, 0)))
+  dplyr::mutate(across(Wheat:"Number of holdings", ~ ifelse(. > 0, 1, 0)))
 
 # Summarise the table, grouping by constituency
 table_01 <- table_01 %>%
@@ -149,42 +153,45 @@ table_02 <- unitary_authorities %>%
   filter(completedata == 1) %>%
   mutate(
     "Wheat" = item14,
-    "Winter Barley" = item16, 
-    "Spring Barley" = item18,
-    "Total Barley" = item16 + item18,
+    "Winter barley" = item16, 
+    "Spring barley" = item18,
+    "Total barley" = item16 + item18,
     "Oats and mixed grain" = item17 + item20 + item22,
-    "Triticale" = item15,
-    "Oilseeds (Including Linseed)" = item19 + item23 + item21,
+    "Triticale and rye" = item15 + item3156,
+    "Total cereals" = item14 + item15 + item16 + item18 + item17 + item20 + 
+      item3156 + item22,
+    "Oilseeds (including linseed)" = item19 + item23 + item21,
     "Potatoes" = item24 + item2320,
-    "Peas and Beans for Combining" = item27 + item28,
-    "Stockfeeding Crops" = item27725 + item2034,
-    "Vegetables For Human Consumption" = item27730,
+    "Peas and beans for combining" = item27 + item28,
+    "Stockfeeding crops" = item27725 + item2034,
+    "Vegetables for human consumption" = item27730,
     "Orchard and soft fruit" = item36 + item70 + item71 + item72 +  item75 + 
       item87 + item2556 + item2557 + item2036 + item2832 + item2836 + item6000,
-    "Bulbs, Flowers & Nursery Stock" = item84,
-    "All Other Crops" = item38 + item3156 - (item84 + item87 + item2556 + item2557 + item2836 + item6000 + item2036),
-    "Fallow - Under 5 Years" = item2469,
-    "Fallow - 5th Year & Over" = item2470,
-    "Total Crops, Fallow, And Set-Aside" = item40,
-    "Rotational Grass - Under 5 Years" = item2321,
-    "Permanent Grassland - 5th Year & Over" = item2322,
-    "Sole Right Grazing" = item47,
-    "Total Grass and Rough Grazing" = `Rotational Grass - Under 5 Years` + `Permanent Grassland - 5th Year & Over` + `Sole Right Grazing`,
-    "Holdings with Utilised Agricultural Area (UAA), (excl. common grazing)" = item46 + `Sole Right Grazing`,
-    "Other Land (including woodland)" = item48 + item49,
-    "Total Sole Right Agricultural Area" = item50
+    "Bulbs, flowers & nursery stock" = item84,
+    "Other crops" = item38 - (item84 + item87 + item2556 + item2557 + item2836 + item6000 + item2036),
+    "Fallow land for 5 years or less" = item2469,
+    "Fallow land for more than 5 years" = item2470,
+    "Total crops, fallow, and set-aside" = item40,
+    "Grass under 5 years old" = item2321,
+    "Grass 5 years old and over" = item2322,
+    "Rough grazing" = item47,
+    "Total grass and rough grazing" = item2321 + item2322 + item47,
+    "Utilised agricultural area (UAA)" = item46 + item47,
+    "Other land (including woodland)" = item48 + item49,
+    "Total sole right agricultural area" = item50,
   ) %>%
   select(
-    "Wheat", "Winter Barley", "Spring Barley", "Total Barley",
-    "Oats and mixed grain", "Triticale", "Oilseeds (Including Linseed)", "Potatoes",
-    "Peas and Beans for Combining", "Stockfeeding Crops",
-    "Vegetables For Human Consumption", "Orchard and soft fruit",
-    "Bulbs, Flowers & Nursery Stock", "All Other Crops",
-    "Fallow - Under 5 Years", "Fallow - 5th Year & Over",
-    "Total Crops, Fallow, And Set-Aside", "Rotational Grass - Under 5 Years",
-    "Permanent Grassland - 5th Year & Over", "Sole Right Grazing", "Total Grass and Rough Grazing",
-    "Holdings with Utilised Agricultural Area (UAA), (excl. common grazing)",
-    "Other Land (including woodland)", "Total Sole Right Agricultural Area", unitauth
+    "Wheat", "Winter barley", "Spring barley", "Total barley",
+    "Oats and mixed grain", "Triticale and rye",
+    "Total cereals", "Oilseeds (including linseed)", "Potatoes",
+    "Peas and beans for combining", "Stockfeeding crops",
+    "Vegetables for human consumption", "Orchard and soft fruit",
+    "Bulbs, flowers & nursery stock", "Other crops",
+    "Fallow land for 5 years or less", "Fallow land for more than 5 years",
+    "Total crops, fallow, and set-aside", "Grass under 5 years old",
+    "Grass 5 years old and over", "Rough grazing", "Total grass and rough grazing",
+    "Utilised agricultural area (UAA)", "Other land (including woodland)", 
+    "Total sole right agricultural area", unitauth
   )
 
 # Summarise table and group by constituency
@@ -202,7 +209,7 @@ table_02_cg <- unitary_authorities %>%
 table_02_joined <- table_02 %>% 
   bind_cols(table_02_cg %>% select(-unitauth)) %>% 
   mutate(
-    "Total agricultural area" = `Total Sole Right Agricultural Area` + `Common grazings`
+    "Total agricultural area" = `Total sole right agricultural area` + `Common grazings`
   )
 
 # Join on S codes
@@ -217,50 +224,44 @@ table_02 <- table_02_joined %>%
 
 table_03 <- unitary_authorities %>%
   dplyr::mutate(
-    "Female Dairy Cattle aged 1 to 2 years" = cts304,
-    "Female Dairy Cattle 2 years and over with offspring" = cts306,
-    "Female Dairy Cattle 2 years and over without offspring" = cts308,
-    "Total Female Dairy Cattle" = 
-      `Female Dairy Cattle aged 1 to 2 years` + `Female Dairy Cattle 2 years and over with offspring` +
-      `Female Dairy Cattle 2 years and over without offspring`,
+    "Female dairy cattle aged 1 to 2 years" = cts304,
+    "Female dairy cattle 2 years and over with offspring" = cts306,
+    "Female dairy cattle 2 years and over without offspring" = cts308,
+    "Total female dairy cattle" = cts304 + cts306 + cts308,
     
-    "Female Beef Cattle aged 1 to 2 years" = cts303,
-    "Female Beef Cattle 2 years and over with offspring" = cts305,
-    "Female Beef Cattle 2 years and over without offspring" = cts307,
-    "Total Female Beef Cattle" =
-      `Female Beef Cattle aged 1 to 2 years` + `Female Beef Cattle 2 years and over with offspring` +
-      `Female Beef Cattle 2 years and over without offspring`,
+    "Female beef cattle aged 1 to 2 years" = cts303,
+    "Female beef cattle 2 years and over with offspring" = cts305,
+    "Female beef cattle 2 years and over without offspring" = cts307,
+    "Total female beef cattle" = cts303 + cts305 + cts307,
     
-    "Male Cattle aged 1 to 2 years" = cts310,
-    "Male Cattle aged 2 and over" = cts311,
-    "Total Male Cattle" = `Male Cattle aged 1 to 2 years` + `Male Cattle aged 2 and over`,
+    "Male cattle aged 1 to 2 years" = cts310,
+    "Male cattle aged 2 and over" = cts311,
+    "Total male cattle" = cts310 + cts311,
     
-    "Female Dairy Cattle under 1 year (calves)" = cts302,
-    "Female Beef Cattle under 1 year (calves)" = cts301,
-    "Male Cattle under 1 year (calves)" = cts309,
-    "Total Calves" = `Female Dairy Cattle under 1 year (calves)` +
-      `Female Beef Cattle under 1 year (calves)` + `Male Cattle under 1 year (calves)`,
-    "Total Cattle" = `Total Female Dairy Cattle` + `Total Female Beef Cattle` +
-      `Total Male Cattle` + `Total Calves`,
+    "Female dairy cattle under 1 year (calves)" = cts302,
+    "Female beef cattle under 1 year (calves)" = cts301,
+    "Male cattle under 1 year (calves)" = cts309,
+    "Total calves" = cts302 + cts301 + cts309,
+    "Total cattle" = `Total female dairy cattle` + `Total female beef cattle` +
+      `Total male cattle` + `Total calves`,
     
     "Ewes for breeding" = item165,
     "Other sheep 1 year and over for breeding" = item141,
     "Rams for service" = item166,
     "Lambs" = item144,
     "Other sheep not for breeding" = item143,
-    "Total Sheep" = `Ewes for breeding` + `Other sheep 1 year and over for breeding` +
-      `Rams for service` + Lambs + `Other sheep not for breeding`,
+    "Total sheep" = item165 + item141 + item166 + item144 + item143,
     
     "Female pigs breeding herd" = item146 + item147 + item148,
     "All other non-breeding pigs" = item149 + item150 + item151 + item152 +
       item153 + item154 + item155 + item27765 + item27770,
-    "Total Pigs" = `Female pigs breeding herd` + `All other non-breeding pigs`,
+    "Total pigs" = `Female pigs breeding herd` + `All other non-breeding pigs`,
     
     "Fowls for producing eggs" = item158 + item159 + item161,
     "Fowls for breeding" = item160 + item162 + item163,
-    "Broilers and other table fowls and other poultry" = item164 + item1708 + 
+    "Broilers, other table fowls and other poultry" = item164 + item1708 + 
       item2038 + item2039 + item167,
-    "Total Poultry" = item170,
+    "Total poultry" = item170,
     
     "Goats and kids" = item27780,
     Deer = item94, 
@@ -269,28 +270,28 @@ table_03 <- unitary_authorities %>%
     Camelids = item2472 + item2473 + item2474,
     Beehives = item2826,
     
-    "Total Agricultural Holdings" = 1,
+    "Total agricultural holdings" = 1,
   ) %>%
   select(
-    "Female Dairy Cattle aged 1 to 2 years", "Female Dairy Cattle 2 years and over with offspring",
-    "Female Dairy Cattle 2 years and over without offspring", "Total Female Dairy Cattle",
-    "Female Beef Cattle aged 1 to 2 years", "Female Beef Cattle 2 years and over with offspring",
-    "Female Beef Cattle 2 years and over without offspring", "Total Female Beef Cattle",
-    "Male Cattle aged 1 to 2 years", "Male Cattle aged 2 and over",
-    "Total Male Cattle", "Female Dairy Cattle under 1 year (calves)",
-    "Female Beef Cattle under 1 year (calves)", "Male Cattle under 1 year (calves)",
-    "Total Calves", "Total Cattle", "Ewes for breeding", "Other sheep 1 year and over for breeding",
-    "Rams for service", "Lambs", "Other sheep not for breeding", "Total Sheep",
-    "Female pigs breeding herd", "All other non-breeding pigs", "Total Pigs",
-    "Fowls for producing eggs", "Fowls for breeding", "Broilers and other table fowls and other poultry",
-    "Total Poultry", "Goats and kids", Deer, Horses, Donkeys, Camelids,  Beehives,
-    "Total Agricultural Holdings", unitauth
+    "Female dairy cattle aged 1 to 2 years", "Female dairy cattle 2 years and over with offspring",
+    "Female dairy cattle 2 years and over without offspring", "Total female dairy cattle",
+    "Female beef cattle aged 1 to 2 years", "Female beef cattle 2 years and over with offspring",
+    "Female beef cattle 2 years and over without offspring", "Total female beef cattle",
+    "Male cattle aged 1 to 2 years", "Male cattle aged 2 and over",
+    "Total male cattle", "Female dairy cattle under 1 year (calves)",
+    "Female beef cattle under 1 year (calves)", "Male cattle under 1 year (calves)",
+    "Total calves", "Total cattle", "Ewes for breeding", "Other sheep 1 year and over for breeding",
+    "Rams for service", "Lambs", "Other sheep not for breeding", "Total sheep",
+    "Female pigs breeding herd", "All other non-breeding pigs", "Total pigs",
+    "Fowls for producing eggs", "Fowls for breeding", "Broilers, other table fowls and other poultry",
+    "Total poultry", "Goats and kids", Deer, Horses, Donkeys, Camelids,  Beehives,
+    "Total agricultural holdings", unitauth
   )
 
 
 # Change all positive values to 1 and all negative to 0
 table_03 <- table_03 %>%
-  mutate(across(`Female Dairy Cattle aged 1 to 2 years`:`Total Agricultural Holdings`, ~ ifelse(. > 0, 1, 0)))
+  mutate(across(`Female dairy cattle aged 1 to 2 years`:`Total agricultural holdings`, ~ ifelse(. > 0, 1, 0)))
 
 # Summarise tables grouped by constituency
 table_03 <- table_03 %>%
@@ -302,54 +303,49 @@ table_03 <- table_03 %>%
   left_join(ua_subset_shape, by = "unitauth") %>%
   relocate(code, .before = unitauth)
 
+
 # Table 4: Number of livestock ----
 
 table_04 <- unitary_authorities %>%
   dplyr::mutate(
-    "Female Dairy Cattle aged 1 to 2 years" = cts304,
-    "Female Dairy Cattle 2 years and over with offspring" = cts306,
-    "Female Dairy Cattle 2 years and over without offspring" = cts308,
-    "Total Female Dairy Cattle" = 
-      `Female Dairy Cattle aged 1 to 2 years` + `Female Dairy Cattle 2 years and over with offspring` +
-      `Female Dairy Cattle 2 years and over without offspring`,
+    "Female dairy cattle aged 1 to 2 years" = cts304,
+    "Female dairy cattle 2 years and over with offspring" = cts306,
+    "Female dairy cattle 2 years and over without offspring" = cts308,
+    "Total female dairy cattle" = cts304 + cts306 + cts308,
     
-    "Female Beef Cattle aged 1 to 2 years" = cts303,
-    "Female Beef Cattle 2 years and over with offspring" = cts305,
-    "Female Beef Cattle 2 years and over without offspring" = cts307,
-    "Total Female Beef Cattle" =
-      `Female Beef Cattle aged 1 to 2 years` + `Female Beef Cattle 2 years and over with offspring` +
-      `Female Beef Cattle 2 years and over without offspring`,
+    "Female beef cattle aged 1 to 2 years" = cts303,
+    "Female beef cattle 2 years and over with offspring" = cts305,
+    "Female beef cattle 2 years and over without offspring" = cts307,
+    "Total female beef cattle" = cts303 + cts305 + cts307,
     
-    "Male Cattle aged 1 to 2 years" = cts310,
-    "Male Cattle aged 2 and over" = cts311,
-    "Total Male Cattle" = `Male Cattle aged 1 to 2 years` + `Male Cattle aged 2 and over`,
+    "Male cattle aged 1 to 2 years" = cts310,
+    "Male cattle aged 2 and over" = cts311,
+    "Total male cattle" = cts310 + cts311,
     
-    "Female Dairy Cattle under 1 year (calves)" = cts302,
-    "Female Beef Cattle under 1 year (calves)" = cts301,
-    "Male Cattle under 1 year (calves)" = cts309,
-    "Total Calves" = `Female Dairy Cattle under 1 year (calves)` +
-      `Female Beef Cattle under 1 year (calves)` + `Male Cattle under 1 year (calves)`,
-    "Total Cattle" = `Total Female Dairy Cattle` + `Total Female Beef Cattle` +
-      `Total Male Cattle` + `Total Calves`,
+    "Female dairy cattle under 1 year (calves)" = cts302,
+    "Female beef cattle under 1 year (calves)" = cts301,
+    "Male cattle under 1 year (calves)" = cts309,
+    "Total calves" = cts302 + cts301 + cts309,
+    "Total cattle" = `Total female dairy cattle` + `Total female beef cattle` +
+      `Total male cattle` + `Total calves`,
     
     "Ewes for breeding" = item165,
     "Other sheep 1 year and over for breeding" = item141,
     "Rams for service" = item166,
     "Lambs" = item144,
     "Other sheep not for breeding" = item143,
-    "Total Sheep" = `Ewes for breeding` + `Other sheep 1 year and over for breeding` +
-      `Rams for service` + Lambs + `Other sheep not for breeding`,
+    "Total sheep" = item165 + item141 + item166 + item144 + item143,
     
     "Female pigs breeding herd" = item146 + item147 + item148,
     "All other non-breeding pigs" = item149 + item150 + item151 + item152 +
       item153 + item154 + item155 + item27765 + item27770,
-    "Total Pigs" = item157,
+    "Total pigs" = `Female pigs breeding herd` + `All other non-breeding pigs`,
     
     "Fowls for producing eggs" = item158 + item159 + item161,
     "Fowls for breeding" = item160 + item162 + item163,
-    "Broilers and other table fowls and other poultry" = item164 + item1708 + 
+    "Broilers, other table fowls and other poultry" = item164 + item1708 + 
       item2038 + item2039 + item167,
-    "Total Poultry" = item170,
+    "Total poultry" = item170,
     
     "Goats and kids" = item27780,
     Deer = item94, 
@@ -357,23 +353,22 @@ table_04 <- unitary_authorities %>%
     Donkeys = item2868,
     Camelids = item2472 + item2473 + item2474,
     Beehives = item2826,
-    
-    "Total Agricultural Holdings" = 1,
-  ) %>%
+    ) %>%
+  
   select(
-    "Female Dairy Cattle aged 1 to 2 years", "Female Dairy Cattle 2 years and over with offspring",
-    "Female Dairy Cattle 2 years and over without offspring", "Total Female Dairy Cattle",
-    "Female Beef Cattle aged 1 to 2 years", "Female Beef Cattle 2 years and over with offspring",
-    "Female Beef Cattle 2 years and over without offspring", "Total Female Beef Cattle",
-    "Male Cattle aged 1 to 2 years", "Male Cattle aged 2 and over",
-    "Total Male Cattle", "Female Dairy Cattle under 1 year (calves)",
-    "Female Beef Cattle under 1 year (calves)", "Male Cattle under 1 year (calves)",
-    "Total Calves", "Total Cattle", "Ewes for breeding", "Other sheep 1 year and over for breeding",
-    "Rams for service", "Lambs", "Other sheep not for breeding", "Total Sheep",
-    "Female pigs breeding herd", "All other non-breeding pigs", "Total Pigs",
-    "Fowls for producing eggs", "Fowls for breeding", "Broilers and other table fowls and other poultry",
-    "Total Poultry", "Goats and kids", Deer, Horses, Donkeys, Camelids,  Beehives,
-    "Total Agricultural Holdings", unitauth
+    "Female dairy cattle aged 1 to 2 years", "Female dairy cattle 2 years and over with offspring",
+    "Female dairy cattle 2 years and over without offspring", "Total female dairy cattle",
+    "Female beef cattle aged 1 to 2 years", "Female beef cattle 2 years and over with offspring",
+    "Female beef cattle 2 years and over without offspring", "Total female beef cattle",
+    "Male cattle aged 1 to 2 years", "Male cattle aged 2 and over",
+    "Total male cattle", "Female dairy cattle under 1 year (calves)",
+    "Female beef cattle under 1 year (calves)", "Male cattle under 1 year (calves)",
+    "Total calves", "Total cattle", "Ewes for breeding", "Other sheep 1 year and over for breeding",
+    "Rams for service", "Lambs", "Other sheep not for breeding", "Total sheep",
+    "Female pigs breeding herd", "All other non-breeding pigs", "Total pigs",
+    "Fowls for producing eggs", "Fowls for breeding", "Broilers, other table fowls and other poultry",
+    "Total poultry", "Goats and kids", Deer, Horses, Donkeys, Camelids,  Beehives,
+     unitauth
   )
 
 # Summarise table grouped by constituency
@@ -385,70 +380,48 @@ table_04 <- table_04 %>%
 table_04 <- table_04 %>%
   left_join(ua_subset_shape, by = "unitauth") %>%
   relocate(code, .before = unitauth)
+
 
 # Table 5 - Number of holdings with occupiers and employees ----
 table_05 <- unitary_authorities %>%
   mutate(
-    "Occupiers - Full Time" = item177 + item182,
-    "Occupiers - Half Time Or More" = item178 + item183,
-    "Occupiers - Less Than Half Time" = item179 + item184,
-    "Total Working Occupiers" = `Occupiers - Full Time` + `Occupiers - Half Time Or More` + `Occupiers - Less Than Half Time`,
+    "Occupiers - full time" = item177 + item182,
+    "Occupiers - half time or more" = item178 + item183,
+    "Occupiers - less than half time" = item179 + item184,
+    "Total working occupiers" = item177 + item182 + item178 + item183 + item179 + item184,
+    "Occupiers not working on the holding" = item2566 + item2567,
     
-    "Occupiers Not Working On The Holding" = item2566 + item2567,
+    "Regular full-time male staff" = item1715 + item1716 + item1714,
+    "Regular full-time female staff" = item192 + item193 + item1717,
+    "Regular full-time staff total" = item1715 + item1716 + item1714 + item192  + item193  + item1717,
     
-    "Ft Males Hired" = item1715,
-    "Ft Males Family" = item1716,
-    "Ft Males Partners" = item1714,
-    "Ft Males Total" = `Ft Males Hired` + `Ft Males Family` + `Ft Males Partners`,
+    "Regular part-time male staff" = item194 + item195 + item1718,
+    "Regular part-time female staff" = item196 + item197 + item1719,
+    "Regular part-time staff total" = item194 + item195 + item1718 + item196 + item197 + item1719,
     
-    "Ft Females Hired" = item192,
-    "Ft Females Family" = item193,
-    "Ft Females Partners" = item1717,
-    "Ft Females Total" = `Ft Females Hired` + `Ft Females Family` + `Ft Females Partners`,
+    "Male casual and seasonal staff" = item198,
+    "Female casual and seasonal staff" = item199,
+    "Total casual and seasonal staff" = item198 + item199,
     
-    "Regular Full-Time Staff Total" = `Ft Males Total` + `Ft Females Total`,
-    
-    "Pt Males Hired" = item194,
-    "Pt Males Family" = item195, 
-    "Pt Males Partners" = item1718,
-    "Pt Males Total" = `Pt Males Hired` + `Pt Males Family` + `Pt Males Partners`,
-    
-    "Pt Females Hired" = item196,
-    "Pt Females Family" = item197, 
-    "Pt Females Partners" = item1719,
-    "Pt Females Total" = `Pt Females Hired` + `Pt Females Family` + `Pt Females Partners`,
-    
-    "Regular Part-Time Staff Total" = `Pt Males Total` + `Pt Females Total`,
-    
-    "Total Regular Full-Time And Part-Time Staff" = `Regular Full-Time Staff Total` + `Regular Part-Time Staff Total`,
-    
-    "Males Casual And Seasonal Staff" = item198,
-    "Females Casual And Seasonal Staff" = item199,
-    "Total Casual And Seasonal Staff" = `Males Casual And Seasonal Staff` + `Females Casual And Seasonal Staff`,
-    "Total Agricultural Workforce" = item200,
-    "European Migrant Labour (Person Working Days)" = item2536,
-    "Non-European Migrant Labour (Person Working Days)" = item2511,
-    "Migrant Labour (Person Working Days)" = item2536 + item2511,
-    "Total Workforce (including occupiers)" = `Total Agricultural Workforce` + `Total Working Occupiers`,
-    "Total Agricultural Holdings" = 1
+    "Total employees" = item200,
+    "Total workforce (including occupiers)" = `Total employees` + `Total working occupiers`,
+    "Total agricultural holdings" = 1
   ) %>%
+  
   select(
-    "Occupiers - Full Time", "Occupiers - Half Time Or More", "Occupiers - Less Than Half Time",
-    "Total Working Occupiers", "Occupiers Not Working On The Holding","Ft Males Partners",
-    "Ft Males Hired",
-    "Ft Males Family","Ft Females Partners", "Ft Females Hired", 
-    "Ft Females Family", "Regular Full-Time Staff Total",
-    "Pt Males Partners", "Pt Males Hired", "Pt Males Family",
-    "Pt Females Partners", "Pt Females Hired", "Pt Females Family",
-    "Regular Part-Time Staff Total",
-    "Males Casual And Seasonal Staff", "Females Casual And Seasonal Staff",
-    "Total Casual And Seasonal Staff", "Total Agricultural Workforce",
-    "Total Workforce (including occupiers)", "Total Agricultural Holdings", unitauth
+    "Occupiers - full time", "Occupiers - half time or more", "Occupiers - less than half time",
+    "Total working occupiers", "Occupiers not working on the holding",
+    "Regular full-time male staff", "Regular full-time female staff",
+    "Regular full-time staff total", "Regular part-time male staff",
+    "Regular part-time female staff", "Regular part-time staff total",
+    "Male casual and seasonal staff", "Female casual and seasonal staff",
+    "Total casual and seasonal staff", "Total employees",
+    "Total workforce (including occupiers)", "Total agricultural holdings", unitauth
   )
 
 # Change all positive values to 1 and all negative to 0
 table_05 <- table_05 %>%
-  mutate(across(`Occupiers - Full Time`:`Total Agricultural Holdings`, ~ ifelse(. > 0, 1, 0)))
+  mutate(across(`Occupiers - full time`:`Total agricultural holdings`, ~ ifelse(. > 0, 1, 0)))
 
 # Summarise table grouped by constituency
 table_05 <- table_05 %>%
@@ -460,63 +433,41 @@ table_05 <- table_05 %>%
   left_join(ua_subset_shape, by = "unitauth") %>%
   relocate(code, .before = unitauth)
 
+
 # Table 6 - Number of occupiers and employees ----
 table_06 <- unitary_authorities %>%
   mutate(
-    "Occupiers - Full Time" = item177 + item182,
-    "Occupiers - Half Time Or More" = item178 + item183,
-    "Occupiers - Less Than Half Time" = item179 + item184,
-    "Total Working Occupiers" = `Occupiers - Full Time` + `Occupiers - Half Time Or More` + `Occupiers - Less Than Half Time`,
+    "Occupiers - full time" = item177 + item182,
+    "Occupiers - half time or more" = item178 + item183,
+    "Occupiers - less than half time" = item179 + item184,
+    "Total working occupiers" = item177 + item182 + item178 + item183 + item179 + item184,
+    "Occupiers not working on the holding" = item2566 + item2567,
     
-    "Occupiers Not Working On The Holding" = item2566 + item2567,
+    "Regular full-time male staff" = item1715 + item1716 + item1714,
+    "Regular full-time female staff" = item192 + item193 + item1717,
+    "Regular full-time staff total" = item1715 + item1716 + item1714 + item192  + item193  + item1717,
     
-    "Ft Males Hired" = item1715,
-    "Ft Males Family" = item1716,
-    "Ft Males Partners" = item1714,
-    "Ft Males Total" = `Ft Males Hired` + `Ft Males Family` + `Ft Males Partners`,
+    "Regular part-time male staff" = item194 + item195 + item1718,
+    "Regular part-time female staff" = item196 + item197 + item1719,
+    "Regular part-time staff total" = item194 + item195 + item1718 + item196 + item197 + item1719,
     
-    "Ft Females Hired" = item192,
-    "Ft Females Family" = item193,
-    "Ft Females Partners" = item1717,
-    "Ft Females Total" = `Ft Females Hired` + `Ft Females Family` + `Ft Females Partners`,
+    "Male casual and seasonal staff" = item198,
+    "Female casual and seasonal staff" = item199,
+    "Total casual and seasonal staff" = item198 + item199,
     
-    "Regular Full-Time Staff Total" = `Ft Males Total` + `Ft Females Total`,
-    
-    "Pt Males Hired" = item194,
-    "Pt Males Family" = item195, 
-    "Pt Males Partners" = item1718,
-    "Pt Males Total" = `Pt Males Hired` + `Pt Males Family` + `Pt Males Partners`,
-    
-    "Pt Females Hired" = item196,
-    "Pt Females Family" = item197, 
-    "Pt Females Partners" = item1719,
-    "Pt Females Total" = `Pt Females Hired` + `Pt Females Family` + `Pt Females Partners`,
-    
-    "Regular Part-Time Staff Total" = `Pt Males Total` + `Pt Females Total`,
-    
-    "Total Regular Full-Time And Part-Time Staff" = `Regular Full-Time Staff Total` + `Regular Part-Time Staff Total`,
-    
-    "Males Casual And Seasonal Staff" = item198,
-    "Females Casual And Seasonal Staff" = item199,
-    "Total Casual And Seasonal Staff" = `Males Casual And Seasonal Staff` + `Females Casual And Seasonal Staff`,
-    "Total Agricultural Workforce" = item200,
-    "European Migrant Labour (Person Working Days)" = item2536,
-    "Non-European Migrant Labour (Person Working Days)" = item2511,
-    "Migrant Labour (Person Working Days)" = item2536 + item2511,
-    "Total Workforce (including occupiers)" = `Total Agricultural Workforce` + `Total Working Occupiers`
+    "Total employees" = item200,
+    "Total workforce (including occupiers)" = `Total employees` + `Total working occupiers`,
   ) %>%
+  
   select(
-    "Occupiers - Full Time", "Occupiers - Half Time Or More", "Occupiers - Less Than Half Time",
-    "Total Working Occupiers", "Occupiers Not Working On The Holding","Ft Males Partners",
-    "Ft Males Hired",
-    "Ft Males Family","Ft Females Partners", "Ft Females Hired", 
-    "Ft Females Family", "Regular Full-Time Staff Total",
-    "Pt Males Partners", "Pt Males Hired", "Pt Males Family",
-    "Pt Females Partners", "Pt Females Hired", "Pt Females Family",
-    "Regular Part-Time Staff Total",
-    "Males Casual And Seasonal Staff", "Females Casual And Seasonal Staff",
-    "Total Casual And Seasonal Staff", "Total Agricultural Workforce",
-    "Total Workforce (including occupiers)", unitauth
+    "Occupiers - full time", "Occupiers - half time or more", "Occupiers - less than half time",
+    "Total working occupiers", "Occupiers not working on the holding",
+    "Regular full-time male staff", "Regular full-time female staff",
+    "Regular full-time staff total", "Regular part-time male staff",
+    "Regular part-time female staff", "Regular part-time staff total",
+    "Male casual and seasonal staff", "Female casual and seasonal staff",
+    "Total casual and seasonal staff", "Total employees",
+    "Total workforce (including occupiers)", unitauth
   )
 
 # Summarise table grouped by constituency
@@ -528,6 +479,7 @@ table_06 <- table_06 %>%
 table_06 <- table_06 %>%
   left_join(ua_subset_shape, by = "unitauth") %>%
   relocate(code, .before = unitauth)
+
 
 # Table 7 and 8: Number of holdings by farm type ----
 
@@ -545,23 +497,6 @@ robust_new_labels <- c(
   "10" = "General cropping; forage",
   "11" = "Unclassified")
 
-# Sub-region labels
-agricreg_labels <- c(
-  "1" = "Shetland",
-  "2" = "Orkney",
-  "3" = "Eileanan an Iar",
-  "4" = "Highland",
-  "5" = "NE Scotland",
-  "6" = "Tayside",
-  "7" = "Fife",
-  "8" = "Lothian",
-  "9" = "Scottish Borders",
-  "10" = "East Central",
-  "11" = "Argyll & Bute",
-  "12" = "Clyde Valley",
-  "13" = "Ayrshire",
-  "14" = "Dumfries & Galloway")
-
 ## Farm types
 farmtypes <- unitary_authorities %>%
   
@@ -578,6 +513,7 @@ no_subreg_farmtype <- farmtypes %>%
   pivot_wider(names_from = unitauth, values_from = holdings, values_fill = 0) %>%
   adorn_totals("row") %>% 
   adorn_totals("col")
+
 table_07 <- no_subreg_farmtype %>%
   pivot_longer(
     cols = -robust_new,
@@ -650,7 +586,7 @@ contents_df <- data.frame(
 )
 
 notes_df <- data.frame(
-  "Note number" = paste0("Note ", 1:30),
+  "Note number" = paste0("Note ", 1),
   "Note text" = c("Comparisons are made as a percentage change between 2026 to the 5 year average calculated from 2020 to 2024."
                   
   ),
@@ -693,12 +629,12 @@ jac_aftables <-
       "Scottish Agricultural Census: June 2026 Results",
       "Table of contents.",
       "Notes.",
-      "Table 1: Number of holdings with crops and grass by Unitary Authority, June 2026 [Note 16, 17, 18, 26]",
-      "Table 2: Area of crops and grass by Unitary Authority, June 2026 [Note 17, 18, 19, 26]",
-      "Table 3: Number of holdings with livestock by Unitary Authority, June 2026 [Note 20, 21, 26]",
-      "Table 4: Number of livestock by Unitary Authority, June 2026 [Note 20, 21, 26]",
-      "Table 5: Number of holdings with occupiers and employees by Unitary Authority, June 2026 [Note 22, 26]",
-      "Table 6: Number of occupiers and employees by Unitary Authority, June 2026 [Note 22, 26]",
+      "Table 1: Number of holdings with crops and grass by Unitary Authority, June 2026",
+      "Table 2: Area of crops and grass by Unitary Authority, June 2026",
+      "Table 3: Number of holdings with livestock by Unitary Authority, June 2026",
+      "Table 4: Number of livestock by Unitary Authority, June 2026",
+      "Table 5: Number of holdings with occupiers and employees by Unitary Authority, June 2026",
+      "Table 6: Number of occupiers and employees by Unitary Authority, June 2026",
       "Table 7: Number of holdings by main farm type and by Unitary Authority, June 2026",
       "Table 8: Area of holdings by main farm type and by Unitary Authority, June 2026"
       
