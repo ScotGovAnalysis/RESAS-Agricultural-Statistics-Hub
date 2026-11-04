@@ -76,11 +76,7 @@ employeesMapServer <- function(id) {
           radioButtons(
             ns("map_variable"),
             "Select Variable",
-            choices = c(
-              "Regular full-time staff total",
-              "Regular part-time staff total",
-              "Total casual and seasonal staff",
-              "Total workforce (including occupiers)")
+            choices = unique(employees_unitauth_map$workforce)
           )
         )
       # } else if (input$tabs == "map_con") {

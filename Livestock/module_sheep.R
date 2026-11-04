@@ -57,13 +57,7 @@ sheepUI <- function(id) {
           ns("timeseries_variables"),
           "Select Time Series Variables",
           choices = unique(sheep_timeseries_chart$`Sheep by category`),
-          selected = c(
-            "Ewes used for breeding in previous season",
-            "Other sheep for breeding aged 1 year and over",
-            "Rams to be used for service",
-            "Total other sheep 1 year and over",
-            "Lambs"
-          )
+          selected = unique(sheep_timeseries_chart$`Sheep by category`)
         )
       ),
       

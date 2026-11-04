@@ -329,6 +329,7 @@ employee_categories <- c(
   "Regular full-time staff total",
   "Regular part-time staff total",
   "Total casual and seasonal staff",
+  "Total employees (excluding occupiers)",
   "Total workforce (including occupiers)")
 
 # Remove % change column
@@ -740,6 +741,7 @@ crops_summary_data <- agricultural_area_hectares %>%
 
 # Save data
 save(crops_summary_data, file = "Data/crops_data.RData")
+
 
 ### Cereals ------
 
