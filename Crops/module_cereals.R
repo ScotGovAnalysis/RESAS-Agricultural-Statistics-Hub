@@ -11,6 +11,7 @@ cerealsUI <- function(id) {
       conditionalPanel(
         condition = "input.tabsetPanel === 'Maps'",
         ns = ns,
+        
         selectInput(
           ns("map_region"),
           "Geography",
@@ -20,6 +21,7 @@ cerealsUI <- function(id) {
           ),
           selected = "region"
         ),
+        
         radioButtons(
           ns("map_variable"),
           "Select Variable",
@@ -148,6 +150,24 @@ cerealsUI <- function(id) {
 cerealsServer <- function(id) {
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
+    
+    # Map categories (don't show total cereals for agricultural region)
+    observeEvent(input$map_region, {
+      
+      vars <- if (input$map_region == "region") {
+        unique(cereals_region_map$`Land use by category`)
+      } else {
+        unique(cereals_unitauth_map$crop)
+      }
+      
+      updateRadioButtons(
+        session,
+        "map_variable",
+        choices = vars,
+        selected = vars[1]
+      )
+      
+    }, ignoreInit = FALSE)
     
     # Agricultural region map
     mapServer(
@@ -396,7 +416,7 @@ cerealsServer <- function(id) {
         # } else if (input$table_data == "map_con") {
         #   paste("Cereals_Constituency_Data_", Sys.Date(), ".csv", sep = "")
            
-        } else if (input$table_data == "table4") {
+        } else if (input$table_data == "map_uni") {
           paste("Cereals_Local_Authority_Data_", Sys.Date(), ".csv", sep = "")
         }
         

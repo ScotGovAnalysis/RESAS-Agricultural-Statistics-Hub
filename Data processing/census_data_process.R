@@ -72,7 +72,7 @@ source("charts_tables_functions/function_data_cleaning.R")
 ## 2a. Read in main data and agricultural region data --------------------------
 
 # Define file path
-file_path <- "Data/June Agricultural Census 2026 - Main data tables - Updated.xlsx"
+file_path <- "Data/June Agricultural Census 2026 - Main data tables.xlsx"
 
 # Define the simplified table names and corresponding sheet names
 table_names <- c(
@@ -770,8 +770,7 @@ cereals_region_map <- crops_grass_area_subregion %>%
     "Wheat", 
     "Winter barley", 
     "Spring barley", 
-    "Oats and mixed grain",
-    "Total cereals"))
+    "Oats and mixed grain"))
 
 # Agricultural region table data
 cereals_region_table <- cereals_region_map %>%
