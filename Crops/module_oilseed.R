@@ -6,18 +6,27 @@ oilseedUI <- function(id) {
     sidebarPanel(
       width = 3,
       
-      # ================ AGRICULTURAL REGION MAP ===================
+      # Maps
       conditionalPanel(
-        condition = "input.tabsetPanel === 'Agricultural Region Map'",
+        condition = "input.tabsetPanel === 'Maps'",
         ns = ns,
+        selectInput(
+          ns("map_region"),
+          "Geography",
+          choices = c(
+            "Agricultural Region" = "region",
+            "Local Authority" = "la"
+          ),
+          selected = "region"
+        ),
         radioButtons(
-          ns("variable_region"), 
-          "Select Variable", 
-          choices = unique(oilseed_subregion$`Land use by category`)
+          ns("map_variable"),
+          "Select Variable",
+          choices = unique(oilseed_region_map$`Land use by category`)
         )
       ),
       
-      # ===================== CONSTITUENCY MAP =====================
+      # Constituency map
       # conditionalPanel(
       #   condition = "input.tabsetPanel === 'Constituency Map'",
       #   ns = ns,
@@ -27,23 +36,11 @@ oilseedUI <- function(id) {
       #     choices = unique(oilseeds_constituency$crop)
       #   )
       # ),
-      # 
-      # ===================== LOCAL AUTHORITY MAP =====================
-      # conditionalPanel(
-      #   condition = "input.tabsetPanel === 'Local Authority Map'",
-      #   ns = ns,
-      #   radioButtons(
-      #     ns("variable_uni"), 
-      #     "Select Variable", 
-      #     choices = unique(oilseeds_unitauth$crop)
-      #   )
-      # ),
       
-      # ===================== TIME SERIES =====================
+      # Time series
       conditionalPanel(
         condition = "input.tabsetPanel === 'Time Series'",
         ns = ns,
-        
         radioButtons(
           ns("measure"),
           "Select Measure:",
@@ -60,7 +57,7 @@ oilseedUI <- function(id) {
         )
       ),
 
-      # ===================== DATA TABLE =====================
+      # Data table
       conditionalPanel(
         condition = "input.tabsetPanel === 'Data Table'",
         ns = ns,
@@ -68,23 +65,32 @@ oilseedUI <- function(id) {
           ns("table_data"),
           "Select Data to Display",
           choices = c("Agricultural Region Data" = "map", 
+                      "Local Authority Data" = "map_uni",
                       "Time Series Data" = "timeseries"
                       # "Constituency Data" = "map_con",
-                      # "Local Authority Data" = "map_uni"
                       ),
           selected = "timeseries"
         )
       )
     ),
     
-    # ===================== MAIN PANEL =====================
+    # Main panel
     mainPanel(
       width = 9,
       tabsetPanel(
         id = ns("tabsetPanel"),
-        tabPanel("Agricultural Region Map", mapUI(ns("map"))),
+        tabPanel(
+          "Maps",
+          conditionalPanel(
+            condition = sprintf("input['%s'] == 'region'", ns("map_region")),
+            mapUI(ns("map"))
+          ),
+          conditionalPanel(
+            condition = sprintf("input['%s'] == 'la'", ns("map_region")),
+            mapUnitaryUI(ns("map_uni"))
+          )
+        ),
         # tabPanel("Constituency Map", mapConstituenciesUI(ns("map_con"))),
-        # tabPanel("Local Authority Map", mapUnitaryUI(ns("map_uni"))),
         tabPanel("Time Series", lineChartUI(ns("line"))),
         tabPanel("Data Table", 
                  DTOutput(ns("table")),
@@ -100,27 +106,23 @@ oilseedUI <- function(id) {
 oilseedServer <- function(id) {
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
-    # ================= AGRICULTURAL REGION MAP ===================
-    oilseed_map <- oilseed_subregion %>%
-      select(-`Scotland total`) %>%
-      mutate(across(everything(), as.character)) %>%
-      pivot_longer(cols = -`Land use by category`, names_to = "sub_region", values_to = "value") %>%
-      mutate(value = as.numeric(value))
     
+    # Agricultural region map
     mapServer(
       id = "map",
       data = reactive({
-        req(input$variable_region)
-        oilseed_map %>% filter(`Land use by category` == input$variable_region)
+        req(input$map_variable)
+        oilseed_region_map %>% 
+          filter(`Land use by category` == input$map_variable)
       }),
       unit = "hectares",
       footer = census_footer,
-      variable = reactive(input$variable_region),
+      variable = reactive(input$map_variable),
       title = paste("Oilseed distribution by region in Scotland in", census_year),
       legend_title = "Area (hectares)"
     )
     
-    # ===================== CONSTITUENCY MAP =====================
+    # Constituency map
     # oilseed_const_map <- reactive({
     #   oilseeds_constituency %>%  
     #     mutate(across(everything(), as.character)) %>%
@@ -146,36 +148,23 @@ oilseedServer <- function(id) {
     #   title = paste("Oilseed distribution by 2026 Scottish Parliamentary Constituency"),
     #   legend_title = "Area (hectares)"
     # )
-    # 
-    # ===================== LOCAL AUTHORITY MAP =====================
-    # oilseed_uni_map <- reactive({
-    #   oilseeds_unitauth %>% 
-    #     mutate(across(everything(), as.character)) %>%
-    #     pivot_longer(
-    #       cols = -`crop`,
-    #       names_to = "unitauth",
-    #       values_to = "value"
-    #     ) %>% 
-    #     mutate(
-    #       value = if_else(is.na(value), NA_real_, as.numeric(value))
-    #     )
-    # })
-    # 
-    # mapUnitaryServer(
-    #   id = "map_uni",
-    #   data = reactive({
-    #     req(input$variable_uni)
-    #     oilseed_uni_map() %>% filter(`crop` == input$variable_uni)
-    #   }),
-    #   unit = "hectares",
-    #   footer = census_footer,
-    #   variable = reactive(input$variable_uni),
-    #   title = paste("Oilseed distribution by local authority in", census_year),
-    #   legend_title = "Area (hectares)"
-    # )
     
-    # ===================== TIME SERIES =====================
-    # Update crop selection when measure changes
+    # Local authority map
+    mapUnitaryServer(
+      id = "map_uni",
+      data = reactive({
+        req(input$map_variable)
+        oilseed_unitauth_map %>% 
+          filter(`crop` == input$map_variable)
+      }),
+      unit = "hectares",
+      footer = census_footer,
+      variable = reactive(input$map_variable),
+      title = paste("Oilseed distribution by local authority in", census_year),
+      legend_title = "Area (hectares)"
+    )
+    
+    # Time series
     observeEvent(input$measure, {
       if (input$measure == "Area") {
         choices <- c("Total oilseeds", "Linseed", "Winter oilseed rape","Spring oilseed rape")
@@ -198,20 +187,8 @@ oilseedServer <- function(id) {
       req(input$timeseries_variables, input$measure)
       
       if (input$measure == "Area") {
-        df <- oilseed_data %>%
-          filter(`Crop/land use` %in% input$timeseries_variables) %>%
-          pivot_longer(
-            cols = -`Crop/land use`,
-            names_to = "Year",
-            values_to = "value"
-          ) %>%
-          mutate(
-            Year = as.numeric(Year),
-            Measure = "Area"
-          )
-        # Keep only last 10 years
-        max_year <- max(df$Year, na.rm = TRUE)
-        df <- df %>% filter(Year > max_year - 10)
+        df <- oilseed_area_chart %>%
+          filter(`Crop/land use` %in% input$timeseries_variables)
         
       } else {
         df <- oilseed_tiff_data_long %>%
@@ -276,19 +253,16 @@ oilseedServer <- function(id) {
     })
     
     
-    # ===================== DATA TABLE =====================
+    # Data table
     output$table <- renderDT({
       req(input$tabsetPanel == "Data Table")
       
-      # ------------------------------------------------------
-      # TABLE 1 — AGRCULTURAL REGION MAP DATA
-      # ------------------------------------------------------
+      # Agricultural region data
       if (input$table_data == "map") {
-        req(input$variable_region)
+        req(input$map_variable)
         
-        oilseed_map %>%
-          pivot_wider(names_from = sub_region, values_from = value) %>%
-          mutate(across(where(is.numeric) & !contains("Year"), comma)) %>%
+        oilseed_region_table %>%
+          mutate(across(where(is.numeric), comma)) %>%
           datatable(
             options = list(
               scrollX = TRUE,
@@ -300,37 +274,24 @@ oilseedServer <- function(id) {
             )
           )
         
-        # ------------------------------------------------------
-        # TABLE 2 — TIME SERIES DATA
-        # ------------------------------------------------------
+      # Time series data
       } else if (input$table_data == "timeseries") {
         
         ts_data <- oilseed_combined_long %>%
           pivot_wider(
             id_cols = c(`Crop/land use`, Measure),
             names_from = Year,
-            values_from = Value
-          ) %>%
+            values_from = Value) %>%
           mutate(
             Measure = recode(
               Measure,
-              "Area"      = "Area (hectares)",
-              "Production"= "Production (tonnes)",
-              "Yield"     = "Yield (tonnes per hectare)"
-            )
-          ) %>%
-          select(
-            `Crop/land use`, Measure,
-            all_of(sort(setdiff(names(.), c("Crop/land use", "Measure")), decreasing = FALSE))
-          ) %>%
-          mutate(across(
-            where(is.numeric),
-            ~ case_when(
-              Measure == "Yield (tonnes per hectare)" ~ comma(round(.x, 1), accuracy = 0.1),
-              TRUE ~ comma(round(.x, 0), accuracy = 1)
-            )
-          )) %>% 
-          arrange(Measure)
+              "Area"       = "Area (hectares)",
+              "Production" = "Production (tonnes)",
+              "Yield"      = "Yield (tonnes per hectare)")) %>%
+          arrange(Measure) %>% 
+          mutate(across(where(is.numeric), ~ case_when(
+            Measure == "Yield (tonnes per hectare)" ~ as.character(round(.x, 1)),
+            TRUE ~ comma(round(.x, 0)))))
         
         left_cols  <- c("Crop/land use", "Measure")
         right_cols <- setdiff(names(ts_data), left_cols)
@@ -346,9 +307,7 @@ oilseedServer <- function(id) {
           formatStyle(left_cols,  `text-align` = "left") %>%
           formatStyle(right_cols, `text-align` = "right")
         
-        # ------------------------------------------------------
-        # TABLE 3 — CONSTITUENCY MAP DATA
-      #   # ------------------------------------------------------
+      # Constituency data
       # } else if (input$table_data == "map_con") {
       #   
       #   oilseeds_constituency %>%
@@ -361,23 +320,20 @@ oilseedServer <- function(id) {
       #         autoWidth = TRUE
       #       )
       #     )
-      #   
-        # ------------------------------------------------------
-        # TABLE 4 — LOCAL AUTHORITY MAP DATA
-        # ------------------------------------------------------
-      # } else if (input$table_data == "map_uni") {
-      #   
-      #   oilseeds_unitauth %>%
-      #     rename(`Crop/land use` = crop) %>%
-      #     mutate(across(where(is.numeric), comma)) %>% 
-      #     datatable(
-      #       options = list(
-      #         scrollX = TRUE,
-      #         pageLength = 20,
-      #         autoWidth = TRUE
-      #       )
-      #     )
-      #   
+        
+      # Local authority data
+      } else if (input$table_data == "map_uni") {
+
+        oilseed_unitauth_table %>% 
+          mutate(across(where(is.numeric), comma)) %>%
+          datatable(
+            options = list(
+              scrollX = TRUE,
+              pageLength = 20,
+              autoWidth = TRUE
+            )
+          )
+
       }
     })
     
@@ -392,55 +348,31 @@ oilseedServer <- function(id) {
           
         # } else if (input$table_data == "map_con") {
         #   paste("Oilseed_Constituency_Data_", Sys.Date(), ".csv", sep = "")
-        #   
-        # } else if (input$table_data == "table4") {
-        #   paste("Oilseed_Local_Authority_Data_", Sys.Date(), ".csv", sep = "")
+        
+        } else if (input$table_data == "table4") {
+          paste("Oilseed_Local_Authority_Data_", Sys.Date(), ".csv", sep = "")
         }
         
       },
       
       content = function(file) {
         
+        # Agricultural region data
         data <- if (input$table_data == "map") {
-          
-          # -------- AGRICULTURAL REGION MAP -----------
-          oilseed_map %>%
-            filter(`Land use by category` == input$variable) %>%
-            pivot_wider(names_from = sub_region, values_from = value)
-          
+          oilseed_region_table %>%
+            filter(`Land use by category` == input$variable)
+         
+        # Time series data
         } else if (input$table_data == "timeseries") {
+          oilseed_timeseries_table
           
-          # ------------- TIMESERIES -------------
-          oilseed_combined_long %>%
-            pivot_wider(
-              id_cols = c(`Crop/land use`, Measure),
-              names_from = Year,
-              values_from = Value
-            ) %>%
-            mutate(
-              Measure = recode(
-                Measure,
-                "Area"       = "Area (hectares)",
-                "Production" = "Production (tonnes)",
-                "Yield"      = "Yield (tonnes per hectare)"
-              )
-            ) %>%
-            select(
-              `Crop/land use`, Measure,
-              sort(as.numeric(colnames(.)[!(colnames(.) %in% c("Crop/land use", "Measure"))]), decreasing = FALSE) %>%
-                as.character()
-            ) %>%
-            arrange(Measure)
-          
-        } else if (input$table_data == "map_con") {
-          
-        #   # ---------- CONSTITUENCY MAP -------------
+        # Constituency
+        # } else if (input$table_data == "map_con") {
         #   oilseeds_constituency 
-        #   
-        # } else if (input$table_data == "map_uni") {
-        #   
-          # --------- LOCAL AUTHORITY MAP ----------
-          oilseeds_unitauth  
+        
+        # Local authority data
+        } else if (input$table_data == "map_uni") {
+          oilseed_unitauth_table
         }
         
         # Write CSV (no formatting so numbers stay numeric)
